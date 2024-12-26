@@ -1,10 +1,14 @@
 import LibC
 
-struct IO {
-    let descriptor: FileDescriptor
+public struct IO {
+    public let descriptor: FileDescriptor
+    
+    public init(descriptor: FileDescriptor) {
+        self.descriptor = descriptor
+    }
 }
 
-extension IO {
+public extension IO {
     func read() throws -> String {
         var buffer = [UInt8]()
         let length = 1024

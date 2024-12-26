@@ -52,7 +52,7 @@ public func result(command: String, arguments: [String] = [], environment: [Stri
     return logs
 }
 
-internal func standart(environment values: [String: String]) -> [String] {
+private func standart(environment values: [String: String]) -> [String] {
     environment.merging(values) { current, new in current }
         .reduce(into: [String]()) { array, element in
             array.append("\(element.key)=\(element.value)")

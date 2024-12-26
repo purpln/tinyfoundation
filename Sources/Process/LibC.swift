@@ -1,6 +1,6 @@
 import LibC
 
-func pipe() throws -> (from: IO, to: IO) {
+public func pipe() throws -> (from: IO, to: IO) {
     var pipes: (from: CInt, to: CInt) = (0, 0)
     guard pipe(&pipes.from) == 0 else {
         throw Errno()
@@ -10,7 +10,7 @@ func pipe() throws -> (from: IO, to: IO) {
     return (IO(descriptor: input), IO(descriptor: output))
 }
 
-extension Process {
+public extension Process {
     static func spawn(arguments: [String], environment: [String], actions array: [Action]) throws -> Process {
         let argv = arguments.map { strdup($0) }
         defer { argv.forEach { free($0) } }

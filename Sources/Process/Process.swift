@@ -1,20 +1,20 @@
 import LibC
 
-internal struct Process {
+public struct Process {
     public let pid: pid_t
 }
 
-extension Process {
+public extension Process {
     struct Status: RawRepresentable, Sendable, Equatable, Hashable {
-        let rawValue: CInt
+        public let rawValue: CInt
         
-        init(rawValue: CInt) {
+        public init(rawValue: CInt) {
             self.rawValue = rawValue
         }
     }
 }
 
-extension Process.Status {
+public extension Process.Status {
     static var success: Self = { .init(rawValue: EXIT_SUCCESS) }()
     static var failure: Self = { .init(rawValue: EXIT_FAILURE) }()
 }
@@ -57,7 +57,7 @@ extension Process.Status {
     }
 }
 
-extension Process {
+public extension Process {
     func wait() throws -> Status {
         try retryInterrupt {
             var value: CInt = 0
@@ -79,7 +79,7 @@ extension Process {
     }
 }
 
-extension Process {
+public extension Process {
     enum Action {
         case open(FileDescriptor, String, CInt, mode_t)
         case close(FileDescriptor)
