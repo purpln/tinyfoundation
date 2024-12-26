@@ -1,0 +1,4 @@
+module External [system] {
+    header "module.h"
+    export *
+}
