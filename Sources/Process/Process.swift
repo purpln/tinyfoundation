@@ -39,7 +39,7 @@ private func WTERMSIG(_ status: CInt) -> CInt {
     status & 0x7f
 }
 
-extension Process.Status {
+public extension Process.Status {
     var exit: Int {
         Int(WEXITSTATUS(rawValue))
     }
