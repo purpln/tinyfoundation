@@ -1,4 +1,3 @@
-import Documents
 import LibC
 
 public func process(command: String, arguments: String..., environment: [String: String] = [:], path: String? = nil) throws {
@@ -6,18 +5,17 @@ public func process(command: String, arguments: String..., environment: [String:
 }
 
 public func process(command: String, arguments: [String] = [], environment: [String: String] = [:], path: String? = nil) throws {
-    let result = try result(command: command, arguments: Array(arguments), environment: environment, path: path)
-    guard !result.isEmpty else { return }
-    print(result)
+    try result(command: command, arguments: arguments, environment: environment, path: path, stream: true)
 }
 
 public func result(command: String, arguments: String..., environment: [String: String] = [:], path: String? = nil) throws -> String {
     try result(command: command, arguments: Array(arguments), environment: environment, path: path)
 }
 
-public func result(command: String, arguments: [String] = [], environment: [String: String] = [:], path: String? = nil) throws -> String {
+@discardableResult
+public func result(command: String, arguments: [String] = [], environment: [String: String] = [:], path: String? = nil, stream: Bool = false) throws -> String {
     if let path = path {
-        Path.current = Path(path).absolute
+        try setCurrentDirectory(path)
     }
     
     let environment = standart(environment: environment)
@@ -26,12 +24,11 @@ public func result(command: String, arguments: [String] = [], environment: [Stri
     let error = try pipe()
     
     let actions: [Process.Action] = [
-        .close(output.from.descriptor),
-        .close(error.from.descriptor),
+        //.open(.input, "/dev/null", O_RDONLY, 0),
         .connect(output.to.descriptor, .output),
         .connect(error.to.descriptor, .error),
-        .close(output.to.descriptor),
-        .close(error.to.descriptor),
+        .close(output.from.descriptor),
+        .close(error.from.descriptor),
     ]
     
     let process = try Process.spawn(arguments: [command] + arguments, environment: environment, actions: actions)
@@ -39,14 +36,20 @@ public func result(command: String, arguments: [String] = [], environment: [Stri
     try output.to.close()
     try error.to.close()
     
-    let result = try process.wait()
+    let logs = try output.from.read(stream: stream)
+    let fault = try error.from.read(stream: false)
     
-    let logs = try output.from.read()
-    let fault = try error.from.read()
+    try output.from.close()
+    try error.from.close()
     
-    guard result == .success else {
-        print(logs)
-        throw ProcessError(code: result.exit, description: fault)
+    let status = try process.wait()
+    
+    guard status == .success else {
+        if !logs.isEmpty {
+            print(logs)
+        }
+        print(command, arguments.joined(separator: " "), path ?? "")
+        throw ProcessError(code: status.exit, description: fault)
     }
     
     return logs
@@ -54,7 +57,7 @@ public func result(command: String, arguments: [String] = [], environment: [Stri
 
 private func standart(environment values: [String: String]) -> [String] {
     environment.merging(values) { current, new in current }
-        .reduce(into: [String]()) { array, element in
-            array.append("\(element.key)=\(element.value)")
+        .reduce(into: [String]()) { result, element in
+            result.append("\(element.key)=\(element.value)")
         }
 }

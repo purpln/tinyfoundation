@@ -9,7 +9,12 @@ public actor Loop: LoopProtocol {
     private var poller: Poller
     public var running: Bool = false
     
-    private init() throws {
+    public init() throws {
+        errno = 0
+        
+        setbuf(stdout, nil)
+        setbuf(stderr, nil)
+        
         poller = try Loop.respondent()
     }
     

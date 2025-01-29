@@ -1,9 +1,10 @@
+@inlinable
 public var environment: [String: String] {
     let equal: Character = "="
     var result = [String: String]()
     var i = 0
     
-    while let entry = pointer[i] {
+    while let entry = pointer?[i] {
         defer { i += 1 }
         
         let entry = String(cString: entry)
@@ -17,9 +18,10 @@ public var environment: [String: String] {
     return result
 }
 
-private var pointer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> {
-#if os(Android)
-    environ!
+@inlinable nonisolated(unsafe)
+internal var pointer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>? {
+#if os(Linux) || os(Android)
+    environ_wrapper()
 #else
     environ
 #endif

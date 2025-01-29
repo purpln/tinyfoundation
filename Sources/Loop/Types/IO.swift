@@ -1,5 +1,5 @@
 public extension Loop {
-    enum IO: Hashable {
+    enum IO: Sendable, Hashable {
         case read
         case write
     }

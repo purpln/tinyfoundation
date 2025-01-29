@@ -1,13 +1,8 @@
 import LibC
 
-public func pipe() throws -> (from: IO, to: IO) {
-    var pipes: (from: CInt, to: CInt) = (0, 0)
-    guard pipe(&pipes.from) == 0 else {
-        throw Errno()
-    }
-    let input = FileDescriptor(rawValue: pipes.from)!
-    let output = FileDescriptor(rawValue: pipes.to)!
-    return (IO(descriptor: input), IO(descriptor: output))
+public func pipe() throws(Errno) -> (from: IO, to: IO) {
+    let (from, to) = try FileDescriptor.pipe()
+    return (IO(descriptor: from), IO(descriptor: to))
 }
 
 public extension Process {
@@ -19,19 +14,19 @@ public extension Process {
         defer { env.forEach { free($0) } }
         
 #if canImport(Darwin.C) || canImport(Android)
-        var attributes: posix_spawnattr_t? = nil
+        var attr: posix_spawnattr_t? = nil
 #elseif canImport(Glibc) || canImport(Musl)
-        var attributes: posix_spawnattr_t = posix_spawnattr_t()
+        var attr: posix_spawnattr_t = posix_spawnattr_t()
 #endif
-        posix_spawnattr_init(&attributes)
-        defer { posix_spawnattr_destroy(&attributes) }
+        try nothingOrErrno(retryOnInterrupt: false, { posix_spawnattr_init(&attr) }).get()
+        defer { posix_spawnattr_destroy(&attr) }
         
 #if canImport(Darwin.C) || canImport(Android)
         var actions: posix_spawn_file_actions_t? = nil
 #elseif canImport(Glibc) || canImport(Musl)
         var actions: posix_spawn_file_actions_t = posix_spawn_file_actions_t()
 #endif
-        posix_spawn_file_actions_init(&actions)
+        try nothingOrErrno(retryOnInterrupt: false, { posix_spawn_file_actions_init(&actions) }).get()
         defer { posix_spawn_file_actions_destroy(&actions) }
         
         for action in array {
@@ -39,17 +34,24 @@ public extension Process {
             case .open(let descriptor, let path, let oflag, let mode):
                 let path = strdup(path)
                 defer { free(path) }
-                posix_spawn_file_actions_addopen(&actions, descriptor.rawValue, path!, oflag, mode)
+                try nothingOrErrno(retryOnInterrupt: false, {
+                    posix_spawn_file_actions_addopen(&actions, descriptor.rawValue, path!, oflag, mode)
+                }).get()
             case .close(let descriptor):
-                posix_spawn_file_actions_addclose(&actions, descriptor.rawValue)
+                try nothingOrErrno(retryOnInterrupt: false, {
+                    posix_spawn_file_actions_addclose(&actions, descriptor.rawValue)
+                }).get()
             case .connect(let descriptor, let new):
-                posix_spawn_file_actions_adddup2(&actions, descriptor.rawValue, new.rawValue)
+                try nothingOrErrno(retryOnInterrupt: false, {
+                    posix_spawn_file_actions_adddup2(&actions, descriptor.rawValue, new.rawValue)
+                }).get()
             }
         }
         
         var pid = pid_t()
-        let result = posix_spawnp(&pid, arguments[0], &actions, &attributes, argv + [nil], env + [nil])
-        guard result == 0 else { throw Errno(rawValue: result) }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            posix_spawnp(&pid, arguments[0], &actions, &attr, argv + [nil], env + [nil])
+        }).get()
         
         return Process(pid: pid)
     }

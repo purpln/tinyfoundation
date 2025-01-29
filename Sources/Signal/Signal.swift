@@ -9,37 +9,37 @@ public struct Signal: RawRepresentable, Hashable, Codable, CustomStringConvertib
 }
 
 public extension Signal {
-    static let hangup = Signal(rawValue: SIGHUP)
-    static let interrupt = Signal(rawValue: SIGINT)
-    static let quit = Signal(rawValue: SIGQUIT)
-    static let illegal = Signal(rawValue: SIGILL)
-    static let trap = Signal(rawValue: SIGTRAP)
-    static let abort = Signal(rawValue: SIGABRT)
+    static var hangup: Signal { Signal(rawValue: SIGHUP) }
+    static var interrupt: Signal { Signal(rawValue: SIGINT) }
+    static var quit: Signal { Signal(rawValue: SIGQUIT) }
+    static var illegal: Signal { Signal(rawValue: SIGILL) }
+    static var trap: Signal { Signal(rawValue: SIGTRAP) }
+    static var abort: Signal { Signal(rawValue: SIGABRT) }
     
-    static let arithmetic = Signal(rawValue: SIGFPE)
-    static let segmentation = Signal(rawValue: SIGSEGV)
-    static let killed = Signal(rawValue: SIGKILL)
-    static let bus = Signal(rawValue: SIGBUS)
-    static let iot = Signal(rawValue: SIGIOT)
-    static let sys = Signal(rawValue: SIGSYS)
-    static let pipe = Signal(rawValue: SIGPIPE)
-    static let alarm = Signal(rawValue: SIGALRM)
-    static let terminated = Signal(rawValue: SIGTERM)
-    static let urgent = Signal(rawValue: SIGURG)
-    static let stop = Signal(rawValue: SIGSTOP)
-    static let `continue` = Signal(rawValue: SIGCONT)
-    static let child = Signal(rawValue: SIGCHLD)
+    static var arithmetic: Signal { Signal(rawValue: SIGFPE) }
+    static var segmentation: Signal { Signal(rawValue: SIGSEGV) }
+    static var killed: Signal { Signal(rawValue: SIGKILL) }
+    static var bus: Signal { Signal(rawValue: SIGBUS) }
+    static var iot: Signal { Signal(rawValue: SIGIOT) }
+    static var sys: Signal { Signal(rawValue: SIGSYS) }
+    static var pipe: Signal { Signal(rawValue: SIGPIPE) }
+    static var alarm: Signal { Signal(rawValue: SIGALRM) }
+    static var terminated: Signal { Signal(rawValue: SIGTERM) }
+    static var urgent: Signal { Signal(rawValue: SIGURG) }
+    static var stop: Signal { Signal(rawValue: SIGSTOP) }
+    static var `continue`: Signal { Signal(rawValue: SIGCONT) }
+    static var child: Signal { Signal(rawValue: SIGCHLD) }
     
-    static let window = Signal(rawValue: SIGWINCH)
+    static var window: Signal { Signal(rawValue: SIGWINCH) }
 #if canImport(Darwin.C)
-    static let info = Signal(rawValue: SIGINFO)
+    static var info: Signal { Signal(rawValue: SIGINFO) }
 #elseif canImport(Glibc) || canImport(Musl) || canImport(Android)
-    static let poll = Signal(rawValue: SIGPOLL)
+    static var poll: Signal { Signal(rawValue: SIGPOLL) }
 #endif
-    static let io = Signal(rawValue: SIGIO)
+    static var io: Signal { Signal(rawValue: SIGIO) }
     
-    static let usr1 = Signal(rawValue: SIGUSR1)
-    static let usr2 = Signal(rawValue: SIGUSR2)
+    static var usr1: Signal { Signal(rawValue: SIGUSR1) }
+    static var usr2: Signal { Signal(rawValue: SIGUSR2) }
 }
 
 extension Signal {
@@ -121,7 +121,7 @@ public extension Signal {
 }
 
 public extension Signal {
-    static let killing: Set<Signal> = {
+    static var killing: Set<Signal> {
         [.terminated, .interrupt, .quit]
-    }()
+    }
 }

@@ -9,11 +9,11 @@ public struct Flags: OptionSet {
 }
 
 public extension Flags {
-    static let noChildStop = Flags(rawValue: SA_NOCLDSTOP)
-    static let noChildWait = Flags(rawValue: SA_NOCLDWAIT)
-    static let onStack = Flags(rawValue: SA_ONSTACK)
-    static let noDefer = Flags(rawValue: SA_NODEFER)
-    static let resetHandler = Flags(rawValue: CInt(SA_RESETHAND))
-    static let restart = Flags(rawValue: SA_RESTART)
-    static let siginfo = Flags(rawValue: SA_SIGINFO)
+    static var noChildStop: Flags { Flags(rawValue: SA_NOCLDSTOP) }
+    static var noChildWait: Flags { Flags(rawValue: SA_NOCLDWAIT) }
+    static var onStack: Flags { Flags(rawValue: SA_ONSTACK) }
+    static var noDefer: Flags { Flags(rawValue: SA_NODEFER) }
+    static var resetHandler: Flags { Flags(rawValue: CInt(SA_RESETHAND)) }
+    static var restart: Flags { Flags(rawValue: SA_RESTART) }
+    static var siginfo: Flags { Flags(rawValue: SA_SIGINFO) }
 }

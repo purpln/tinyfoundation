@@ -15,8 +15,8 @@ public extension Process {
 }
 
 public extension Process.Status {
-    static var success: Self = { .init(rawValue: EXIT_SUCCESS) }()
-    static var failure: Self = { .init(rawValue: EXIT_FAILURE) }()
+    static var success: Self { .init(rawValue: EXIT_SUCCESS) }
+    static var failure: Self { .init(rawValue: EXIT_FAILURE) }
 }
 
 private func WIFEXITED(_ status: CInt) -> Bool {
@@ -62,11 +62,8 @@ public extension Process {
         try retryInterrupt {
             var value: CInt = 0
             let result = waitpid(pid, &value, 0)
-            let status = Status(rawValue: value)
-            
-            guard result == pid,
-                  status.exited || status.signaled else { throw Errno() }
-            return status
+            guard result != -1 else { throw Errno() }
+            return Status(rawValue: value)
         }
     }
     

@@ -1,3 +1,5 @@
+import LibC
+
 public struct Path {
     public internal(set) var rawValue: String
     
@@ -28,11 +30,11 @@ public extension Path {
     static let home = Path(Path.tilde, expanding: true)
     
     static var application: Path {
-        Path(executablePath)
+        Path(getExecutablePath()!)
     }
     
     static var documents: Path {
-        Path(documentsPath)
+        Path(getDocumentsPath()!)
     }
     
     static var current: Path {
@@ -96,7 +98,7 @@ public extension Path {
                 user = String(path[start..<index])
                 path = String(path[index..<end])
             }
-            let home = homeDirectory(for: user)
+            let home = getHomeDirectory(for: user)!
             return Path(home + path)
         } else if isRelative {
             return Path.current + self
@@ -155,4 +157,30 @@ public extension Path {
     var exists: Bool {
         Documents.exists(at: resolved.rawValue)
     }
+}
+
+internal func attributes(at path: String) -> stat? {
+    var buffer = stat()
+    guard lstat(path, &buffer) == 0 else {
+        return nil
+    }
+    return buffer
+}
+
+internal func exists(at path: String) -> Bool {
+    var s = stat()
+    if lstat(path, &s) >= 0 {
+        // don't chase the link for this magic case -- we might be /Net/foo
+        // which is a symlink to /private/Net/foo which is not yet mounted...
+        if (s.st_mode & S_IFMT) == S_IFLNK {
+            if (s.st_mode & S_ISVTX) == S_ISVTX {
+                return true
+            }
+            // chase the link; too bad if it is a slink to /Net/foo
+            stat(path, &s)
+        }
+    } else {
+        return false
+    }
+    return true
 }

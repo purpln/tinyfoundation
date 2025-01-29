@@ -1,4 +1,4 @@
-public struct Version {
+public struct Version: Sendable {
     public var major: Int
     public var minor: Int
     public var patch: Int
@@ -21,11 +21,13 @@ public struct Version {
 }
 
 extension Version: LosslessStringConvertible {
+    @inlinable
     public init?(_ string: String) {
         self.init(internal: string)
     }
     
-    private init?<S: StringProtocol>(internal string: S) {
+    @inlinable
+    internal init?<S: StringProtocol>(internal string: S) {
         let string = string.dropFirst(string.first == "v" ? 1 : 0)
         let prereleaseStartIndex = string.firstIndex(of: "-")
         let metadataStartIndex = string.firstIndex(of: "+")
@@ -62,23 +64,8 @@ extension Version: LosslessStringConvertible {
     }
 }
 
-extension Version: Codable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let string = try container.decode(String.self)
-        guard let version = Version(internal: string) else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid version")
-        }
-        self = version
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(description)
-    }
-}
-
 extension Version: CustomStringConvertible {
+    @inlinable
     public var description: String {
         var components = "\(major).\(minor).\(patch)"
         if !prerelease.isEmpty {
@@ -91,7 +78,26 @@ extension Version: CustomStringConvertible {
     }
 }
 
+extension Version: Codable {
+    @inlinable
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
+        guard let value = Version(internal: string) else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid Version")
+        }
+        self = value
+    }
+    
+    @inlinable
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(description)
+    }
+}
+
 extension Version: Hashable {
+    @inlinable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(major)
         hasher.combine(minor)
@@ -102,6 +108,7 @@ extension Version: Hashable {
 }
 
 extension Version: Equatable {
+    @inlinable
     public static func == (lhs: Version, rhs: Version) -> Bool {
         lhs.major == rhs.major && lhs.minor == rhs.minor && lhs.patch == rhs.patch && lhs.prerelease == rhs.prerelease
     }
@@ -113,6 +120,7 @@ extension Version: Comparable {
      greater than `1.0.0`.
      - Returns: `true` if `lhs` is less than `rhs`
      */
+    @inlinable
     public static func < (lhs: Version, rhs: Version) -> Bool {
         let lhsComparators = [lhs.major, lhs.minor, lhs.patch]
         let rhsComparators = [rhs.major, rhs.minor, rhs.patch]
@@ -150,8 +158,9 @@ extension Version: Comparable {
     }
 }
 
-private extension Version {
-    func isEqualWithoutPrerelease(_ other: Version) -> Bool {
+extension Version {
+    @inlinable
+    internal func isEqualWithoutPrerelease(_ other: Version) -> Bool {
         major == other.major && minor == other.minor && patch == other.patch
     }
 }
@@ -162,6 +171,7 @@ extension ClosedRange where Bound == Version {
      - Important: Returns `false` if `version` has prerelease identifiers unless
      the range *also* contains prerelease identifiers.
      */
+    @inlinable
     public func contains(_ version: Version) -> Bool {
         // Special cases if version contains prerelease identifiers.
         if !version.prerelease.isEmpty, lowerBound.prerelease.isEmpty && upperBound.prerelease.isEmpty {
@@ -180,6 +190,7 @@ extension Range where Bound == Version {
      - Important: Returns `false` if `version` has prerelease identifiers unless
      the range *also* contains prerelease identifiers.
      */
+    @inlinable
     public func contains(_ version: Version) -> Bool {
         // Special cases if version contains prerelease identifiers.
         if !version.prerelease.isEmpty {
@@ -201,5 +212,8 @@ extension Range where Bound == Version {
 }
 
 public extension Version {
-    static let zero = Version(major: 0, minor: 0, patch: 0)
+    @inlinable
+    static var zero: Version {
+        Version(major: 0, minor: 0, patch: 0)
+    }
 }

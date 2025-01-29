@@ -6,8 +6,9 @@ struct Kqueue: PollerProtocol {
     private var events: [kevent64_s] = []
     
     public init() throws {
-        let ret = kqueue()
-        let descriptor = try FileDescriptor(with: ret)
+        let descriptor = try valueOrErrno(retryOnInterrupt: false, {
+            kqueue()
+        }).map(FileDescriptor.init(rawValue:)).get()
         descriptor.flags |= FD_CLOEXEC
         self.descriptor = descriptor
     }
@@ -17,7 +18,7 @@ struct Kqueue: PollerProtocol {
         
         var count: CInt
         if let timeout = timeout {
-            var deadline = ContinuousClock.Instant.now.advanced(by: timeout).timeoutSinceNow
+            var deadline = ContinuousClock.now.advanced(by: timeout).timeoutSinceNow
             count = kevent64(descriptor.rawValue, events, CInt(events.count), &result, CInt(result.count), 0, &deadline)
         } else {
             count = kevent64(descriptor.rawValue, events, CInt(events.count), &result, CInt(result.count), 0, nil)

@@ -20,14 +20,15 @@ private func getaddrinfo(node: String, service: String, hints: addrinfo?) throws
     var values: [String] = []
     for address in addresses {
         let info = address.pointee
-        var buffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+        var buffer = [UInt8](repeating: 0, count: Int(NI_MAXHOST))
         var port = service.withCString { $0 }
 #if canImport(Android)
         getnameinfo(info.ai_addr, info.ai_addrlen, &buffer, buffer.count, &port, service.count, NI_NUMERICHOST | NI_NUMERICSERV)
 #else
         getnameinfo(info.ai_addr, info.ai_addrlen, &buffer, socklen_t(buffer.count), &port, socklen_t(service.count), NI_NUMERICHOST | NI_NUMERICSERV)
 #endif
-        values.append(String(cString: buffer))
+        let result = String(decoding: buffer, as: UTF8.self)
+        values.append(result)
     }
     return values
 }
