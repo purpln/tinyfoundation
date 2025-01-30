@@ -18,6 +18,10 @@ public actor Loop: LoopProtocol {
         poller = try Loop.respondent()
     }
     
+    deinit {
+        try? poller.invalidate()
+    }
+    
     public func run(timeout: Duration? = .milliseconds(10)) async throws {
         running = true
         repeat {
@@ -80,7 +84,7 @@ private extension Loop {
 }
 
 public extension Loop {
-    static var main = try! Loop()
+    static let main = try! Loop()
 }
 
 extension Loop {

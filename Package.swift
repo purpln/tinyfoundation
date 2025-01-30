@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(name: "TinyFoundation", platforms: [
-    .macOS(.v13), .iOS(.v16), .watchOS(.v9), .tvOS(.v16)
+    .macOS(.v13), .iOS(.v16), .watchOS(.v9), .tvOS(.v16),
 ], products: [
     .library(name: "TinyFoundation", targets: ["Documents", "LibC", "Loop", "Math", "Process", "Signal", "Timestamp", "UniqueID", "Version"]),
 ], targets: [

@@ -19,12 +19,16 @@ struct Kqueue: PollerProtocol {
         var count: CInt
         if let timeout = timeout {
             var deadline = ContinuousClock.now.advanced(by: timeout).timeoutSinceNow
-            count = kevent64(descriptor.rawValue, events, CInt(events.count), &result, CInt(result.count), 0, &deadline)
+            count = try valueOrErrno(retryOnInterrupt: true, {
+                kevent64(descriptor.rawValue, events, CInt(events.count), &result, CInt(result.count), 0, &deadline)
+            }).get()
         } else {
-            count = kevent64(descriptor.rawValue, events, CInt(events.count), &result, CInt(result.count), 0, nil)
+            count = try valueOrErrno(retryOnInterrupt: true, {
+                kevent64(descriptor.rawValue, events, CInt(events.count), &result, CInt(result.count), 0, nil)
+            }).get()
         }
         events = []
-        
+        /*
         guard count >= 0 else {
             let errno = Errno()
             if errno == .interrupted {
@@ -32,13 +36,12 @@ struct Kqueue: PollerProtocol {
             }
             throw errno
         }
-        
+        */
         return result.prefix(upTo: Int(count))
     }
     
     public func invalidate() throws {
-        guard close(descriptor.rawValue) != 0 else { return }
-        throw Errno()
+        try descriptor.close()
     }
 }
 

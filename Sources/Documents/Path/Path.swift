@@ -39,7 +39,7 @@ public extension Path {
     
     static var current: Path {
         get {
-            let current = try! getCurrentDirectory()
+            let current = getCurrentDirectory()
             return Path(current)
         }
         set {

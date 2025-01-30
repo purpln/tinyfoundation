@@ -9,36 +9,81 @@ public struct Signal: RawRepresentable, Hashable, Codable, CustomStringConvertib
 }
 
 public extension Signal {
+    @inlinable
     static var hangup: Signal { Signal(rawValue: SIGHUP) }
+    
+    @inlinable
     static var interrupt: Signal { Signal(rawValue: SIGINT) }
+    
+    @inlinable
     static var quit: Signal { Signal(rawValue: SIGQUIT) }
+    
+    @inlinable
     static var illegal: Signal { Signal(rawValue: SIGILL) }
+    
+    @inlinable
     static var trap: Signal { Signal(rawValue: SIGTRAP) }
+    
+    @inlinable
     static var abort: Signal { Signal(rawValue: SIGABRT) }
     
+    @inlinable
     static var arithmetic: Signal { Signal(rawValue: SIGFPE) }
+    
+    @inlinable
     static var segmentation: Signal { Signal(rawValue: SIGSEGV) }
+    
+    @inlinable
     static var killed: Signal { Signal(rawValue: SIGKILL) }
+    
+    @inlinable
     static var bus: Signal { Signal(rawValue: SIGBUS) }
+    
+    @inlinable
     static var iot: Signal { Signal(rawValue: SIGIOT) }
+    
+    @inlinable
     static var sys: Signal { Signal(rawValue: SIGSYS) }
+    
+    @inlinable
     static var pipe: Signal { Signal(rawValue: SIGPIPE) }
+    
+    @inlinable
     static var alarm: Signal { Signal(rawValue: SIGALRM) }
+    
+    @inlinable
     static var terminated: Signal { Signal(rawValue: SIGTERM) }
+    
+    @inlinable
     static var urgent: Signal { Signal(rawValue: SIGURG) }
+    
+    @inlinable
     static var stop: Signal { Signal(rawValue: SIGSTOP) }
+    
+    @inlinable
     static var `continue`: Signal { Signal(rawValue: SIGCONT) }
+    
+    @inlinable
     static var child: Signal { Signal(rawValue: SIGCHLD) }
     
+    @inlinable
     static var window: Signal { Signal(rawValue: SIGWINCH) }
+    
 #if canImport(Darwin.C)
+    @inlinable
     static var info: Signal { Signal(rawValue: SIGINFO) }
+    
 #elseif canImport(Glibc) || canImport(Musl) || canImport(Android)
+    @inlinable
     static var poll: Signal { Signal(rawValue: SIGPOLL) }
 #endif
+    @inlinable
     static var io: Signal { Signal(rawValue: SIGIO) }
     
+    @inlinable
     static var usr1: Signal { Signal(rawValue: SIGUSR1) }
+    
+    @inlinable
     static var usr2: Signal { Signal(rawValue: SIGUSR2) }
 }
 

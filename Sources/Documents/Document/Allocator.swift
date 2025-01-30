@@ -20,7 +20,7 @@ class Allocator<Pointer> {
         return open()
     }()
     
-    public func pointer() throws -> Pointer {
+    public func pointer() throws(Errno) -> Pointer {
         guard let pointer = value else { throw Errno() }
         return pointer
     }

@@ -17,9 +17,11 @@ public struct Action: RawRepresentable, Equatable {
         self.handler = handler
     }
     
-    public init(signal: Signal) throws {
+    public init(signal: Signal) throws(Errno) {
         var action = sigaction()
-        guard sigaction(signal.rawValue, nil, &action) == 0 else { throw Errno() }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            sigaction(signal.rawValue, nil, &action)
+        }).get()
         self.init(rawValue: action)
     }
     
@@ -125,17 +127,18 @@ public struct Action: RawRepresentable, Equatable {
     }
     
     @discardableResult
-    public func install(on signal: Signal, revertIfIgnored: Bool = true) throws -> Action? {
+    public func install(on signal: Signal, revertIfIgnored: Bool = true) throws(Errno) -> Action? {
         var old = sigaction()
         var new = rawValue
-        guard sigaction(signal.rawValue, &new, &old) == 0 else {
-            throw Errno()
-        }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            sigaction(signal.rawValue, &new, &old)
+        }).get()
+        
         let oldSigaction = Action(rawValue: old)
         if revertIfIgnored && oldSigaction == .ignore {
-            guard sigaction(signal.rawValue, &old, nil) == 0 else {
-                throw Errno()
-            }
+            try nothingOrErrno(retryOnInterrupt: false, {
+                sigaction(signal.rawValue, &old, nil)
+            }).get()
             return nil
         }
         return (oldSigaction != self ? oldSigaction : nil)
@@ -143,7 +146,7 @@ public struct Action: RawRepresentable, Equatable {
 }
 
 public extension Action {
-    func install(on signals: Set<Signal>, revertIfIgnored: Bool = true) throws {
+    func install(on signals: Set<Signal>, revertIfIgnored: Bool = true) throws(Errno) {
         for signal in signals {
             try install(on: signal)
         }

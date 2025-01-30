@@ -2,7 +2,7 @@
 public func system_unlink(
     _ path: UnsafePointer<CChar>?
 ) -> Int32 {
-#if os(Android)
+#if os(Android) || os(Linux)
     var zero = CChar.zero
     return withUnsafePointer(to: &zero) {
         // has a non-nullable pointer

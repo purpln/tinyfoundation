@@ -13,7 +13,7 @@
 #include <sched.h>
 #include <unistd.h>
 
-#include <unistd.h>
+extern char **environ;
 
 char **environ_wrapper() {
     return environ;

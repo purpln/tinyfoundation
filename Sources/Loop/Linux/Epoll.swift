@@ -6,9 +6,10 @@ struct Epoll: PollerProtocol {
     private var events: [epoll_event]
     
     public init() throws {
-        let ret = epoll_create1(CInt(EPOLL_CLOEXEC))
-        
-        self.descriptor = try FileDescriptor(with: ret)
+        let descriptor = try valueOrErrno(retryOnInterrupt: false, {
+            epoll_create1(CInt(EPOLL_CLOEXEC))
+        }).map(FileDescriptor.init(rawValue:)).get()
+        self.descriptor = descriptor
         self.events = [epoll_event](repeating: epoll_event(), count: 256)
     }
     
@@ -19,16 +20,15 @@ struct Epoll: PollerProtocol {
             deadline = ContinuousClock.Instant.now.advanced(by: timeout).timeoutSinceNow
         }
         repeat {
-            count = epoll_wait(descriptor.rawValue, &events, CInt(events.count), deadline)
-            guard count == -1 else { continue }
-            throw Errno()
+            count = try valueOrErrno(retryOnInterrupt: true, {
+                epoll_wait(descriptor.rawValue, &events, CInt(events.count), deadline)
+            }).get()
         } while count < 0
         return events.prefix(upTo: Int(count))
     }
     
     public func invalidate() throws {
-        guard close(descriptor.rawValue) != 0 else { return }
-        throw Errno()
+        try descriptor.close()
     }
 }
 
@@ -47,18 +47,16 @@ extension Epoll {
     public mutating func add(handler: Handler) throws {
         var event = event(with: handler, operation: .add)
         event.handler = handler
-        let result = epoll_ctl(descriptor.rawValue, EPOLL_CTL_ADD, handler.descriptor.rawValue, &event)
-        guard result == 0 else {
-            throw Errno()
-        }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            epoll_ctl(descriptor.rawValue, EPOLL_CTL_ADD, handler.descriptor.rawValue, &event)
+        }).get()
     }
     
     public mutating func remove(handler: Handler) throws {
         var event = event(with: handler, operation: .remove)
-        let result = epoll_ctl(descriptor.rawValue, EPOLL_CTL_DEL, handler.descriptor.rawValue, &event)
-        guard result == 0 else {
-            throw Errno()
-        }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            epoll_ctl(descriptor.rawValue, EPOLL_CTL_DEL, handler.descriptor.rawValue, &event)
+        }).get()
     }
 }
 

@@ -7,7 +7,7 @@ private func valueOrErrno<I: FixedWidthInteger>(
 private func nothingOrErrno<I: FixedWidthInteger>(
     _ i: I
 ) -> Result<(), Errno> {
-    valueOrErrno(i).map { _ in () }
+    valueOrErrno(i).map({ _ in () })
 }
 
 public func valueOrErrno<I: FixedWidthInteger>(
@@ -26,5 +26,5 @@ public func valueOrErrno<I: FixedWidthInteger>(
 public func nothingOrErrno<I: FixedWidthInteger>(
     retryOnInterrupt: Bool, _ f: () -> I
 ) -> Result<(), Errno> {
-    valueOrErrno(retryOnInterrupt: retryOnInterrupt, f).map { _ in () }
+    valueOrErrno(retryOnInterrupt: retryOnInterrupt, f).map({ _ in () })
 }

@@ -27,54 +27,65 @@ public struct Document {
 }
 
 private extension Document {
-    func seek(value: Int, option: CInt) throws {
-        try result {
-            fseek(try allocator.pointer(), value, option)
+    func seek(value: Int, option: CInt) throws(Errno) {
+        try result { pointer throws(Errno) -> Void in
+            try nothingOrErrno(retryOnInterrupt: false, {
+                fseek(pointer, value, option)
+            }).get()
         }
     }
     
-    func tell() throws -> Int {
-        try result {
-            ftell(try allocator.pointer())
+    func tell() throws(Errno) -> Int {
+        try result { pointer throws(Errno) -> Int in
+            try valueOrErrno(retryOnInterrupt: false, {
+                ftell(pointer)
+            }).get()
         }
     }
     
-    func write(array: [UInt8]) throws -> Int {
-        try result {
-            fwrite(array, 1, array.count, try allocator.pointer())
+    func write(array: [UInt8]) throws(Errno) -> Int {
+        try result { pointer throws(Errno) -> Int in
+            try valueOrErrno(retryOnInterrupt: false, {
+                fwrite(array, 1, array.count, pointer)
+            }).get()
         }
     }
     
-    func read(array: inout [UInt8], count: Int) throws -> Int {
-        try result {
-            fread(&array, 1, count, try allocator.pointer())
+    func read(array: inout [UInt8], count: Int) throws(Errno) -> Int {
+        try result { pointer throws(Errno) -> Int in
+            try valueOrErrno(retryOnInterrupt: false, {
+                fread(&array, 1, count, pointer)
+            }).get()
         }
     }
     
-    func get(array: inout [UInt8]) throws {
-        try result {
-            fgets(&array, BUFSIZ, try allocator.pointer())
+    func get(array: inout [UInt8]) throws(Errno) {
+        try result { pointer in
+            fgets(&array, BUFSIZ, pointer)
         }
     }
     
-    func put(array: [UInt8]) throws {
-        try result {
-            fputs(array, try allocator.pointer())
+    func put(array: [UInt8]) throws(Errno) {
+        try result { pointer throws(Errno) -> Void in
+            try nothingOrErrno(retryOnInterrupt: false, {
+                fputs(array, pointer)
+            }).get()
         }
     }
     
     @discardableResult
-    func result<T>(task: () throws -> T) throws -> T {
+    func result<T>(task: (Pointer) throws(Errno) -> T) throws(Errno) -> T {
         do {
-            return try task()
+            let pointer = try allocator.pointer()
+            return try task(pointer)
         } catch {
-            throw Errno()
+            throw error
         }
     }
 }
 
 public extension Document {
-    func size() throws -> Int {
+    func size() throws(Errno) -> Int {
         let offset = try tell()
         try seek(value: 0, option: SEEK_END)
         let size = try tell()

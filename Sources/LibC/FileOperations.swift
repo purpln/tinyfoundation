@@ -1,5 +1,5 @@
 extension FileDescriptor {
-    public func close() throws { try _close().get() }
+    public func close() throws(Errno) { try _close().get() }
     
     @usableFromInline
     internal func _close() -> Result<(), Errno> {
