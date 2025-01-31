@@ -59,12 +59,11 @@ public extension Process.Status {
 
 public extension Process {
     func wait() throws -> Status {
-        try retryInterrupt {
-            var value: CInt = 0
-            let result = waitpid(pid, &value, 0)
-            guard result != -1 else { throw Errno() }
-            return Status(rawValue: value)
-        }
+        var value: CInt = 0
+        try nothingOrErrno(retryOnInterrupt: true, {
+            waitpid(pid, &value, 0)
+        }).get()
+        return Status(rawValue: value)
     }
     
     func stop() {
@@ -95,19 +94,5 @@ public struct ProcessError: Error, CustomStringConvertible {
     
     public var description: String {
         value.isEmpty ? "process error \(code) empty" : "process error \(code): \(value)"
-    }
-}
-
-internal func retryInterrupt<T>(block: () throws -> T) throws -> T {
-    try retryInterrupt(block: block())
-}
-
-internal func retryInterrupt<T>(block: @autoclosure () throws -> T) throws -> T {
-    while true {
-        do {
-            return try block()
-        } catch let error as Errno where error == .interrupted {
-            continue
-        }
     }
 }

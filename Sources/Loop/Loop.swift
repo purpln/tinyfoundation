@@ -12,8 +12,8 @@ public actor Loop: LoopProtocol {
     public init() throws {
         errno = 0
         
-        setbuf(stdout, nil)
-        setbuf(stderr, nil)
+        //setbuf(stdout, nil)
+        //setbuf(stderr, nil)
         
         poller = try Loop.respondent()
     }

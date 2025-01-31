@@ -28,3 +28,27 @@ public func nothingOrErrno<I: FixedWidthInteger>(
 ) -> Result<(), Errno> {
     valueOrErrno(retryOnInterrupt: retryOnInterrupt, f).map({ _ in () })
 }
+
+extension OptionSet {
+    @inline(never)
+    internal func _buildDescription(
+        _ descriptions: [(Element, StaticString)]
+    ) -> String {
+        var copy = self
+        var result = "["
+        
+        for (option, name) in descriptions {
+            if _slowPath(copy.contains(option)) {
+                result += name.description
+                copy.remove(option)
+                if !copy.isEmpty { result += ", " }
+            }
+        }
+        
+        if _slowPath(!copy.isEmpty) {
+            result += "\(Self.self)(rawValue: \(copy.rawValue))"
+        }
+        result += "]"
+        return result
+    }
+}

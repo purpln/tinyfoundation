@@ -15,63 +15,63 @@ public func system_unlink(
 
 // accept
 public func system_accept(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ address: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> Int32 {
-    accept(descriptor.rawValue, address, length)
+    accept(descriptor, address, length)
 }
 
 // bind
 public func system_bind(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
 ) -> Int32 {
-    bind(descriptor.rawValue, address!, length)
+    bind(descriptor, address!, length)
 }
 
 // connect
 public func system_connect(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
 ) -> Int32 {
-    connect(descriptor.rawValue, address!, length)
+    connect(descriptor, address!, length)
 }
 
 // listen
 public func system_listen(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ backlog: Int32
 ) -> Int32 {
-    listen(descriptor.rawValue, backlog)
+    listen(descriptor, backlog)
 }
 
 // recieve
 public func system_recv(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
     _ size: Int,
     _ flags: Int32
 ) -> Int {
-    recv(descriptor.rawValue, buffer, size, flags)
+    recv(descriptor, buffer, size, flags)
 }
 
 public func system_recvfrom(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
     _ size: Int,
     _ flags: Int32,
     _ address: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> Int {
-    recvfrom(descriptor.rawValue, buffer, size, flags, address, length)
+    recvfrom(descriptor, buffer, size, flags, address, length)
 }
 
 // send
 public func system_send(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
     _ size: Int,
     _ flags: Int32
@@ -80,15 +80,15 @@ public func system_send(
     var zero = UInt8.zero
     return withUnsafePointer(to: &zero) {
         // has a non-nullable pointer
-        send(descriptor.rawValue, buffer ?? UnsafeRawPointer($0), size, flags)
+        send(descriptor, buffer ?? UnsafeRawPointer($0), size, flags)
     }
 #else
-    send(descriptor.rawValue, buffer, size, flags)
+    send(descriptor, buffer, size, flags)
 #endif
 }
 
 public func system_sendto(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
     _ size: Int,
     _ flags: Int32,
@@ -99,10 +99,10 @@ public func system_sendto(
     var zero = UInt8.zero
     return withUnsafePointer(to: &zero) {
         // has a non-nullable pointer
-        sendto(descriptor.rawValue, buffer ?? UnsafeRawPointer($0), size, flags, address, length)
+        sendto(descriptor, buffer ?? UnsafeRawPointer($0), size, flags, address, length)
     }
 #else
-    sendto(descriptor.rawValue, buffer, size, flags, address, length)
+    sendto(descriptor, buffer, size, flags, address, length)
 #endif
 }
 
@@ -124,23 +124,23 @@ public func system_open(
 
 // close
 public func system_close(
-    _ descriptor: FileDescriptor
-) -> Int32 {
-    close(descriptor.rawValue)
+    _ descriptor: CInt
+) -> CInt {
+    close(descriptor)
 }
 
 // read
 public func system_read(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
     _ size: Int
 ) -> Int {
-    read(descriptor.rawValue, buffer, size)
+    read(descriptor, buffer, size)
 }
 
 // pread
 public func system_pread(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
     _ size: Int,
     _ offset: off_t
@@ -149,25 +149,34 @@ public func system_pread(
     var zero = UInt8.zero
     return withUnsafeMutablePointer(to: &zero) {
         // has a non-nullable pointer
-        pread(descriptor.rawValue, buffer ?? UnsafeMutableRawPointer($0), size, offset)
+        pread(descriptor, buffer ?? UnsafeMutableRawPointer($0), size, offset)
     }
 #else
-    pread(descriptor.rawValue, buffer, size, offset)
+    pread(descriptor, buffer, size, offset)
 #endif
+}
+
+// lseek
+public func system_lseek(
+    _ descriptor: CInt,
+    _ offset: off_t,
+    _ whence: Int32
+) -> off_t {
+    lseek(descriptor, offset, whence)
 }
 
 // write
 public func system_write(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
     _ size: Int
 ) -> Int {
-    write(descriptor.rawValue, buffer, size)
+    write(descriptor, buffer, size)
 }
 
 // pwrite
 public func system_pwrite(
-    _ descriptor: FileDescriptor,
+    _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
     _ size: Int,
     _ offset: off_t
@@ -176,10 +185,10 @@ public func system_pwrite(
     var zero = UInt8.zero
     return withUnsafeMutablePointer(to: &zero) {
         // this pwrite has a non-nullable `buf` pointer
-        pwrite(descriptor.rawValue, buffer ?? UnsafeRawPointer($0), size, offset)
+        pwrite(descriptor, buffer ?? UnsafeRawPointer($0), size, offset)
     }
 #else
-    return pwrite(descriptor.rawValue, buffer, size, offset)
+    return pwrite(descriptor, buffer, size, offset)
 #endif
 }
 

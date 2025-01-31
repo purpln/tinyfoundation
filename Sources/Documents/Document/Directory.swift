@@ -27,22 +27,18 @@ public extension Directory {
     func contents() throws -> [String] {
         let pointer = try allocator.pointer()
         var results = [String]()
-        while let ent = readdir(pointer) {
-            var name = ent.pointee.d_name
-            let path = withUnsafePointer(to: &name) { (ptr) -> String? in
+        while let entity = readdir(pointer) {
+            var name = entity.pointee.d_name
+            let path = withUnsafePointer(to: &name) { pointer -> String in
+                let buffer = pointer.withMemoryRebound(to: UInt8.self, capacity: Int(entity.pointee.d_reclen)) { pointer -> [UInt8] in
 #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
-                var buffer = ptr.withMemoryRebound(to: CChar.self, capacity: Int(ent.pointee.d_reclen)) { (ptrc) -> [CChar] in
-                    [CChar](UnsafeBufferPointer(start: ptrc, count: Int(ent.pointee.d_namlen)))
-                }
-                buffer.append(0)
+                    [UInt8](UnsafeBufferPointer(start: pointer, count: Int(entity.pointee.d_namlen)))
 #elseif os(Linux) || os(Android)
-                let buffer = ptr.withMemoryRebound(to: CChar.self, capacity: Int(ent.pointee.d_reclen)) { (ptrc) -> [CChar] in
-                    [CChar](UnsafeBufferPointer(start: ptrc, count: 256))
-                }
+                    [UInt8](UnsafeBufferPointer(start: pointer, count: 256))
 #endif
-                return String(cString: buffer)
+                }
+                return String(decoding: buffer, as: UTF8.self)
             }
-            guard let path else { continue }
             results.append(path)
         }
         return results.filter({ !(($0 == ".") || ($0 == "..")) })

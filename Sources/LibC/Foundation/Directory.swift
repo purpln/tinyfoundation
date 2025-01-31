@@ -1,9 +1,17 @@
 public func getCurrentDirectory() -> String {
     let capacity = Int(PATH_MAX)
-    var buffer = [UInt8](repeating: 0, count: capacity)
-    _ = buffer.withUnsafeMutableBufferPointer({ pointer in
-        getcwd(pointer.baseAddress!, capacity)
-    })
+    //var buffer = [UInt8](repeating: 0, count: capacity)
+    //_ = buffer.withUnsafeMutableBufferPointer({ pointer in
+    //    getcwd(pointer.baseAddress!, capacity)
+    //})
+    let buffer = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, count in
+        getcwd(buffer.baseAddress!, capacity)
+        var length = 0
+        while buffer.baseAddress?.advanced(by: length).pointee != 0 {
+            length += 1
+        }
+        count = length
+    }
     return String(decoding: buffer, as: UTF8.self)
 }
 
@@ -23,10 +31,15 @@ public func getHomeDirectory(for user: String? = nil) -> String? {
     guard let dir = id, let pointer = dir.pointee.pw_dir else {
         return nil
     }
+    
+    //let buffer = UnsafeBufferPointer<UInt8>.init(start: UnsafeRawPointer(pointer).assumingMemoryBound(to: UInt8.self), count: length)
+    //let string = String(decoding: buffer, as: UTF8.self)
+    //print(Array(string.utf8))
+    //return string
     return String(cString: pointer)
 }
 
-public func getDocumentsPath() -> String? {
+public func getDocumentsDirectory() -> String? {
 #if os(macOS) || os(iOS)
     guard let value = getenv("HOME") else { return nil }
     return String(cString: value)

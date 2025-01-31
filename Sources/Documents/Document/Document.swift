@@ -13,7 +13,7 @@ public struct Document {
     private var allocator: Allocator<Pointer>
     private var descriptor: FileDescriptor?
     
-    public init(path: Path, mode: Mode = .readAndWrite) {
+    public init(path: Path, mode: Mode) {
         self.path = path
         self.mode = mode
         

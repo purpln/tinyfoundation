@@ -1,33 +1,40 @@
 import LibC
 
-public func pipe() throws(Errno) -> (from: IO, to: IO) {
-    let (from, to) = try FileDescriptor.pipe()
-    return (IO(descriptor: from), IO(descriptor: to))
-}
-
 public extension Process {
     static func spawn(arguments: [String], environment: [String], actions array: [Action]) throws -> Process {
         let argv = arguments.map { strdup($0) }
-        defer { argv.forEach { free($0) } }
+        defer {
+            argv.forEach { free($0) }
+        }
         
         let env = environment.map { strdup($0) }
-        defer { env.forEach { free($0) } }
+        defer {
+            env.forEach { free($0) }
+        }
         
 #if canImport(Darwin.C) || canImport(Android)
         var attr: posix_spawnattr_t? = nil
 #elseif canImport(Glibc) || canImport(Musl)
         var attr: posix_spawnattr_t = posix_spawnattr_t()
 #endif
-        try nothingOrErrno(retryOnInterrupt: false, { posix_spawnattr_init(&attr) }).get()
-        defer { posix_spawnattr_destroy(&attr) }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            posix_spawnattr_init(&attr)
+        }).get()
+        defer {
+            posix_spawnattr_destroy(&attr)
+        }
         
 #if canImport(Darwin.C) || canImport(Android)
         var actions: posix_spawn_file_actions_t? = nil
 #elseif canImport(Glibc) || canImport(Musl)
         var actions: posix_spawn_file_actions_t = posix_spawn_file_actions_t()
 #endif
-        try nothingOrErrno(retryOnInterrupt: false, { posix_spawn_file_actions_init(&actions) }).get()
-        defer { posix_spawn_file_actions_destroy(&actions) }
+        try nothingOrErrno(retryOnInterrupt: false, {
+            posix_spawn_file_actions_init(&actions)
+        }).get()
+        defer {
+            posix_spawn_file_actions_destroy(&actions)
+        }
         
         for action in array {
             switch action {

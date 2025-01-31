@@ -11,6 +11,7 @@ public struct Path {
         }
     }
     
+    @inlinable
     internal var safeRawValue: String {
         rawValue.isEmpty ? Path.dot : rawValue
     }
@@ -26,17 +27,22 @@ internal extension Path {
 }
 
 public extension Path {
-    static let root = Path(separator)
-    static let home = Path(Path.tilde, expanding: true)
+    @inlinable
+    static var root: Path { Path(separator) }
+    @inlinable
+    static var home: Path { Path(Path.tilde, expanding: true) }
     
+    @inlinable
     static var application: Path {
         Path(getExecutablePath()!)
     }
     
+    @inlinable
     static var documents: Path {
-        Path(getDocumentsPath()!)
+        Path(getDocumentsDirectory()!)
     }
     
+    @inlinable
     static var current: Path {
         get {
             let current = getCurrentDirectory()
@@ -56,13 +62,9 @@ public extension Path {
     var absolute: Path {
         isAbsolute ? resolved : expanded.resolved
     }
-    /*
-    var relative: Path {
-        isRelative ? resolved : (self - Path.current).resolved
-    }
-    */
+    
     var resolved: Path {
-        guard !rawValue.isEmpty, rawValue != Path.dot, rawValue != Path.separator else { return self }
+        guard !rawValue.isEmpty else { return self }
         var components = expanded.components
         
         var i: Int = 0
@@ -127,11 +129,11 @@ public extension Path {
 }
 
 public extension Path {
-    var document: Document {
-        Document(path: self)
+    func document(mode: Mode) -> Document {
+        Document(path: self, mode: mode)
     }
     
-    var directory: Directory {
+    func directory() -> Directory {
         Directory(path: self)
     }
 }
@@ -145,6 +147,15 @@ public extension Path {
     
     var kind: Kind? {
         guard let info = attributes(at: resolved.rawValue) else { return nil }
+#if os(Android) && _pointerBitWidth(_32)
+        if UInt16(info.st_mode) & S_IFMT == S_IFLNK {
+            return .symlink
+        } else if UInt16(info.st_mode) & S_IFMT == S_IFDIR {
+            return .directory
+        } else {
+            return .file
+        }
+#else
         if info.st_mode & S_IFMT == S_IFLNK {
             return .symlink
         } else if info.st_mode & S_IFMT == S_IFDIR {
@@ -152,6 +163,7 @@ public extension Path {
         } else {
             return .file
         }
+#endif
     }
     
     var exists: Bool {
@@ -170,6 +182,14 @@ internal func attributes(at path: String) -> stat? {
 internal func exists(at path: String) -> Bool {
     var s = stat()
     if lstat(path, &s) >= 0 {
+#if os(Android) && _pointerBitWidth(_32)
+        if (UInt16(s.st_mode) & S_IFMT) == S_IFLNK {
+            if (UInt16(s.st_mode) & S_ISVTX) == S_ISVTX {
+                return true
+            }
+            stat(path, &s)
+        }
+#else
         // don't chase the link for this magic case -- we might be /Net/foo
         // which is a symlink to /private/Net/foo which is not yet mounted...
         if (s.st_mode & S_IFMT) == S_IFLNK {
@@ -179,6 +199,7 @@ internal func exists(at path: String) -> Bool {
             // chase the link; too bad if it is a slink to /Net/foo
             stat(path, &s)
         }
+#endif
     } else {
         return false
     }

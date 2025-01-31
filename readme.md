@@ -1,1 +1,1 @@
-# tiny-foundation
+# TinyFoundation

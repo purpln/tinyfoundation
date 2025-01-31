@@ -20,27 +20,27 @@ public func result(command: String, arguments: [String] = [], environment: [Stri
     
     let environment = standart(environment: environment)
     
-    let output = try pipe()
-    let error = try pipe()
+    let output = try FileDescriptor.pipe()
+    let error = try FileDescriptor.pipe()
     
     let actions: [Process.Action] = [
         //.open(.input, "/dev/null", O_RDONLY, 0),
-        .connect(output.to.descriptor, .output),
-        .connect(error.to.descriptor, .error),
-        .close(output.from.descriptor),
-        .close(error.from.descriptor),
+        .connect(output.write, .output),
+        .connect(error.write, .error),
+        .close(output.read),
+        .close(error.read),
     ]
     
     let process = try Process.spawn(arguments: [command] + arguments, environment: environment, actions: actions)
     
-    try output.to.close()
-    try error.to.close()
+    try output.write.close()
+    try error.write.close()
     
-    let logs = try output.from.read(stream: stream)
-    let fault = try error.from.read(stream: false)
+    let logs = try output.read.read(stream: stream)
+    let fault = try error.read.read(stream: false)
     
-    try output.from.close()
-    try error.from.close()
+    try output.read.close()
+    try error.read.close()
     
     let status = try process.wait()
     
@@ -48,7 +48,6 @@ public func result(command: String, arguments: [String] = [], environment: [Stri
         if !logs.isEmpty {
             print(logs)
         }
-        print(command, arguments.joined(separator: " "), path ?? "")
         throw ProcessError(code: status.exit, description: fault)
     }
     
@@ -60,4 +59,36 @@ private func standart(environment values: [String: String]) -> [String] {
         .reduce(into: [String]()) { result, element in
             result.append("\(element.key)=\(element.value)")
         }
+}
+
+extension FileDescriptor {
+    func read(stream: Bool) throws -> String {
+        var buffer = [UInt8]()
+        let length = 1024
+        while true {
+            let chunk = try [UInt8](unsafeUninitializedCapacity: length) { buffer, count in
+                count = try read(into: UnsafeMutableRawBufferPointer(buffer), retryOnInterrupt: true)
+            }
+            guard !chunk.isEmpty else { break }
+            
+            if stream {
+                print(String(decoding: chunk, as: UTF8.self), terminator: "")
+            } else {
+                buffer.append(contentsOf: chunk)
+            }
+        }
+        
+        return buffer.trimming.string
+    }
+}
+
+extension Array where Element == UInt8 {
+    var trimming: [UInt8] {
+        guard !isEmpty else { return self }
+        return dropLast()
+    }
+    
+    var string: String {
+        String(decoding: self, as: UTF8.self)
+    }
 }

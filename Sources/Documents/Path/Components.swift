@@ -1,7 +1,7 @@
 public extension Path {
     init(_ components: [Component], absolute: Bool = false) {
         let prefix = absolute ? Path.separator : ""
-        self.rawValue = prefix + components.map(String.init).joined(separator: Path.separator)
+        self.rawValue = prefix + components.map(\.rawValue).joined(separator: Path.separator)
     }
     
     var components: [Component] {
