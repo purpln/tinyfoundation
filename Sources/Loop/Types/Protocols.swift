@@ -6,7 +6,7 @@ protocol LoopProtocol {
     
     func once(timeout: Duration?) async throws
     func run(timeout: Duration?) async throws
-    func wait(for descriptor: FileDescriptor, type: Loop.IO, deadline: ContinuousClock.Instant?) async throws
+    func wait(for descriptor: FileDescriptor, type: LoopOperation, deadline: ContinuousClock.Instant?) async throws
     func invalidate() async throws
 }
 
@@ -47,13 +47,8 @@ extension EventProtocol {
     }
 }
 
-enum Operation {
-    case add
-    case remove
-}
-
 struct Handler {
     let descriptor: FileDescriptor
-    let type: Loop.IO
+    let type: LoopOperation
     let continuation: UnsafeContinuation<Void, Error>?
 }

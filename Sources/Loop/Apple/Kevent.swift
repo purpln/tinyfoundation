@@ -26,7 +26,7 @@ struct Filter: OptionSet {
     static let write = Filter(rawValue: Int16(EVFILT_WRITE))
 }
 
-extension Loop.IO {
+extension LoopOperation {
     var filter: Filter {
         switch self {
         case .read: return .read

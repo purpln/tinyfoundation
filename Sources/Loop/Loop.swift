@@ -1,4 +1,4 @@
-import LibC
+@preconcurrency import LibC
 
 // - Linux/Android: epoll
 // - MacOS/BSD: kqueue
@@ -12,8 +12,8 @@ public actor Loop: LoopProtocol {
     public init() throws {
         errno = 0
         
-        //setbuf(stdout, nil)
-        //setbuf(stderr, nil)
+        setbuf(stdout, nil)
+        setbuf(stderr, nil)
         
         poller = try Loop.respondent()
     }
@@ -34,7 +34,7 @@ public actor Loop: LoopProtocol {
         await Task.yield()
     }
     
-    public func wait(for descriptor: FileDescriptor, type: IO, deadline: ContinuousClock.Instant? = nil) async throws {
+    public func wait(for descriptor: FileDescriptor, type: LoopOperation, deadline: ContinuousClock.Instant? = nil) async throws {
         try await withUnsafeThrowingContinuation { continuation in
             do {
                 try insertContinuation(continuation, for: descriptor, type: type)
@@ -73,7 +73,7 @@ private extension Loop {
 }
 
 private extension Loop {
-    func insertContinuation(_ handler: UnsafeContinuation<Void, Error>, for descriptor: FileDescriptor, type: IO) throws {
+    func insertContinuation(_ handler: UnsafeContinuation<Void, Error>, for descriptor: FileDescriptor, type: LoopOperation) throws {
         let handler = Handler(descriptor: descriptor, type: type, continuation: handler)
         try poller.add(handler: handler)
     }
@@ -97,4 +97,9 @@ extension Loop {
         try Epoll()
     }
 #endif
+}
+
+public enum LoopOperation: Sendable, Hashable {
+    case read
+    case write
 }

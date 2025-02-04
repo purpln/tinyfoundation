@@ -17,7 +17,7 @@ struct Epoll: PollerProtocol {
         var count: CInt = -1
         var deadline: CInt = -1
         if let timeout = timeout {
-            deadline = ContinuousClock.Instant.now.advanced(by: timeout).timeoutSinceNow
+            deadline = timeout.timeoutSinceNow
         }
         repeat {
             count = try valueOrErrno(retryOnInterrupt: true, {
@@ -33,19 +33,8 @@ struct Epoll: PollerProtocol {
 }
 
 extension Epoll {
-    private func event(with handler: Handler, operation: Operation) -> epoll_event {
-        let events: Flag
-        switch handler.type {
-        case .read:
-            events = .read
-        case .write:
-            events = .write
-        }
-        return epoll_event(events: events.rawValue, data: epoll_data())
-    }
-    
     public mutating func add(handler: Handler) throws {
-        var event = event(with: handler, operation: .add)
+        var event = epoll_event(events: handler.type.flag.rawValue, data: epoll_data())
         event.handler = handler
         try nothingOrErrno(retryOnInterrupt: false, {
             epoll_ctl(descriptor.rawValue, EPOLL_CTL_ADD, handler.descriptor.rawValue, &event)
@@ -53,7 +42,7 @@ extension Epoll {
     }
     
     public mutating func remove(handler: Handler) throws {
-        var event = event(with: handler, operation: .remove)
+        var event = epoll_event(events: handler.type.flag.rawValue, data: epoll_data())
         try nothingOrErrno(retryOnInterrupt: false, {
             epoll_ctl(descriptor.rawValue, EPOLL_CTL_DEL, handler.descriptor.rawValue, &event)
         }).get()

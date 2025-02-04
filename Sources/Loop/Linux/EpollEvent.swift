@@ -28,10 +28,12 @@ struct Flag: OptionSet {
 #endif
 }
 
-struct Filter: OptionSet {
-    public let rawValue: Int16
-    
-    static let read = Filter(rawValue: 1)
-    static let write = Filter(rawValue: 2)
+extension LoopOperation {
+    var flag: Flag {
+        switch self {
+        case .read: return .read
+        case .write: return .write
+        }
+    }
 }
 #endif

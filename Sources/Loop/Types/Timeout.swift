@@ -17,3 +17,15 @@ extension ContinuousClock.Instant {
     }
 #endif
 }
+
+extension Duration {
+#if canImport(Darwin.C)
+    var timeoutSinceNow: timespec {
+        ContinuousClock.now.advanced(by: self).timeoutSinceNow
+    }
+#elseif canImport(Glibc) || canImport(Musl) || canImport(Android)
+    var timeoutSinceNow: CInt {
+        ContinuousClock.now.advanced(by: self).timeoutSinceNow
+    }
+#endif
+}
