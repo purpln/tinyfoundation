@@ -1,6 +1,7 @@
 #if canImport(Darwin.C)
 import LibC
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension kevent64_s: EventProtocol {
     var pointer: UnsafeMutablePointer<Handler>? {
         get {
@@ -12,6 +13,7 @@ extension kevent64_s: EventProtocol {
     }
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 struct Flag: OptionSet {
     public let rawValue: UInt16
     
@@ -19,6 +21,7 @@ struct Flag: OptionSet {
     static let delete = Flag(rawValue: UInt16(EV_DELETE))
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 struct Filter: OptionSet {
     public let rawValue: Int16
     
@@ -26,6 +29,7 @@ struct Filter: OptionSet {
     static let write = Filter(rawValue: Int16(EVFILT_WRITE))
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension LoopOperation {
     var filter: Filter {
         switch self {

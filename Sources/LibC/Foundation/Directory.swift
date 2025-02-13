@@ -1,27 +1,21 @@
-public func getCurrentDirectory() -> String {
-    let capacity = Int(PATH_MAX)
-    //var buffer = [UInt8](repeating: 0, count: capacity)
-    //_ = buffer.withUnsafeMutableBufferPointer({ pointer in
-    //    getcwd(pointer.baseAddress!, capacity)
-    //})
-    let buffer = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, count in
-        getcwd(buffer.baseAddress!, capacity)
-        var length = 0
-        while buffer.baseAddress?.advanced(by: length).pointee != 0 {
-            length += 1
-        }
-        count = length
+public func getCurrentDirectory() throws(Errno) -> String {
+    guard let path = system_getcwd(nil, 0) else {
+        throw Errno.current
     }
-    return String(decoding: buffer, as: UTF8.self)
+    defer {
+        system_free(path)
+    }
+    return String(cString: path)
 }
 
-public func setCurrentDirectory(_ path: String) throws {
+public func setCurrentDirectory(_ path: String) throws(Errno) {
     try nothingOrErrno(retryOnInterrupt: false, {
         chdir(path)
     }).get()
 }
 
 public func getHomeDirectory(for user: String? = nil) -> String? {
+#if !os(WASI)
     let id: UnsafeMutablePointer<passwd>?
     if let user = user {
         id = getpwnam(user)
@@ -31,12 +25,10 @@ public func getHomeDirectory(for user: String? = nil) -> String? {
     guard let dir = id, let pointer = dir.pointee.pw_dir else {
         return nil
     }
-    
-    //let buffer = UnsafeBufferPointer<UInt8>.init(start: UnsafeRawPointer(pointer).assumingMemoryBound(to: UInt8.self), count: length)
-    //let string = String(decoding: buffer, as: UTF8.self)
-    //print(Array(string.utf8))
-    //return string
     return String(cString: pointer)
+#else
+    return nil
+#endif
 }
 
 public func getDocumentsDirectory() -> String? {

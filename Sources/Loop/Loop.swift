@@ -5,6 +5,7 @@
 // - (Windows: select)
 // - (other POSIX: poll)
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 public actor Loop: LoopProtocol {
     private var poller: Poller
     public var running: Bool = false
@@ -51,6 +52,7 @@ public actor Loop: LoopProtocol {
     }
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 private extension Loop {
     func poll(timeout: Duration?) throws {
         let events = try poller.poll(timeout: timeout)
@@ -72,6 +74,7 @@ private extension Loop {
     }
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 private extension Loop {
     func insertContinuation(_ handler: UnsafeContinuation<Void, Error>, for descriptor: FileDescriptor, type: LoopOperation) throws {
         let handler = Handler(descriptor: descriptor, type: type, continuation: handler)
@@ -83,10 +86,12 @@ private extension Loop {
     }
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 public extension Loop {
     static let main = try! Loop()
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension Loop {
 #if canImport(Darwin.C)
     static func respondent() throws -> Kqueue {

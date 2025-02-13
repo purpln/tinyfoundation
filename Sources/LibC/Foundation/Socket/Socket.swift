@@ -160,11 +160,13 @@ extension sockaddr_un {
             throw SocketError.unixSocketCreateIvalidArgument
         }
         var sockaddr = sockaddr_un()
+#if !os(WASI)
         withUnsafeMutablePointer(to: &sockaddr.sun_path) { pointer in
             address.withCString {
                 _ = strcpy(pointer, $0)
             }
         }
+#endif
 #if canImport(Darwin.C)
         sockaddr.sun_len = UInt8(sockaddr_un.size)
 #endif
@@ -257,11 +259,15 @@ extension sockaddr_un: CustomStringConvertible {}
 
 extension sockaddr_un {
     public var description: String {
+#if !os(WASI)
         var path = sun_path
         let size = MemoryLayout.size(ofValue: path)
         var bytes = [UInt8](repeating: 0, count: size)
         memcpy(&bytes, &path, size)
         return String(decoding: bytes, as: UTF8.self)
+#else
+        return "unix socket"
+#endif
     }
 }
 

@@ -8,8 +8,8 @@ extension Timestamp: AtomicRepresentable {
     
     public static func encodeAtomicRepresentation(_ value: consuming Timestamp) -> AtomicRepresentation {
         let wordPair = WordPair(
-            first: UInt(bitPattern: value.value.tv_sec),
-            second: UInt(bitPattern: value.value.tv_sec)
+            first: UInt(bitPattern: Int(value.value.tv_sec)),
+            second: UInt(bitPattern: Int(value.value.tv_sec))
         )
         
         return WordPair.encodeAtomicRepresentation(wordPair)
@@ -19,7 +19,7 @@ extension Timestamp: AtomicRepresentable {
         let wordPair = WordPair.decodeAtomicRepresentation(storage)
         
         return Timestamp(timespec: .init(
-            tv_sec: Int(bitPattern: wordPair.first),
+            tv_sec: time_t(Int(bitPattern: wordPair.first)),
             tv_nsec: Int(bitPattern: wordPair.second)
         ))
     }

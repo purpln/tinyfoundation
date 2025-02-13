@@ -1,3 +1,4 @@
+#if !os(WASI)
 private func getaddrinfo(node: String, service: String, hints: addrinfo?) throws -> [String] {
     var result: CInt
     var resolved: UnsafeMutablePointer<addrinfo>?
@@ -41,3 +42,4 @@ public func getaddrinfo(node: String, service: String, family: CInt?) throws -> 
     }
     return try getaddrinfo(node: node, service: service, hints: hints)
 }
+#endif

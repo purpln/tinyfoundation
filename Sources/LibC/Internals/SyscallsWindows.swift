@@ -16,7 +16,7 @@ func umask(
 
 @inline(__always)
 internal func open(
-    _ path: UnsafePointer<PlatformChar>, _ oflag: Int32
+    _ path: UnsafePointer<PlatformChar>, _ oflag: CInt
 ) -> CInt {
     let decodedFlags = DecodedOpenFlags(oflag)
     
@@ -46,7 +46,7 @@ internal func open(
 
 @inline(__always)
 internal func open(
-    _ path: UnsafePointer<PlatformChar>, _ oflag: Int32,
+    _ path: UnsafePointer<PlatformChar>, _ oflag: CInt,
     _ mode: PlatformMode
 ) -> CInt {
     let actualMode = mode & ~_umask
@@ -87,53 +87,53 @@ internal func open(
 }
 
 @inline(__always)
-internal func close(_ fd: Int32) -> Int32 {
-    _close(fd)
+internal func close(_ descriptor: CInt) -> CInt {
+    _close(descriptor)
 }
 
 @inline(__always)
 internal func lseek(
-    _ fd: Int32, _ off: Int64, _ whence: Int32
+    _ descriptor: CInt, _ offset: Int64, _ whence: CInt
 ) -> Int64 {
-    _lseeki64(fd, off, whence)
+    _lseeki64(descriptor, offset, whence)
 }
 
 @inline(__always)
 internal func read(
-    _ fd: Int32, _ buf: UnsafeMutableRawPointer!, _ nbyte: Int
+    _ descriptor: CInt, _ buffer: UnsafeMutableRawPointer!, _ size: Int
 ) -> Int {
-    Int(_read(fd, buf, numericCast(nbyte)))
+    Int(_read(descriptor, buffer, numericCast(size)))
 }
 
 @inline(__always)
 internal func write(
-    _ fd: Int32, _ buf: UnsafeRawPointer!, _ nbyte: Int
+    _ descriptor: CInt, _ buffer: UnsafeRawPointer!, _ size: Int
 ) -> Int {
-    Int(_write(fd, buf, numericCast(nbyte)))
+    Int(_write(descriptor, buffer, numericCast(size)))
 }
 
 @inline(__always)
 internal func lseek(
-    _ fd: Int32, _ off: off_t, _ whence: Int32
+    _ descriptor: CInt, _ offset: off_t, _ whence: CInt
 ) -> off_t {
-    _lseek(fd, off, whence)
+    _lseek(descriptor, offset, whence)
 }
 
 @inline(__always)
-internal func dup(_ fd: Int32) -> Int32 {
-    _dup(fd)
+internal func dup(_ descriptor: CInt) -> CInt {
+    _dup(descriptor)
 }
 
 @inline(__always)
-internal func dup2(_ fd: Int32, _ fd2: Int32) -> Int32 {
-    _dup2(fd, fd2)
+internal func dup2(_ descriptor1: CInt, _ descriptor2: CInt) -> CInt {
+    _dup2(descriptor1, descriptor2)
 }
 
 @inline(__always)
 internal func pread(
-    _ fd: Int32, _ buf: UnsafeMutableRawPointer!, _ nbyte: Int, _ offset: off_t
+    _ descriptor: CInt, _ buffer: UnsafeMutableRawPointer!, _ nbyte: Int, _ offset: off_t
 ) -> Int {
-    let handle: intptr_t = _get_osfhandle(fd)
+    let handle: intptr_t = _get_osfhandle(descriptor)
     if handle == /* INVALID_HANDLE_VALUE */ -1 { ucrt._set_errno(EBADF); return -1 }
     
     // NOTE: this is a non-owning handle, do *not* call CloseHandle on it
@@ -144,7 +144,7 @@ internal func pread(
     ovlOverlapped.Offset = DWORD(UInt32(offset >> 0) & 0xffffffff)
     
     var nNumberOfBytesRead: DWORD = 0
-    if !ReadFile(hFile, buf, DWORD(nbyte), &nNumberOfBytesRead, &ovlOverlapped) {
+    if !ReadFile(hFile, buffer, DWORD(nbyte), &nNumberOfBytesRead, &ovlOverlapped) {
         ucrt._set_errno(_mapWindowsErrorToErrno(GetLastError()))
         return Int(-1)
     }
@@ -153,9 +153,9 @@ internal func pread(
 
 @inline(__always)
 internal func pwrite(
-    _ fd: Int32, _ buf: UnsafeRawPointer!, _ nbyte: Int, _ offset: off_t
+    _ descriptor: CInt, _ buffer: UnsafeRawPointer!, _ nbyte: Int, _ offset: off_t
 ) -> Int {
-    let handle: intptr_t = _get_osfhandle(fd)
+    let handle: intptr_t = _get_osfhandle(descriptor)
     if handle == /* INVALID_HANDLE_VALUE */ -1 { ucrt._set_errno(EBADF); return -1 }
     
     // NOTE: this is a non-owning handle, do *not* call CloseHandle on it
@@ -166,7 +166,7 @@ internal func pwrite(
     ovlOverlapped.Offset = DWORD(UInt32(offset >> 0) & 0xffffffff)
     
     var nNumberOfBytesWritten: DWORD = 0
-    if !WriteFile(hFile, buf, DWORD(nbyte), &nNumberOfBytesWritten,
+    if !WriteFile(hFile, buffer, DWORD(nbyte), &nNumberOfBytesWritten,
                   &ovlOverlapped) {
         ucrt._set_errno(_mapWindowsErrorToErrno(GetLastError()))
         return Int(-1)
@@ -176,14 +176,14 @@ internal func pwrite(
 
 @inline(__always)
 internal func pipe(
-    _ fds: UnsafeMutablePointer<Int32>, bytesReserved: UInt32 = 4096
+    _ descriptors: UnsafeMutablePointer<Int32>, bytesReserved: UInt32 = 4096
 ) -> CInt {
-    return _pipe(fds, bytesReserved, _O_BINARY | _O_NOINHERIT);
+    return _pipe(descriptors, bytesReserved, _O_BINARY | _O_NOINHERIT);
 }
 
 @inline(__always)
-internal func ftruncate(_ fd: Int32, _ length: off_t) -> Int32 {
-    let handle: intptr_t = _get_osfhandle(fd)
+internal func ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
+    let handle: intptr_t = _get_osfhandle(descriptor)
     if handle == /* INVALID_HANDLE_VALUE */ -1 { ucrt._set_errno(EBADF); return -1 }
     
     // NOTE: this is a non-owning handle, do *not* call CloseHandle on it
@@ -254,7 +254,7 @@ internal func rmdir(
 }
 
 internal func _mapWindowsErrorToErrno(_ errorCode: DWORD) -> CInt {
-    switch Int32(errorCode) {
+    switch CInt(errorCode) {
     case ERROR_SUCCESS:
         return 0
     case ERROR_INVALID_FUNCTION,
@@ -596,7 +596,7 @@ fileprivate struct DecodedOpenFlags {
     var bInheritHandle: WindowsBool
     var dwFlagsAndAttributes: DWORD
     
-    init(_ oflag: Int32) {
+    init(_ oflag: CInt) {
         switch oflag & (_O_CREAT | _O_EXCL | _O_TRUNC) {
         case _O_CREAT | _O_EXCL, _O_CREAT | _O_EXCL | _O_TRUNC:
             dwCreationDisposition = DWORD(CREATE_NEW)

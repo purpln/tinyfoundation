@@ -1,5 +1,6 @@
 import LibC
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 protocol LoopProtocol {
     associatedtype Poller: PollerProtocol
     static func respondent() throws -> Poller
@@ -10,6 +11,7 @@ protocol LoopProtocol {
     func invalidate() async throws
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 protocol PollerProtocol {
     associatedtype Event: EventProtocol
     
@@ -22,6 +24,7 @@ protocol PollerProtocol {
     mutating func remove(handler: Handler) throws
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 protocol EventProtocol {
     var handler: Handler? { get set }
     var pointer: UnsafeMutablePointer<Handler>? { get set }
@@ -29,6 +32,7 @@ protocol EventProtocol {
     func invalidate()
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension EventProtocol {
     var handler: Handler? {
         get {
@@ -47,6 +51,7 @@ extension EventProtocol {
     }
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 struct Handler {
     let descriptor: FileDescriptor
     let type: LoopOperation

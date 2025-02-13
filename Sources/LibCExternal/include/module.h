@@ -8,7 +8,7 @@
         //define something for Windows (32-bit only)
     #endif
 
-    #include "platforms/windows.h"
+    #include "os_windows.h"
 #elif __APPLE__
     #include <TargetConditionals.h>
     #if TARGET_IPHONE_SIMULATOR
@@ -22,18 +22,20 @@
     #else
     #error "Unknown Apple platform"
     #endif
+
+    #include "os_apple.h"
 #elif __ANDROID__
     // Below __linux__ check should be enough to handle Android,
     // but something may be unique to Android.
 
-    #include "platforms/android.h"
+    #include "os_android.h"
 #elif __linux__
     // linux
 
-    #include "platforms/linux.h"
+    #include "os_linux.h"
 #elif __wasi__
 
-    #include "platforms/wasi.h"
+    #include "os_wasi.h"
 #else
 #error "Unknown compiler"
 #endif

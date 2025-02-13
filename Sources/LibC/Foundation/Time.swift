@@ -2,7 +2,7 @@ public extension timespec {
     @inlinable
     static func now() -> timespec {
         var timespec = timespec()
-        clock_gettime(CLOCK_REALTIME, &timespec)
+        clock_gettime(_CLOCK_REALTIME, &timespec)
         return timespec
     }
 }
@@ -47,7 +47,11 @@ extension timespec /* AdditiveArithmetic */ {
     public static func + (lhs: timespec, rhs: timespec) -> timespec {
         let raw = rhs.tv_nsec + lhs.tv_nsec
         let ns = raw % 1_000_000_000
+#if os(WASI)
+        let s = lhs.tv_sec + rhs.tv_sec + Int64(raw / 1_000_000_000)
+#else
         let s = lhs.tv_sec + rhs.tv_sec + (raw / 1_000_000_000)
+#endif
         return timespec(tv_sec: s, tv_nsec: ns)
     }
     
@@ -56,11 +60,19 @@ extension timespec /* AdditiveArithmetic */ {
         
         if raw >= 0 {
             let ns = raw % 1_000_000_000
+#if os(WASI)
+            let s = lhs.tv_sec - rhs.tv_sec + Int64(raw / 1_000_000_000)
+#else
             let s = lhs.tv_sec - rhs.tv_sec + (raw / 1_000_000_000)
+#endif
             return timespec(tv_sec: s, tv_nsec: ns)
         } else {
             let ns = 1_000_000_000 - (-raw % 1_000_000_000)
+#if os(WASI)
+            let s = lhs.tv_sec - rhs.tv_sec - 1 - Int64(-raw / 1_000_000_000)
+#else
             let s = lhs.tv_sec - rhs.tv_sec - 1 - (-raw / 1_000_000_000)
+#endif
             return timespec(tv_sec: s, tv_nsec: ns)
         }
     }
@@ -119,7 +131,11 @@ extension timeval /* AdditiveArithmetic */ {
     public static func + (lhs: timeval, rhs: timeval) -> timeval {
         let raw = rhs.tv_usec + lhs.tv_usec
         let ns = raw % 1_000_000
+#if os(WASI)
+        let s = lhs.tv_sec + rhs.tv_sec + (raw / 1_000_000)
+#else
         let s = lhs.tv_sec + rhs.tv_sec + (Int(raw) / 1_000_000)
+#endif
         return timeval(tv_sec: s, tv_usec: ns)
     }
     
@@ -128,11 +144,19 @@ extension timeval /* AdditiveArithmetic */ {
         
         if raw >= 0 {
             let ns = raw % 1_000_000
+#if os(WASI)
+            let s = lhs.tv_sec - rhs.tv_sec + (raw / 1_000_000)
+#else
             let s = lhs.tv_sec - rhs.tv_sec + (Int(raw) / 1_000_000)
+#endif
             return timeval(tv_sec: s, tv_usec: ns)
         } else {
             let ns = 1_000_000 - (-raw % 1_000_000)
+#if os(WASI)
+            let s = lhs.tv_sec - rhs.tv_sec - 1 - (-raw / 1_000_000)
+#else
             let s = lhs.tv_sec - rhs.tv_sec - 1 - (-Int(raw) / 1_000_000)
+#endif
             return timeval(tv_sec: s, tv_usec: ns)
         }
     }

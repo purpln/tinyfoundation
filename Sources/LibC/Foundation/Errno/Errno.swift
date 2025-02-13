@@ -39,369 +39,372 @@ public extension Errno {
 public extension Errno {
     //Operation not permitted
     @inlinable
-    static var notPermited: Errno { Errno(rawValue: EPERM) }
+    static var notPermited: Errno { Errno(rawValue: _EPERM) }
     
     //No such file or directory
     @inlinable
-    static var noSuchEntity: Errno { Errno(rawValue: ENOENT) }
+    static var noSuchEntity: Errno { Errno(rawValue: _ENOENT) }
     
     //No such process
     @inlinable
-    static var noSuchProcess: Errno { Errno(rawValue: ESRCH) }
+    static var noSuchProcess: Errno { Errno(rawValue: _ESRCH) }
     
     //Interrupted system call
     @inlinable
-    static var interrupted: Errno { Errno(rawValue: EINTR) }
+    static var interrupted: Errno { Errno(rawValue: _EINTR) }
     
     //Input/output error
     @inlinable
-    static var inputOutputError: Errno { Errno(rawValue: EIO) }
+    static var inputOutputError: Errno { Errno(rawValue: _EIO) }
     
     //Device not configured
     @inlinable
-    static var notConfigured: Errno { Errno(rawValue: ENXIO) }
+    static var notConfigured: Errno { Errno(rawValue: _ENXIO) }
     
     //Argument list too long
     @inlinable
-    static var argumentListTooLong: Errno { Errno(rawValue: E2BIG) }
+    static var argumentListTooLong: Errno { Errno(rawValue: _E2BIG) }
     
     //Exec format error
     @inlinable
-    static var executableFormatError: Errno { Errno(rawValue: ENOEXEC) }
+    static var executableFormatError: Errno { Errno(rawValue: _ENOEXEC) }
     
     //Bad file descriptor
     @inlinable
-    static var badFileDescriptor: Errno { Errno(rawValue: EBADF) }
+    static var badFileDescriptor: Errno { Errno(rawValue: _EBADF) }
     
     //No child processes
     @inlinable
-    static var noChild: Errno { Errno(rawValue: ECHILD) }
+    static var noChild: Errno { Errno(rawValue: _ECHILD) }
     
     //Resource deadlock avoided
     @inlinable
-    static var deadlock: Errno { Errno(rawValue: EDEADLK) }
+    static var deadlock: Errno { Errno(rawValue: _EDEADLK) }
     
     //Cannot allocate memory
     @inlinable
-    static var allocateMemory: Errno { Errno(rawValue: ENOMEM) }
+    static var allocateMemory: Errno { Errno(rawValue: _ENOMEM) }
     
     //Permission denied
     @inlinable
-    static var permissionDenied: Errno { Errno(rawValue: EACCES) }
+    static var permissionDenied: Errno { Errno(rawValue: _EACCES) }
     
     //Bad address
     @inlinable
-    static var badAddress: Errno { Errno(rawValue: EFAULT) }
-    
+    static var badAddress: Errno { Errno(rawValue: _EFAULT) }
+#if !os(Windows) && !os(WASI)
     //Block device required
     @inlinable
-    static var blockRequired: Errno { Errno(rawValue: ENOTBLK) }
-    
+    static var blockRequired: Errno { Errno(rawValue: _ENOTBLK) }
+#endif
     //Resource busy
     @inlinable
-    static var busy: Errno { Errno(rawValue: EBUSY) }
+    static var busy: Errno { Errno(rawValue: _EBUSY) }
     
     //File exists
     @inlinable
-    static var exists: Errno { Errno(rawValue: EEXIST) }
+    static var exists: Errno { Errno(rawValue: _EEXIST) }
     
     //Cross-device link
     @inlinable
-    static var crossDeviceLink: Errno { Errno(rawValue: EXDEV) }
+    static var crossDeviceLink: Errno { Errno(rawValue: _EXDEV) }
     
     //Operation not supported by device
     @inlinable
-    static var notSupported: Errno { Errno(rawValue: ENODEV) }
+    static var notSupported: Errno { Errno(rawValue: _ENODEV) }
     
     //Not a directory
     @inlinable
-    static var notDirectory: Errno { Errno(rawValue: ENOTDIR) }
+    static var notDirectory: Errno { Errno(rawValue: _ENOTDIR) }
     
     //Is a directory
     @inlinable
-    static var isDirectory: Errno { Errno(rawValue: EISDIR) }
+    static var isDirectory: Errno { Errno(rawValue: _EISDIR) }
     
     //Invalid argument
     @inlinable
-    static var invalidArgument: Errno { Errno(rawValue: EINVAL) }
+    static var invalidArgument: Errno { Errno(rawValue: _EINVAL) }
     
     //Too many open files in system
     @inlinable
-    static var tooManyOpenedSystem: Errno { Errno(rawValue: ENFILE) }
+    static var tooManyOpenedSystem: Errno { Errno(rawValue: _ENFILE) }
     
     //Too many open files
     @inlinable
-    static var tooManyOpened: Errno { Errno(rawValue: EMFILE) }
+    static var tooManyOpened: Errno { Errno(rawValue: _EMFILE) }
     
     //Inappropriate ioctl for device
     @inlinable
-    static var inappropriate: Errno { Errno(rawValue: ENOTTY) }
+    static var inappropriate: Errno { Errno(rawValue: _ENOTTY) }
     
     //Text file busy
     @inlinable
-    static var textFileBusy: Errno { Errno(rawValue: ETXTBSY) }
+    static var textFileBusy: Errno { Errno(rawValue: _ETXTBSY) }
     
     //File too large
     @inlinable
-    static var tooLarge: Errno { Errno(rawValue: EFBIG) }
+    static var tooLarge: Errno { Errno(rawValue: _EFBIG) }
     
     //No space left on device
     @inlinable
-    static var noSpace: Errno { Errno(rawValue: ENOSPC) }
+    static var noSpace: Errno { Errno(rawValue: _ENOSPC) }
     
     //Illegal seek
     @inlinable
-    static var illegalSeek: Errno { Errno(rawValue: ESPIPE) }
+    static var illegalSeek: Errno { Errno(rawValue: _ESPIPE) }
     
     //Read-only file system
     @inlinable
-    static var readOnly: Errno { Errno(rawValue: EROFS) }
+    static var readOnly: Errno { Errno(rawValue: _EROFS) }
     
     //Too many links
     @inlinable
-    static var tooManyLinks: Errno { Errno(rawValue: EMLINK) }
+    static var tooManyLinks: Errno { Errno(rawValue: _EMLINK) }
     
     //Broken pipe
     @inlinable
-    static var brokenPipe: Errno { Errno(rawValue: EPIPE) }
+    static var brokenPipe: Errno { Errno(rawValue: _EPIPE) }
     
     //Numerical argument out of domain
     @inlinable
-    static var argumentOutOfDomain: Errno { Errno(rawValue: EDOM) }
+    static var argumentOutOfDomain: Errno { Errno(rawValue: _EDOM) }
     
     //Result too large
     @inlinable
-    static var outOfRange: Errno { Errno(rawValue: ERANGE) }
+    static var outOfRange: Errno { Errno(rawValue: _ERANGE) }
     
     //Resource temporarily unavailable
     @inlinable
-    static var again: Errno { Errno(rawValue: EAGAIN) }
+    static var again: Errno { Errno(rawValue: _EAGAIN) }
     
     //Resource temporarily unavailable
     @inlinable
-    static var wouldBlock: Errno { Errno(rawValue: EWOULDBLOCK) }
+    static var wouldBlock: Errno { Errno(rawValue: _EWOULDBLOCK) }
     
     //Operation now in progress
     @inlinable
-    static var inProgress: Errno { Errno(rawValue: EINPROGRESS) }
+    static var inProgress: Errno { Errno(rawValue: _EINPROGRESS) }
     
     //Operation already in progress
     @inlinable
-    static var alreadyInProgress: Errno { Errno(rawValue: EALREADY) }
+    static var alreadyInProgress: Errno { Errno(rawValue: _EALREADY) }
     
     //Socket operation on non-socket
     @inlinable
-    static var notSocket: Errno { Errno(rawValue: ENOTSOCK) }
+    static var notSocket: Errno { Errno(rawValue: _ENOTSOCK) }
     
     //Destination address required
     @inlinable
-    static var destinationAddressRequired: Errno { Errno(rawValue: EDESTADDRREQ) }
+    static var destinationAddressRequired: Errno { Errno(rawValue: _EDESTADDRREQ) }
     
     //Message too long
     @inlinable
-    static var messageTooLong: Errno { Errno(rawValue: EMSGSIZE) }
+    static var messageTooLong: Errno { Errno(rawValue: _EMSGSIZE) }
     
     //Protocol wrong type for socket
     @inlinable
-    static var wrongProtocolType: Errno { Errno(rawValue: EPROTOTYPE) }
+    static var wrongProtocolType: Errno { Errno(rawValue: _EPROTOTYPE) }
     
     //Protocol not available
     @inlinable
-    static var protocolNotAvailable: Errno { Errno(rawValue: ENOPROTOOPT) }
+    static var protocolNotAvailable: Errno { Errno(rawValue: _ENOPROTOOPT) }
     
     //Protocol not supported
     @inlinable
-    static var protocolNotSupported: Errno { Errno(rawValue: EPROTONOSUPPORT) }
-    
+    static var protocolNotSupported: Errno { Errno(rawValue: _EPROTONOSUPPORT) }
+#if !os(WASI)
     //Socket type not supported
     @inlinable
-    static var socketNotSupported: Errno { Errno(rawValue: ESOCKTNOSUPPORT) }
-    
+    static var socketNotSupported: Errno { Errno(rawValue: _ESOCKTNOSUPPORT) }
+#endif
     //Operation not supported
     @inlinable
-    static var operationNotSupported: Errno { Errno(rawValue: ENOTSUP) }
-    
+    static var operationNotSupported: Errno { Errno(rawValue: _ENOTSUP) }
+#if !os(WASI)
     //Protocol family not supported
     @inlinable
-    static var protocolFamilyNotSupported: Errno { Errno(rawValue: EPFNOSUPPORT) }
-    
+    static var protocolFamilyNotSupported: Errno { Errno(rawValue: _EPFNOSUPPORT) }
+#endif
     //Address family not supported by protocol family
     @inlinable
-    static var addressFamilyNotSupported: Errno { Errno(rawValue: EAFNOSUPPORT) }
+    static var addressFamilyNotSupported: Errno { Errno(rawValue: _EAFNOSUPPORT) }
     
     //Address already in use
     @inlinable
-    static var alreadyInUse: Errno { Errno(rawValue: EADDRINUSE) }
+    static var alreadyInUse: Errno { Errno(rawValue: _EADDRINUSE) }
     
     //Can\'t assign requested address
     @inlinable
-    static var assignAddress: Errno { Errno(rawValue: EADDRNOTAVAIL) }
+    static var assignAddress: Errno { Errno(rawValue: _EADDRNOTAVAIL) }
     
     //Network is down
     @inlinable
-    static var networkDown: Errno { Errno(rawValue: ENETDOWN) }
+    static var networkDown: Errno { Errno(rawValue: _ENETDOWN) }
     
     //Network is unreachable
     @inlinable
-    static var networkUnreachable: Errno { Errno(rawValue: ENETUNREACH) }
+    static var networkUnreachable: Errno { Errno(rawValue: _ENETUNREACH) }
     
     //Network dropped connection on reset
     @inlinable
-    static var networkDroppedConnection: Errno { Errno(rawValue: ENETRESET) }
+    static var networkDroppedConnection: Errno { Errno(rawValue: _ENETRESET) }
     
     //Software caused connection abort
     @inlinable
-    static var connectionAbort: Errno { Errno(rawValue: ECONNABORTED) }
+    static var connectionAbort: Errno { Errno(rawValue: _ECONNABORTED) }
     
     //Connection reset by peer
     @inlinable
-    static var connectionReset: Errno { Errno(rawValue: ECONNRESET) }
+    static var connectionReset: Errno { Errno(rawValue: _ECONNRESET) }
     
     //No buffer space available
     @inlinable
-    static var noBufferSpace: Errno { Errno(rawValue: ENOBUFS) }
+    static var noBufferSpace: Errno { Errno(rawValue: _ENOBUFS) }
     
     //Socket is already connected
     @inlinable
-    static var alreadyConnected: Errno { Errno(rawValue: EISCONN) }
+    static var alreadyConnected: Errno { Errno(rawValue: _EISCONN) }
     
     //Socket is not connected
     @inlinable
-    static var notConnected: Errno { Errno(rawValue: ENOTCONN) }
-    
+    static var notConnected: Errno { Errno(rawValue: _ENOTCONN) }
+#if !os(WASI)
     //Can\'t send after socket shutdown
     @inlinable
-    static var socketShutdown: Errno { Errno(rawValue: ESHUTDOWN) }
+    static var socketShutdown: Errno { Errno(rawValue: _ESHUTDOWN) }
     
     //Too many references: can\'t splice
     @inlinable
-    static var tooManyReferences: Errno { Errno(rawValue: ETOOMANYREFS) }
-    
+    static var tooManyReferences: Errno { Errno(rawValue: _ETOOMANYREFS) }
+#endif
     //Operation timed out
     @inlinable
-    static var timeout: Errno { Errno(rawValue: ETIMEDOUT) }
+    static var timeout: Errno { Errno(rawValue: _ETIMEDOUT) }
     
     //Connection refused
     @inlinable
-    static var connectionRefused: Errno { Errno(rawValue: ECONNREFUSED) }
+    static var connectionRefused: Errno { Errno(rawValue: _ECONNREFUSED) }
     
     //Too many levels of symbolic links
     @inlinable
-    static var tooManySymbolicLinks: Errno { Errno(rawValue: ELOOP) }
+    static var tooManySymbolicLinks: Errno { Errno(rawValue: _ELOOP) }
     
     //File name too long
     @inlinable
-    static var nameTooLong: Errno { Errno(rawValue: ENAMETOOLONG) }
-    
+    static var nameTooLong: Errno { Errno(rawValue: _ENAMETOOLONG) }
+#if !os(WASI)
     //Host is down
     @inlinable
-    static var hostDown: Errno { Errno(rawValue: EHOSTDOWN) }
-    
+    static var hostDown: Errno { Errno(rawValue: _EHOSTDOWN) }
+#endif
     //No route to host
     @inlinable
-    static var hostUnreachable: Errno { Errno(rawValue: EHOSTUNREACH) }
+    static var hostUnreachable: Errno { Errno(rawValue: _EHOSTUNREACH) }
     
     //Directory not empty
     @inlinable
-    static var directoryNotEmpty: Errno { Errno(rawValue: ENOTEMPTY) }
-    /*
+    static var directoryNotEmpty: Errno { Errno(rawValue: _ENOTEMPTY) }
+#if os(macOS) || os(iOS)
     //Too many processes
     @inlinable
-    static var tooManyProcesses: Errno { Errno(rawValue: EPROCLIM) }
-    */
+    static var tooManyProcesses: Errno { Errno(rawValue: _EPROCLIM) }
+#endif
+#if !os(WASI)
     //Too many users
     @inlinable
-    static var tooManyUsers: Errno { Errno(rawValue: EUSERS) }
-    
+    static var tooManyUsers: Errno { Errno(rawValue: _EUSERS) }
+#endif
     //Disc quota exceeded
     @inlinable
-    static var discQuotaExceeded: Errno { Errno(rawValue: EDQUOT) }
+    static var discQuotaExceeded: Errno { Errno(rawValue: _EDQUOT) }
     
     //Stale NFS file handle
     @inlinable
-    static var stale: Errno { Errno(rawValue: ESTALE) }
-    
+    static var stale: Errno { Errno(rawValue: _ESTALE) }
+#if !os(WASI)
     //Too many levels of remote in path
     @inlinable
-    static var tooManyRemote: Errno { Errno(rawValue: EREMOTE) }
-    /*
+    static var tooManyRemote: Errno { Errno(rawValue: _EREMOTE) }
+#endif
+#if os(macOS) || os(iOS)
     //Program version wrong
     @inlinable
-    static var wrongVersion: Errno { Errno(rawValue: EPROGMISMATCH) }
+    static var wrongVersion: Errno { Errno(rawValue: _EPROGMISMATCH) }
     
     //Bad procedure for program
     @inlinable
-    static var unavailableProcedure: Errno { Errno(rawValue: EPROCUNAVAIL) }
-    */
+    static var unavailableProcedure: Errno { Errno(rawValue: _EPROCUNAVAIL) }
+#endif
     //No locks available
     @inlinable
-    static var noLocks: Errno { Errno(rawValue: ENOLCK) }
+    static var noLocks: Errno { Errno(rawValue: _ENOLCK) }
     
     //Function not implemented
     @inlinable
-    static var notImplemented: Errno { Errno(rawValue: ENOSYS) }
-    /*
+    static var notImplemented: Errno { Errno(rawValue: _ENOSYS) }
+#if os(macOS) || os(iOS) || os(FreeBSD)
     //Inappropriate file type or format
     @inlinable
-    static var inappropriateFile: Errno { Errno(rawValue: EFTYPE) }
+    static var inappropriateFile: Errno { Errno(rawValue: _EFTYPE) }
     
     //Authentication error
     @inlinable
-    static var authentication: Errno { Errno(rawValue: EAUTH) }
+    static var authentication: Errno { Errno(rawValue: _EAUTH) }
     
     //Need authenticator
     @inlinable
-    static var authenticationNeeded: Errno { Errno(rawValue: ENEEDAUTH) }
-    
+    static var authenticationNeeded: Errno { Errno(rawValue: _ENEEDAUTH) }
+#endif
+#if os(macOS) || os(iOS)
     //Device power is off
     @inlinable
-    static var powerOff: Errno { Errno(rawValue: EPWROFF) }
+    static var powerOff: Errno { Errno(rawValue: _EPWROFF) }
     
     //Device error
     @inlinable
-    static var device: Errno { Errno(rawValue: EDEVERR) }
-    */
+    static var device: Errno { Errno(rawValue: _EDEVERR) }
+#endif
     //Value too large to be stored in data type
     @inlinable
-    static var overflow: Errno { Errno(rawValue: EOVERFLOW) }
-    /*
+    static var overflow: Errno { Errno(rawValue: _EOVERFLOW) }
+#if os(macOS) || os(iOS)
     //Bad executable (or shared library)
     @inlinable
-    static var badExecutable: Errno { Errno(rawValue: EBADEXEC) }
+    static var badExecutable: Errno { Errno(rawValue: _EBADEXEC) }
     
     //Bad CPU type in executable
     @inlinable
-    static var badArchitecture: Errno { Errno(rawValue: EBADARCH) }
+    static var badArchitecture: Errno { Errno(rawValue: _EBADARCH) }
     
     //Shared library version mismatch
     @inlinable
-    static var libraryVersionMismatch: Errno { Errno(rawValue: ESHLIBVERS) }
+    static var libraryVersionMismatch: Errno { Errno(rawValue: _ESHLIBVERS) }
     
     //Malformed Mach-o file
     @inlinable
-    static var badMach: Errno { Errno(rawValue: EBADMACHO) }
-    */
+    static var badMach: Errno { Errno(rawValue: _EBADMACHO) }
+#endif
     //Operation canceled
     @inlinable
-    static var canceled: Errno { Errno(rawValue: ECANCELED) }
+    static var canceled: Errno { Errno(rawValue: _ECANCELED) }
     
     //Identifier removed
     @inlinable
-    static var removedIdentifier: Errno { Errno(rawValue: EIDRM) }
+    static var removedIdentifier: Errno { Errno(rawValue: _EIDRM) }
     
     //No message of desired type
     @inlinable
-    static var noMessage: Errno { Errno(rawValue: ENOMSG) }
+    static var noMessage: Errno { Errno(rawValue: _ENOMSG) }
     
     //Illegal byte sequence
     @inlinable
-    static var illegalSequence: Errno { Errno(rawValue: EILSEQ) }
-    /*
+    static var illegalSequence: Errno { Errno(rawValue: _EILSEQ) }
+#if os(macOS) || os(iOS) || os(FreeBSD)
     //Attribute not found
     @inlinable
-    static var noAttribute: Errno { Errno(rawValue: ENOATTR) }
-    */
+    static var noAttribute: Errno { Errno(rawValue: _ENOATTR) }
+#endif
     //Bad message
     @inlinable
-    static var badMessage: Errno { Errno(rawValue: EBADMSG) }
+    static var badMessage: Errno { Errno(rawValue: _EBADMSG) }
 }

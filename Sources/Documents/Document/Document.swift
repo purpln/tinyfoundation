@@ -1,6 +1,6 @@
 import LibC
 
-#if canImport(Android)
+#if canImport(Android) || os(WASI)
 private typealias Pointer = OpaquePointer
 #else
 private typealias Pointer = UnsafeMutablePointer<FILE>

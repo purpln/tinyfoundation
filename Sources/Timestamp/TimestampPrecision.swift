@@ -9,21 +9,21 @@ public enum TimestampPrecision: Sendable {
 
 internal extension timespec {
     init<T: BinaryFloatingPoint>(_ interval: T, precision: TimestampPrecision) {
-        let seconds: Int
+        let seconds: time_t
         let nanoseconds: Int
         switch precision {
         case .seconds:
             let (integer, decimal) = modf(interval)
-            seconds = Int(integer)
+            seconds = time_t(integer)
             nanoseconds = Int(decimal * 1_000_000_000) % 1_000_000_000
         case .milliseconds:
-            seconds = Int(interval) / 1_000
+            seconds = time_t(interval) / 1_000
             nanoseconds = Int(interval * 1_000_000) % 1_000_000_000
         case .microseconds:
-            seconds = Int(interval) / 1_000_000
+            seconds = time_t(interval) / 1_000_000
             nanoseconds = Int(interval * 1_000) % 1_000_000_000
         case .nanoseconds:
-            seconds = Int(interval) / 1_000_000_000
+            seconds = time_t(interval) / 1_000_000_000
             nanoseconds = Int(interval) % 1_000_000_000
         }
         self = timespec(tv_sec: seconds, tv_nsec: nanoseconds)
@@ -31,22 +31,21 @@ internal extension timespec {
     
     @inlinable
     init<T: BinaryInteger>(_ interval: T, precision: TimestampPrecision) {
-        let seconds: Int
+        let seconds: time_t
         let nanoseconds: Int
         switch precision {
         case .seconds:
-            seconds = Int(interval)
+            seconds = time_t(interval)
             nanoseconds = 0
         case .milliseconds:
-            seconds = Int(interval) / 1_000
+            seconds = time_t(interval) / 1_000
             nanoseconds = (Int(interval) % 1_000) * 1_000_000
         case .microseconds:
-            seconds = Int(interval) / 1_000_000
+            seconds = time_t(interval) / 1_000_000
             nanoseconds = (Int(interval) % 1_000_000) * 1_000
         case .nanoseconds:
-            let value = Int(interval)
-            seconds = value / 1_000_000_000
-            nanoseconds = value % 1_000_000_000
+            seconds = time_t(interval) / 1_000_000_000
+            nanoseconds = Int(interval) % 1_000_000_000
         }
         self = timespec(tv_sec: seconds, tv_nsec: nanoseconds)
     }
@@ -55,13 +54,13 @@ internal extension timespec {
     func interval(for precision: TimestampPrecision) -> Double {
         switch precision {
         case .seconds:
-            Double(tv_sec + (tv_nsec / 1_000_000_000))
+            Double(tv_sec + time_t(tv_nsec / 1_000_000_000))
         case .milliseconds:
-            Double((tv_sec * 1_000) + (tv_nsec / 1_000_000))
+            Double((tv_sec * 1_000) + time_t(tv_nsec / 1_000_000))
         case .microseconds:
-            Double((tv_sec * 1_000_000) + (tv_nsec / 1_000))
+            Double((tv_sec * 1_000_000) + time_t(tv_nsec / 1_000))
         case .nanoseconds:
-            Double((tv_sec * 1_000_000_000) + tv_nsec)
+            Double((tv_sec * 1_000_000_000) + time_t(tv_nsec))
         }
     }
     
@@ -69,13 +68,13 @@ internal extension timespec {
     func interval(for precision: TimestampPrecision) -> Int {
         switch precision {
         case .seconds:
-            tv_sec
+            Int(tv_sec)
         case .milliseconds:
-            (tv_sec * 1_000) + (tv_nsec / 1_000_000)
+            Int(tv_sec * 1_000) + Int(tv_nsec / 1_000_000)
         case .microseconds:
-            (tv_sec * 1_000_000) + (tv_nsec / 1_000)
+            Int(tv_sec * 1_000_000) + Int(tv_nsec / 1_000)
         case .nanoseconds:
-            (tv_sec * 1_000_000_000 + tv_nsec)
+            Int(tv_sec * 1_000_000_000) + Int(tv_nsec)
         }
     }
 }

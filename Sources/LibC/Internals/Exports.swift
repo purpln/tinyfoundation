@@ -18,8 +18,8 @@ internal var system_errno: CInt {
 }
 #endif
 
-internal func system_strerror(_ __errnum: Int32) -> UnsafeMutablePointer<Int8>! {
-    strerror(__errnum)
+internal func system_strerror(_ errnum: CInt) -> UnsafeMutablePointer<Int8>! {
+    strerror(errnum)
 }
 
 internal func system_strlen(_ s: UnsafePointer<CChar>) -> Int {

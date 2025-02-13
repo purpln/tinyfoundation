@@ -39,13 +39,13 @@ extension FileDescriptor {
         public init(rawValue: CInt) { self.rawValue = rawValue }
         
         @_alwaysEmitIntoClient
-        public static var readOnly: AccessMode { AccessMode(rawValue: O_RDONLY) }
+        public static var readOnly: AccessMode { AccessMode(rawValue: _O_RDONLY) }
         
         @_alwaysEmitIntoClient
-        public static var writeOnly: AccessMode { AccessMode(rawValue: O_WRONLY) }
+        public static var writeOnly: AccessMode { AccessMode(rawValue: _O_WRONLY) }
         
         @_alwaysEmitIntoClient
-        public static var readWrite: AccessMode { AccessMode(rawValue: O_RDWR) }
+        public static var readWrite: AccessMode { AccessMode(rawValue: _O_RDWR) }
     }
     
     @frozen
@@ -58,48 +58,53 @@ extension FileDescriptor {
         
 #if !os(Windows)
         @_alwaysEmitIntoClient
-        public static var nonBlocking: OpenOptions { .init(rawValue: O_NONBLOCK) }
+        public static var nonBlocking: OpenOptions { .init(rawValue: _O_NONBLOCK) }
 #endif
         
         @_alwaysEmitIntoClient
-        public static var append: OpenOptions { .init(rawValue: O_APPEND) }
+        public static var append: OpenOptions { .init(rawValue: _O_APPEND) }
         
         @_alwaysEmitIntoClient
-        public static var create: OpenOptions { .init(rawValue: O_CREAT) }
+        public static var create: OpenOptions { .init(rawValue: _O_CREAT) }
         
         @_alwaysEmitIntoClient
-        public static var truncate: OpenOptions { .init(rawValue: O_TRUNC) }
+        public static var truncate: OpenOptions { .init(rawValue: _O_TRUNC) }
         
         @_alwaysEmitIntoClient
-        public static var exclusiveCreate: OpenOptions { .init(rawValue: O_EXCL) }
+        public static var exclusiveCreate: OpenOptions { .init(rawValue: _O_EXCL) }
         
-#if canImport(Darwin.C)
+#if os(macOS) || os(iOS) || os(FreeBSD)
         @_alwaysEmitIntoClient
-        public static var sharedLock: OpenOptions { .init(rawValue: O_SHLOCK) }
-        
-        @_alwaysEmitIntoClient
-        public static var exclusiveLock: OpenOptions { .init(rawValue: O_EXLOCK) }
-#endif
-        
-#if !os(Windows)
-        @_alwaysEmitIntoClient
-        public static var noFollow: OpenOptions { .init(rawValue: O_NOFOLLOW) }
+        public static var sharedLock: OpenOptions { .init(rawValue: _O_SHLOCK) }
         
         @_alwaysEmitIntoClient
-        public static var directory: OpenOptions { .init(rawValue: O_DIRECTORY) }
-#endif
-        
-#if canImport(Darwin.C)
-        @_alwaysEmitIntoClient
-        public static var symlink: OpenOptions { .init(rawValue: O_SYMLINK) }
-        
-        @_alwaysEmitIntoClient
-        public static var eventOnly: OpenOptions { .init(rawValue: O_EVTONLY) }
+        public static var exclusiveLock: OpenOptions { .init(rawValue: _O_EXLOCK) }
 #endif
         
 #if !os(Windows)
         @_alwaysEmitIntoClient
-        public static var closeOnExec: OpenOptions { .init(rawValue: O_CLOEXEC) }
+        public static var noFollow: OpenOptions { .init(rawValue: _O_NOFOLLOW) }
+        
+        @_alwaysEmitIntoClient
+        public static var directory: OpenOptions { .init(rawValue: _O_DIRECTORY) }
+#endif
+        
+#if os(FreeBSD)
+        @_alwaysEmitIntoClient
+        public static var sync: OpenOptions { .init(rawValue: _O_SYNC) }
+#endif
+        
+#if os(macOS) || os(iOS)
+        @_alwaysEmitIntoClient
+        public static var symlink: OpenOptions { .init(rawValue: _O_SYMLINK) }
+        
+        @_alwaysEmitIntoClient
+        public static var eventOnly: OpenOptions { .init(rawValue: _O_EVTONLY) }
+#endif
+        
+#if !os(Windows)
+        @_alwaysEmitIntoClient
+        public static var closeOnExec: OpenOptions { .init(rawValue: _O_CLOEXEC) }
 #endif
     }
     
@@ -120,7 +125,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var end: SeekOrigin { SeekOrigin(rawValue: SEEK_END) }
         
-#if canImport(Darwin.C)
+#if os(macOS) || os(iOS) || os(FreeBSD)
         @_alwaysEmitIntoClient
         public static var nextHole: SeekOrigin { SeekOrigin(rawValue: SEEK_HOLE) }
         
@@ -150,7 +155,7 @@ extension FileDescriptor.SeekOrigin: CustomStringConvertible {
         case .start: return "start"
         case .current: return "current"
         case .end: return "end"
-#if canImport(Darwin.C)
+#if os(macOS) || os(iOS)
         case .nextHole: return "nextHole"
         case .nextData: return "nextData"
 #endif
@@ -163,7 +168,7 @@ extension FileDescriptor.OpenOptions: CustomStringConvertible {
     /// A textual representation of the open options.
     @inline(never)
     public var description: String {
-#if canImport(Darwin.C)
+#if os(macOS) || os(iOS)
         let descriptions: [(Element, StaticString)] = [
             (.nonBlocking, ".nonBlocking"),
             (.append, ".append"),

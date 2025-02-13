@@ -1,7 +1,7 @@
 // unlink
 public func system_unlink(
     _ path: UnsafePointer<CChar>?
-) -> Int32 {
+) -> CInt {
 #if os(Android) || os(Linux)
     var zero = CChar.zero
     return withUnsafePointer(to: &zero) {
@@ -12,13 +12,13 @@ public func system_unlink(
     unlink(path)
 #endif
 }
-
+#if !os(WASI)
 // accept
 public func system_accept(
     _ descriptor: CInt,
     _ address: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
-) -> Int32 {
+) -> CInt {
     accept(descriptor, address, length)
 }
 
@@ -27,7 +27,7 @@ public func system_bind(
     _ descriptor: CInt,
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
-) -> Int32 {
+) -> CInt {
     bind(descriptor, address!, length)
 }
 
@@ -36,15 +36,15 @@ public func system_connect(
     _ descriptor: CInt,
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
-) -> Int32 {
+) -> CInt {
     connect(descriptor, address!, length)
 }
 
 // listen
 public func system_listen(
     _ descriptor: CInt,
-    _ backlog: Int32
-) -> Int32 {
+    _ backlog: CInt
+) -> CInt {
     listen(descriptor, backlog)
 }
 
@@ -53,7 +53,7 @@ public func system_recv(
     _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
     _ size: Int,
-    _ flags: Int32
+    _ flags: CInt
 ) -> Int {
     recv(descriptor, buffer, size, flags)
 }
@@ -62,7 +62,7 @@ public func system_recvfrom(
     _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
     _ size: Int,
-    _ flags: Int32,
+    _ flags: CInt,
     _ address: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> Int {
@@ -74,7 +74,7 @@ public func system_send(
     _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
     _ size: Int,
-    _ flags: Int32
+    _ flags: CInt
 ) -> Int {
 #if os(Android)
     var zero = UInt8.zero
@@ -91,7 +91,7 @@ public func system_sendto(
     _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
     _ size: Int,
-    _ flags: Int32,
+    _ flags: CInt,
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
 ) -> Int {
@@ -105,18 +105,18 @@ public func system_sendto(
     sendto(descriptor, buffer, size, flags, address, length)
 #endif
 }
-
+#endif
 // open
 public func system_open(
     _ path: UnsafePointer<CChar>,
-    _ oflag: Int32
+    _ oflag: CInt
 ) -> CInt {
     open(path, oflag)
 }
 
 public func system_open(
     _ path: UnsafePointer<CChar>,
-    _ oflag: Int32,
+    _ oflag: CInt,
     _ mode: mode_t
 ) -> CInt {
     open(path, oflag, mode)
@@ -160,7 +160,7 @@ public func system_pread(
 public func system_lseek(
     _ descriptor: CInt,
     _ offset: off_t,
-    _ whence: Int32
+    _ whence: CInt
 ) -> off_t {
     lseek(descriptor, offset, whence)
 }
@@ -188,28 +188,28 @@ public func system_pwrite(
         pwrite(descriptor, buffer ?? UnsafeRawPointer($0), size, offset)
     }
 #else
-    return pwrite(descriptor, buffer, size, offset)
+    pwrite(descriptor, buffer, size, offset)
 #endif
 }
 
 #if !os(WASI)
-public func system_dup(_ fd: Int32) -> Int32 {
-    dup(fd)
+public func system_dup(_ descriptor: CInt) -> CInt {
+    dup(descriptor)
 }
 
-public func system_dup2(_ fd: Int32, _ fd2: Int32) -> Int32 {
-    dup2(fd, fd2)
+public func system_dup2(_ descriptor1: CInt, _ descriptor2: CInt) -> CInt {
+    dup2(descriptor1, descriptor2)
 }
 #endif
 
 #if !os(WASI)
-public func system_pipe(_ fds: UnsafeMutablePointer<Int32>) -> CInt {
-    pipe(fds)
+public func system_pipe(_ descriptors: UnsafeMutablePointer<CInt>) -> CInt {
+    pipe(descriptors)
 }
 #endif
 
-public func system_ftruncate(_ fd: Int32, _ length: off_t) -> Int32 {
-    ftruncate(fd, length)
+public func system_ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
+    ftruncate(descriptor, length)
 }
 
 public func system_mkdir(
@@ -225,40 +225,40 @@ public func system_rmdir(
     rmdir(path)
 }
 
-#if canImport(Darwin.C)
+#if os(macOS) || os(iOS)
 public let SYSTEM_CS_DARWIN_USER_TEMP_DIR = _CS_DARWIN_USER_TEMP_DIR
 
 public func system_confstr(
     _ name: CInt,
-    _ buf: UnsafeMutablePointer<PlatformChar>,
-    _ len: Int
+    _ buffer: UnsafeMutablePointer<PlatformChar>,
+    _ length: Int
 ) -> Int {
-    confstr(name, buf, len)
+    confstr(name, buffer, length)
 }
 #endif
 
 #if !os(Windows)
 internal let SYSTEM_AT_REMOVE_DIR = AT_REMOVEDIR
-internal let SYSTEM_DT_DIR = DT_DIR
+internal let SYSTEM_DT_DIR = _DT_DIR
 internal typealias system_dirent = dirent
-#if os(Linux) || os(Android) || os(FreeBSD)
+#if os(Linux) || os(Android) || os(FreeBSD) || os(WASI)
 public typealias system_DIRPtr = OpaquePointer
 #else
 public typealias system_DIRPtr = UnsafeMutablePointer<DIR>
 #endif
 
 public func system_unlinkat(
-    _ fd: CInt,
+    _ descriptor: CInt,
     _ path: UnsafePointer<PlatformChar>,
     _ flag: CInt
 ) -> CInt {
-    unlinkat(fd, path, flag)
+    unlinkat(descriptor, path, flag)
 }
 
 public func system_fdopendir(
-    _ fd: CInt
+    _ descriptor: CInt
 ) -> system_DIRPtr? {
-    fdopendir(fd)
+    fdopendir(descriptor)
 }
 
 public func system_readdir(
@@ -280,18 +280,22 @@ public func system_closedir(
 }
 
 public func system_openat(
-    _ fd: CInt,
+    _ descriptor: CInt,
     _ path: UnsafePointer<PlatformChar>,
-    _ oflag: Int32
+    _ oflag: CInt
 ) -> CInt {
-    openat(fd, path, oflag)
+    openat(descriptor, path, oflag)
 }
 #endif
 
 public func system_umask(
     _ mode: PlatformMode
 ) -> PlatformMode {
+#if !os(WASI)
     umask(mode)
+#else
+    0755
+#endif
 }
 
 public func system_getenv(
@@ -299,3 +303,19 @@ public func system_getenv(
 ) -> UnsafeMutablePointer<CChar>? {
     getenv(name)
 }
+
+#if !os(Windows)
+public func system_getcwd(
+    _ buffer: UnsafeMutablePointer<PlatformChar>?,
+    _ size: size_t
+) -> UnsafeMutablePointer<PlatformChar>? {
+    getcwd(buffer, size)
+}
+#endif
+#if !os(Windows)
+public func system_free(
+    _ pointer: UnsafeMutableRawPointer?
+) {
+  free(pointer)
+}
+#endif

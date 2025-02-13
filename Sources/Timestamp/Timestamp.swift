@@ -150,9 +150,8 @@ public extension Timestamp {
     var elapsed: Double {
         (Timestamp.now - self).value.interval(for: .seconds)
     }
-    
     @inlinable
-    var components: (seconds: Int, nanoseconds: Int) {
+    var components: (seconds: time_t, nanoseconds: Int) {
         (value.tv_sec, value.tv_nsec)
     }
 }

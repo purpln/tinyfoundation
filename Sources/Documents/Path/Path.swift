@@ -45,8 +45,12 @@ public extension Path {
     @inlinable
     static var current: Path {
         get {
-            let current = getCurrentDirectory()
-            return Path(current)
+            do {
+                let current = try getCurrentDirectory()
+                return Path(current)
+            } catch {
+                preconditionFailure("\(error)")
+            }
         }
         set {
             do {
@@ -64,7 +68,7 @@ public extension Path {
     }
     
     var resolved: Path {
-        guard !rawValue.isEmpty else { return self }
+        guard !rawValue.isEmpty, rawValue != "/" else { return self }
         var components = expanded.components
         
         var i: Int = 0

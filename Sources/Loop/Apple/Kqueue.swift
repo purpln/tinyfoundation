@@ -1,6 +1,7 @@
 #if canImport(Darwin.C)
 import LibC
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 struct Kqueue: PollerProtocol {
     private var descriptor: FileDescriptor
     private var events: [kevent64_s] = []
@@ -47,16 +48,17 @@ struct Kqueue: PollerProtocol {
     }
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension Kqueue {
     private func event(with handler: Handler) -> kevent64_s {
         let identifier = UInt64(handler.descriptor.rawValue)
         let filter: Int16 = handler.type.filter.rawValue
-        let flags: UInt16
+        let flags: UInt16 = 0
         let fflags: UInt32 = 0
         let data: Int64 = 0
         let ext: (UInt64, UInt64) = (0, 0)
         
-        return kevent64_s(ident: identifier, filter: filter, flags: 0, fflags: fflags, data: data, udata: 0, ext: ext)
+        return kevent64_s(ident: identifier, filter: filter, flags: flags, fflags: fflags, data: data, udata: 0, ext: ext)
     }
     
     public mutating func add(handler: Handler) throws {

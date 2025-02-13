@@ -2,41 +2,42 @@
 
 import PackageDescription
 
-let package = Package(name: "TinyFoundation", platforms: [
-    .macOS(.v13), .iOS(.v16), .watchOS(.v9), .tvOS(.v16),
-], products: [
+let package = Package(name: "TinyFoundation", products: [
     .library(name: "TinyFoundation", targets: [
-        "Documents", "LibC", "Loop", "Math", "Process", "Signal", "Timestamp", "UniqueID", "Version"
+        "Documents", "LibC", "Loop", "Math", "Process", "Signal", "Socket", "Timestamp", "UniqueID", "Version"
     ]),
 ], targets: [
     .target(name: "Documents", dependencies: [
-        .target(name: "LibC"),
+        "LibC"
     ]),
     .target(name: "LibC", dependencies: [
-        .target(name: "LibCExternal"),
+        "LibCExternal"
     ], linkerSettings: [
         .linkedLibrary("android", .when(platforms: [.android])),
     ]),
-    .systemLibrary(name: "LibCExternal"),
+    .target(name: "LibCExternal"),
     .target(name: "Loop", dependencies: [
-        .target(name: "LibC"),
+        "LibC"
     ]),
     .target(name: "Math", dependencies: [
-        .target(name: "LibC"),
+        "LibC"
     ]),
     .target(name: "Process", dependencies: [
-        .target(name: "LibC"),
+        "LibC"
     ], linkerSettings: [
         .linkedLibrary("android-spawn", .when(platforms: [.android])),
     ]),
     .target(name: "Signal", dependencies: [
-        .target(name: "LibC"),
+        "LibC"
+    ]),
+    .target(name: "Socket", dependencies: [
+        "LibC"
     ]),
     .target(name: "Timestamp", dependencies: [
-        .target(name: "LibC"),
+        "LibC"
     ]),
     .target(name: "UniqueID", dependencies: [
-        .target(name: "Timestamp"),
+        "Timestamp"
     ]),
     .target(name: "Version"),
 ])

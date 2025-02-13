@@ -1,5 +1,6 @@
 import LibC
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension ContinuousClock.Instant {
 #if canImport(Darwin.C)
     var timeoutSinceNow: timespec {
@@ -18,6 +19,7 @@ extension ContinuousClock.Instant {
 #endif
 }
 
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension Duration {
 #if canImport(Darwin.C)
     var timeoutSinceNow: timespec {

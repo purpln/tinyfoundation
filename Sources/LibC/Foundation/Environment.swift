@@ -1,28 +1,72 @@
 @inlinable
 public var environment: [String: String] {
-    let equal: Character = "="
+#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(WASI) || os(FreeBSD) || os(OpenBSD)
+    return parse(environ: environ)
+#elseif os(Windows)
+    return parseWindowsEnvironment()
+#else
+#warning("Platform-specific implementation missing: environment variables unavailable")
+    return [:]
+#endif
+}
+
+#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(WASI) || os(FreeBSD) || os(OpenBSD)
+@inlinable
+internal func parse(environ: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>) -> [String: String] {
     var result = [String: String]()
-    var i = 0
     
-    while let entry = pointer?[i] {
-        defer { i += 1 }
+    for i in 0... {
+        guard let pointer = environ[i] else { break }
         
-        let entry = String(cString: entry)
-        guard let index = entry.firstIndex(of: equal) else { continue }
-        
-        let key = String(entry.prefix(upTo: index))
-        let value = String(entry.suffix(from: index).dropFirst())
+        guard let row = String(validatingCString: pointer),
+           let (key, value) = split(row: row) else {
+            continue
+        }
         
         result[key] = value
     }
+    
     return result
 }
 
-@inlinable nonisolated(unsafe)
-internal var pointer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>? {
-#if os(Linux) || os(Android)
-    environ_wrapper()
-#else
-    environ
-#endif
+@inlinable
+internal func split(row: String) -> (key: String, value: String)? {
+    row.firstIndex(of: "=").map { index in
+        let key = String(row.prefix(upTo: index))
+        let value = String(row.suffix(from: index).dropFirst())
+        return (key, value)
+    }
 }
+
+@inlinable nonisolated(unsafe)
+internal var environ: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> {
+    _platform_shims_lock_environ()
+    defer {
+        _platform_shims_unlock_environ()
+    }
+    return _platform_shims_get_environ()
+}
+#elseif os(Windows)
+@inlinable
+internal func parseWindowsEnvironment() -> [String: String] {
+    guard let environ = GetEnvironmentStringsW() else {
+        return [:]
+    }
+    defer {
+        FreeEnvironmentStringsW(environ)
+    }
+    
+    var result = [String: String]()
+    var rowp = environ
+    while rowp.pointee != 0 {
+        defer {
+            rowp += wcslen(rowp) + 1
+        }
+        if let row = String.decodeCString(rowp, as: UTF16.self)?.result,
+           let (key, value) = _splitEnvironmentVariable(row) {
+            result[key] = value
+        }
+    }
+    return result
+}
+#endif

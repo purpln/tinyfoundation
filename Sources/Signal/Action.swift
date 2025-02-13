@@ -61,7 +61,18 @@ public struct Action: RawRepresentable, Equatable {
                 self.handler = .ansiC(rawValue.__sa_handler.sa_handler)
             }
         }
-#elseif canImport(Android) && _pointerBitWidth(_64)
+#elseif canImport(Android) && _pointerBitWidth(_32)
+        switch OpaquePointer(bitPattern: unsafeBitCast(rawValue.__Anonymous_field0.sa_handler, to: Int.self)) {
+        case OpaquePointer(bitPattern: unsafeBitCast(SIG_DFL, to: Int.self)): self.handler = .default
+        case OpaquePointer(bitPattern: unsafeBitCast(SIG_IGN, to: Int.self)): self.handler = .ignore
+        default:
+            if flags.contains(.siginfo) {
+                self.handler = .posix(rawValue.__Anonymous_field0.sa_sigaction)
+            } else {
+                self.handler = .ansiC(rawValue.__Anonymous_field0.sa_handler)
+            }
+        }
+#elseif canImport(Android)
         switch OpaquePointer(bitPattern: unsafeBitCast(rawValue.__Anonymous_field1.sa_handler, to: Int.self)) {
         case OpaquePointer(bitPattern: unsafeBitCast(SIG_DFL, to: Int.self)): self.handler = .default
         case OpaquePointer(bitPattern: unsafeBitCast(SIG_IGN, to: Int.self)): self.handler = .ignore
@@ -72,8 +83,6 @@ public struct Action: RawRepresentable, Equatable {
                 self.handler = .ansiC(rawValue.__Anonymous_field1.sa_handler)
             }
         }
-#elseif canImport(Android) && _pointerBitWidth(_32)
-        handler = .default
 #endif
         if !isValid {
             print("Initialized an invalid Action.")
@@ -109,15 +118,20 @@ public struct Action: RawRepresentable, Equatable {
         case .ansiC(let handler): ret.__sa_handler.sa_handler = handler
         case .posix(let handler): ret.__sa_handler.sa_sigaction = handler
         }
-#elseif canImport(Android) && _pointerBitWidth(_64)
+#elseif canImport(Android) && _pointerBitWidth(_32)
+        switch handler {
+        case .default: ret.__Anonymous_field0.sa_handler = SIG_DFL
+        case .ignore: ret.__Anonymous_field0.sa_handler = SIG_IGN
+        case .ansiC(let handler): ret.__Anonymous_field0.sa_handler = handler
+        case .posix(let handler): ret.__Anonymous_field0.sa_sigaction = handler
+        }
+#elseif canImport(Android)
         switch handler {
         case .default: ret.__Anonymous_field1.sa_handler = SIG_DFL
         case .ignore: ret.__Anonymous_field1.sa_handler = SIG_IGN
         case .ansiC(let handler): ret.__Anonymous_field1.sa_handler = handler
         case .posix(let handler): ret.__Anonymous_field1.sa_sigaction = handler
         }
-#elseif canImport(Android) && _pointerBitWidth(_32)
-        
 #endif
         return ret
     }

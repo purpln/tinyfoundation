@@ -2,8 +2,10 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <wasi/libc-environ.h>
+#include <dirent.h>
+#include <time.h>
 
+static inline int32_t _getConst_DT_DIR(void) { return DT_DIR; }
 static inline int32_t _getConst_O_ACCMODE(void) { return O_ACCMODE; }
 static inline int32_t _getConst_O_APPEND(void) { return O_APPEND; }
 static inline int32_t _getConst_O_CREAT(void) { return O_CREAT; }
@@ -16,6 +18,5 @@ static inline int32_t _getConst_O_WRONLY(void) { return O_WRONLY; }
 static inline int32_t _getConst_EWOULDBLOCK(void) { return EWOULDBLOCK; }
 static inline int32_t _getConst_EOPNOTSUPP(void) { return EOPNOTSUPP; }
 
-char **environ_wrapper() {
-    return __wasilibc_get_environ();
-}
+static inline clockid_t _getConst_CLOCK_MONOTONIC(void) { return CLOCK_MONOTONIC; }
+static inline clockid_t _getConst_CLOCK_REALTIME(void) { return CLOCK_REALTIME; }
