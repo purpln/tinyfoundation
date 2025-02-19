@@ -1,65 +1,67 @@
-public struct Matrix3: Matrixable, Hashable {
+public struct Matrix3<Scalar: BinaryFloatingPoint & Sendable>: Matrixable, Hashable, Sendable {
+    public typealias Vector = Vector3<Scalar>
+    
     public var m11, m12, m13: Scalar
     public var m21, m22, m23: Scalar
     public var m31, m32, m33: Scalar
     
-    public var row1: Vector3 {
+    public var row1: Vector {
         get { Vector3(x: m11, y: m12, z: m13) }
-        set (vector) {
-            m11 = vector.x
-            m12 = vector.y
-            m13 = vector.z
+        set {
+            m11 = newValue.x
+            m12 = newValue.y
+            m13 = newValue.z
         }
     }
     
-    public var row2: Vector3 {
+    public var row2: Vector {
         get { Vector3(x: m21, y: m22, z: m23) }
-        set (vector) {
-            m21 = vector.x
-            m22 = vector.y
-            m23 = vector.z
+        set {
+            m21 = newValue.x
+            m22 = newValue.y
+            m23 = newValue.z
         }
     }
     
-    public var row3: Vector3 {
+    public var row3: Vector {
         get { Vector3(x: m31, y: m32, z: m33) }
-        set (vector) {
-            m31 = vector.x
-            m32 = vector.y
-            m33 = vector.z
+        set {
+            m31 = newValue.x
+            m32 = newValue.y
+            m33 = newValue.z
         }
     }
     
-    public var column1: Vector3 {
+    public var column1: Vector {
         get { Vector3(x: m11, y: m21, z: m31) }
-        set (vector) {
-            m11 = vector.x
-            m21 = vector.y
-            m31 = vector.z
+        set {
+            m11 = newValue.x
+            m21 = newValue.y
+            m31 = newValue.z
         }
     }
     
-    public var column2: Vector3 {
+    public var column2: Vector {
         get { Vector3(x: m12, y: m22, z: m32) }
-        set (vector) {
-            m12 = vector.x
-            m22 = vector.y
-            m32 = vector.z
+        set {
+            m12 = newValue.x
+            m22 = newValue.y
+            m32 = newValue.z
         }
     }
     
-    public var column3: Vector3 {
+    public var column3: Vector {
         get { Vector3(x: m13, y: m23, z: m33) }
-        set (vector) {
-            m13 = vector.x
-            m23 = vector.y
-            m33 = vector.z
+        set {
+            m13 = newValue.x
+            m23 = newValue.y
+            m33 = newValue.z
         }
     }
     
     public static var numRows: Int { 3 }
     
-    public subscript(row: Int) -> Vector3 {
+    public subscript(row: Int) -> Vector {
         get {
             switch row {
             case 0: return self.row1
@@ -71,11 +73,11 @@ public struct Matrix3: Matrixable, Hashable {
             }
             return .zero
         }
-        set (vector) {
+        set {
             switch row {
-            case 0: self.row1 = vector
-            case 1: self.row2 = vector
-            case 2: self.row3 = vector
+            case 0: self.row1 = newValue
+            case 1: self.row2 = newValue
+            case 2: self.row3 = newValue
             default:
                 assertionFailure("Index out of range")
                 break
@@ -101,17 +103,17 @@ public struct Matrix3: Matrixable, Hashable {
             }
             return 0.0
         }
-        set (value) {
+        set {
             switch (row, column) {
-            case (0, 0): m11 = value
-            case (0, 1): m12 = value
-            case (0, 2): m13 = value
-            case (1, 0): m21 = value
-            case (1, 1): m22 = value
-            case (1, 2): m23 = value
-            case (2, 0): m31 = value
-            case (2, 1): m32 = value
-            case (2, 2): m33 = value
+            case (0, 0): m11 = newValue
+            case (0, 1): m12 = newValue
+            case (0, 2): m13 = newValue
+            case (1, 0): m21 = newValue
+            case (1, 1): m22 = newValue
+            case (1, 2): m23 = newValue
+            case (2, 0): m31 = newValue
+            case (2, 1): m32 = newValue
+            case (2, 2): m33 = newValue
             default:
                 assertionFailure("Index out of range")
                 break
@@ -119,9 +121,11 @@ public struct Matrix3: Matrixable, Hashable {
         }
     }
     
-    public static let identity = Matrix3(1.0, 0.0, 0.0,
-                                         0.0, 1.0, 0.0,
-                                         0.0, 0.0, 1.0)
+    public static var identity: Matrix3 {
+        Matrix3(1.0, 0.0, 0.0,
+                0.0, 1.0, 0.0,
+                0.0, 0.0, 1.0)
+    }
     
     public init(_ matrix: Self = .identity) {
         self = matrix
@@ -147,22 +151,26 @@ public struct Matrix3: Matrixable, Hashable {
         self.init(m11, m12, m13, m21, m22, m23, m31, m32, m33)
     }
     
-    public init(row1: Vector3, row2: Vector3, row3: Vector3) {
+    public init(row1: Vector, row2: Vector, row3: Vector) {
         self.init(row1.x, row1.y, row1.z,
                   row2.x, row2.y, row2.z,
                   row3.x, row3.y, row3.z)
     }
     
-    public init(column1: Vector3, column2: Vector3, column3: Vector3) {
+    public init(column1: Vector, column2: Vector, column3: Vector) {
         self.init(column1.x, column2.x, column3.x,
                   column1.y, column2.y, column3.y,
                   column1.z, column2.z, column3.z)
     }
     
     public var determinant: Scalar {
-        return m11 * m22 * m33 + m12 * m23 * m31 +
-        m13 * m21 * m32 - m11 * m23 * m32 -
-        m12 * m21 * m33 - m13 * m22 * m31
+        let a = m11 * m22 * m33
+        let b = m12 * m23 * m31
+        let c = m13 * m21 * m32
+        let d = m11 * m23 * m32
+        let e = m12 * m21 * m33
+        let f = m13 * m22 * m31
+        return a + b + c - d - e - f
     }
     
     public var isDiagonal: Bool {
@@ -200,7 +208,7 @@ public struct Matrix3: Matrixable, Hashable {
     public func concatenating(_ m: Self) -> Self {
         let (row1, row2, row3) = (self.row1, self.row2, self.row3)
         let (col1, col2, col3) = (m.column1, m.column2, m.column3)
-        let dot = Vector3.dot
+        let dot = Vector3<Scalar>.dot
         return Matrix3(dot(row1, col1), dot(row1, col2), dot(row1, col3),
                        dot(row2, col1), dot(row2, col2), dot(row2, col3),
                        dot(row3, col1), dot(row3, col2), dot(row3, col3))
@@ -274,26 +282,26 @@ public extension Matrix3 {
 
 public extension Vector2 {
     // homogeneous transform
-    func applying(_ m: Matrix3) -> Self {
+    func applying(_ m: Matrix3<Scalar>) -> Self {
         let v = Vector3(self.x, self.y, 1.0).applying(m)
         assert(abs(v.z) > .leastNonzeroMagnitude)
         return Self(v.x, v.y) * (1.0 / v.z)
     }
     
-    mutating func apply(_ m: Matrix3) {
+    mutating func apply(_ m: Matrix3<Scalar>) {
         self = self.applying(m)
     }
 }
 
 public extension Vector3 {
-    func applying(_ m: Matrix3) -> Self {
+    func applying(_ m: Matrix3<Scalar>) -> Self {
         let x = Self.dot(self, m.column1)
         let y = Self.dot(self, m.column2)
         let z = Self.dot(self, m.column3)
         return Self(x, y, z)
     }
     
-    mutating func apply(_ m: Matrix3) {
+    mutating func apply(_ m: Matrix3<Scalar>) {
         self = self.applying(m)
     }
 }

@@ -10,7 +10,8 @@ extension FileDescriptor {
 #if !os(Windows)
         try path.withCString {
             try FileDescriptor.open(
-                $0, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt)
+                $0, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+            )
         }
 #else
         try path.withPlatformString {
@@ -89,7 +90,9 @@ extension FileDescriptor {
     
     @usableFromInline
     internal func _close() -> Result<(), Errno> {
-        nothingOrErrno(retryOnInterrupt: false) { system_close(self.rawValue) }
+        nothingOrErrno(retryOnInterrupt: false) {
+            system_close(rawValue)
+        }
     }
     
     
@@ -106,7 +109,7 @@ extension FileDescriptor {
         offset: Int64, from whence: FileDescriptor.SeekOrigin
     ) -> Result<Int64, Errno> {
         valueOrErrno(retryOnInterrupt: false) {
-            Int64(system_lseek(self.rawValue, _COffT(offset), whence.rawValue))
+            Int64(system_lseek(rawValue, _COffT(offset), whence.rawValue))
         }
     }
     
@@ -134,7 +137,7 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) throws(Errno) -> Result<Int, Errno> {
         valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_read(self.rawValue, buffer.baseAddress, buffer.count)
+            system_read(rawValue, buffer.baseAddress, buffer.count)
         }
     }
     
@@ -159,7 +162,7 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
         valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_pread(self.rawValue, buffer.baseAddress, buffer.count, _COffT(offset))
+            system_pread(rawValue, buffer.baseAddress, buffer.count, _COffT(offset))
         }
     }
     
@@ -191,7 +194,7 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
         valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_write(self.rawValue, buffer.baseAddress, buffer.count)
+            system_write(rawValue, buffer.baseAddress, buffer.count)
         }
     }
     
@@ -212,7 +215,7 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
         valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_pwrite(self.rawValue, buffer.baseAddress, buffer.count, _COffT(offset))
+            system_pwrite(rawValue, buffer.baseAddress, buffer.count, _COffT(offset))
         }
     }
     
@@ -248,9 +251,9 @@ extension FileDescriptor {
     ) throws(Errno) -> Result<FileDescriptor, Errno> {
         valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
             if let target = target {
-                return system_dup2(self.rawValue, target.rawValue)
+                return system_dup2(rawValue, target.rawValue)
             }
-            return system_dup(self.rawValue)
+            return system_dup(rawValue)
         }.map(FileDescriptor.init(rawValue:))
     }
 }
@@ -295,7 +298,7 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<(), Errno> {
         nothingOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_ftruncate(self.rawValue, _COffT(newSize))
+            system_ftruncate(rawValue, _COffT(newSize))
         }
     }
 }

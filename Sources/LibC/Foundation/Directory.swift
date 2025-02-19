@@ -47,14 +47,24 @@ public func getDocumentsDirectory() -> String? {
 }
 
 public func getExecutablePath() -> String? {
-#if os(macOS) || targetEnvironment(macCatalyst)
-    let buffer = [UInt8](unsafeUninitializedCapacity: Int(PROC_PIDPATHINFO_SIZE)) { buffer, count in
-        let result = proc_pidpath(getpid(), buffer.baseAddress, UInt32(PROC_PIDPATHINFO_SIZE))
-        count = Int(result)
+#if os(macOS) || os(iOS)
+    var result: String?
+#if DEBUG
+    var capacity = UInt32(1) // force looping
+#else
+    var capacity = UInt32(PATH_MAX)
+#endif
+    while result == nil {
+        withUnsafeTemporaryAllocation(of: CChar.self, capacity: Int(capacity)) { buffer in
+            // _NSGetExecutablePath returns 0 on success and -1 if bufferCount is
+            // too small. If that occurs, we'll return nil here and loop with the
+            // new value of bufferCount.
+            if 0 == _NSGetExecutablePath(buffer.baseAddress, &capacity) {
+                result = String(cString: buffer.baseAddress!)
+            }
+        }
     }
-    return String(decoding: buffer, as: UTF8.self)
-#elseif os(iOS)
-    String(cString: realpath(CommandLine.arguments[0], nil))
+    return result!
 #elseif os(Linux) || os(Android)
     let capacity = Int(PATH_MAX)
     let buffer = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, count in

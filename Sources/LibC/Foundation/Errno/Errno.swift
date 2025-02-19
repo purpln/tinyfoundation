@@ -342,7 +342,7 @@ public extension Errno {
     //Function not implemented
     @inlinable
     static var notImplemented: Errno { Errno(rawValue: _ENOSYS) }
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
     //Inappropriate file type or format
     @inlinable
     static var inappropriateFile: Errno { Errno(rawValue: _EFTYPE) }
@@ -399,7 +399,7 @@ public extension Errno {
     //Illegal byte sequence
     @inlinable
     static var illegalSequence: Errno { Errno(rawValue: _EILSEQ) }
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
     //Attribute not found
     @inlinable
     static var noAttribute: Errno { Errno(rawValue: _ENOATTR) }

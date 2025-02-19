@@ -73,7 +73,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var exclusiveCreate: OpenOptions { .init(rawValue: _O_EXCL) }
         
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
         @_alwaysEmitIntoClient
         public static var sharedLock: OpenOptions { .init(rawValue: _O_SHLOCK) }
         
@@ -125,7 +125,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var end: SeekOrigin { SeekOrigin(rawValue: SEEK_END) }
         
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
         @_alwaysEmitIntoClient
         public static var nextHole: SeekOrigin { SeekOrigin(rawValue: SEEK_HOLE) }
         

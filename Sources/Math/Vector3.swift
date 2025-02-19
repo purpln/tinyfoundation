@@ -1,9 +1,11 @@
-public struct Vector3: Vectorable, Hashable {
+public struct Vector3<Scalar: BinaryFloatingPoint & Sendable>: Vectorable, Hashable, Sendable {
     public var x: Scalar
     public var y: Scalar
     public var z: Scalar
 
-    public static let zero = Vector3(0.0, 0.0, 0.0)
+    public static var zero: Vector3 {
+        Vector3(0.0, 0.0, 0.0)
+    }
 
     public static var components: Int { 3 }
     
@@ -35,7 +37,7 @@ public struct Vector3: Vectorable, Hashable {
         self = vector
     }
 
-    public init(_ v: Vector2, z: some BinaryFloatingPoint) {
+    public init(_ v: Vector2<Scalar>, z: some BinaryFloatingPoint) {
         self.init(v.x, v.y, Scalar(z))
     }
 
@@ -52,40 +54,40 @@ public struct Vector3: Vectorable, Hashable {
     public static func dot(_ v1: Vector3, _ v2: Vector3) -> Scalar {
         v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
     }
-
+    /*
     public static func cross(_ v1: Vector3, _ v2: Vector3) -> Vector3 {
         Vector3(x: v1.y * v2.z - v1.z * v2.y,
                 y: v1.z * v2.x - v1.x * v2.z,
                 z: v1.x * v2.y - v1.y * v2.x)
     }
-
-    public func rotated(x radian: some BinaryFloatingPoint) -> Vector3 {
+    */
+    public func rotated(x radian: some BinaryFloatingPoint) -> Vector3<Scalar> {
         if radian.isZero  { return self }
-        let r = Scalar(radian)
-        let c = cos(r)
-        let s = sin(r)
+        let r = Double(radian)
+        let c = Scalar(cos(r))
+        let s = Scalar(sin(r))
         
         let y = self.y * c - self.z * s
         let z = self.y * s + self.z * c
         return Vector3(self.x, y, z)
     }
 
-    public func rotated(y radian: some BinaryFloatingPoint) -> Vector3 {
+    public func rotated(y radian: some BinaryFloatingPoint) -> Vector3<Scalar> {
         if radian.isZero { return self }
-        let r = Scalar(radian)
-        let c = cos(r)
-        let s = sin(-r)
+        let r = Double(radian)
+        let c = Scalar(cos(r))
+        let s = Scalar(sin(-r))
 
         let x = self.x * c - self.z * s
         let z = self.x * s + self.z * c
         return Vector3(x, self.y, z)
     }
 
-    public func rotated(z radian: some BinaryFloatingPoint) -> Vector3 {
+    public func rotated(z radian: some BinaryFloatingPoint) -> Vector3<Scalar> {
         if radian.isZero { return self }
-        let r = Scalar(radian)
-        let c = cos(r)
-        let s = sin(r)
+        let r = Double(radian)
+        let c = Scalar(cos(r))
+        let s = Scalar(sin(r))
 
         let x = self.x * c - self.y * s
         let y = self.x * s + self.y * c

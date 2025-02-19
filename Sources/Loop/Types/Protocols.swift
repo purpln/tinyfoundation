@@ -8,7 +8,7 @@ protocol LoopProtocol {
     func once(timeout: Duration?) async throws
     func run(timeout: Duration?) async throws
     func wait(for descriptor: FileDescriptor, type: LoopOperation, deadline: ContinuousClock.Instant?) async throws
-    func invalidate() async throws
+    func terminate() async throws
 }
 
 @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)

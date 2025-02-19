@@ -1,6 +1,6 @@
 import LibC
 
-#if os(Linux) || os(Android) || os(FreeBSD) || os(OpenBSD) || os(WASI)
+#if os(Linux) || os(Android) || os(WASI)
 private typealias Pointer = OpaquePointer
 #else
 private typealias Pointer = UnsafeMutablePointer<DIR>

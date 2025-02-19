@@ -2,6 +2,18 @@
 import LibC
 
 @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
+extension kevent: EventProtocol {
+    var pointer: UnsafeMutablePointer<Handler>? {
+        get {
+            udata.assumingMemoryBound(to: Handler.self)
+        }
+        set {
+            udata = UnsafeMutableRawPointer(newValue)
+        }
+    }
+}
+
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension kevent64_s: EventProtocol {
     var pointer: UnsafeMutablePointer<Handler>? {
         get {
@@ -27,6 +39,10 @@ struct Filter: OptionSet {
     
     static let read = Filter(rawValue: Int16(EVFILT_READ))
     static let write = Filter(rawValue: Int16(EVFILT_WRITE))
+    
+    static let signal = Filter(rawValue: Int16(EVFILT_SIGNAL))
+    static let timer = Filter(rawValue: Int16(EVFILT_TIMER))
+    static let mach = Filter(rawValue: Int16(EVFILT_MACHPORT))
 }
 
 @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)

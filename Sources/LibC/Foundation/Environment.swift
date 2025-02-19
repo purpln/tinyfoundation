@@ -1,6 +1,6 @@
 @inlinable
 public var environment: [String: String] {
-#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(WASI) || os(FreeBSD) || os(OpenBSD)
+#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(WASI)
     return parse(environ: environ)
 #elseif os(Windows)
     return parseWindowsEnvironment()
@@ -10,7 +10,7 @@ public var environment: [String: String] {
 #endif
 }
 
-#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(WASI) || os(FreeBSD) || os(OpenBSD)
+#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(WASI)
 @inlinable
 internal func parse(environ: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>) -> [String: String] {
     var result = [String: String]()

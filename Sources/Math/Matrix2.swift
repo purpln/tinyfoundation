@@ -1,42 +1,44 @@
-public struct Matrix2: Matrixable, Hashable {
+public struct Matrix2<Scalar: BinaryFloatingPoint & Sendable>: Matrixable, Hashable, Sendable {
+    public typealias Vector = Vector2<Scalar>
+    
     public var m11, m12: Scalar
     public var m21, m22: Scalar
     
-    public var row1: Vector2 {
+    public var row1: Vector {
         get { Vector2(x: m11, y: m12) }
-        set (vector) {
-            m11 = vector.x
-            m12 = vector.y
+        set {
+            m11 = newValue.x
+            m12 = newValue.y
         }
     }
     
-    public var row2: Vector2 {
+    public var row2: Vector {
         get { Vector2(x: m21, y: m22) }
-        set (vector) {
-            m21 = vector.x
-            m22 = vector.y
+        set {
+            m21 = newValue.x
+            m22 = newValue.y
         }
     }
     
-    public var column1: Vector2 {
+    public var column1: Vector {
         get { Vector2(x: m11, y: m21) }
-        set (vector) {
-            m11 = vector.x
-            m21 = vector.y
+        set {
+            m11 = newValue.x
+            m21 = newValue.y
         }
     }
     
-    public var column2: Vector2 {
+    public var column2: Vector {
         get { Vector2(x: m12, y: m22) }
-        set (vector) {
-            m12 = vector.x
-            m22 = vector.y
+        set {
+            m12 = newValue.x
+            m22 = newValue.y
         }
     }
     
     public static var numRows: Int { 2 }
     
-    public subscript(row: Int) -> Vector2 {
+    public subscript(row: Int) -> Vector {
         get {
             switch row {
             case 0: return self.row1
@@ -47,10 +49,10 @@ public struct Matrix2: Matrixable, Hashable {
             }
             return .zero
         }
-        set (vector) {
+        set {
             switch row {
-            case 0: self.row1 = vector
-            case 1: self.row2 = vector
+            case 0: self.row1 = newValue
+            case 1: self.row2 = newValue
             default:
                 assertionFailure("Index out of range")
                 break
@@ -71,12 +73,12 @@ public struct Matrix2: Matrixable, Hashable {
             }
             return 0.0
         }
-        set (value) {
+        set {
             switch (row, column) {
-            case (0, 0): m11 = value
-            case (0, 1): m12 = value
-            case (1, 0): m21 = value
-            case (1, 1): m22 = value
+            case (0, 0): m11 = newValue
+            case (0, 1): m12 = newValue
+            case (1, 0): m21 = newValue
+            case (1, 1): m22 = newValue
             default:
                 assertionFailure("Index out of range")
                 break
@@ -84,7 +86,9 @@ public struct Matrix2: Matrixable, Hashable {
         }
     }
     
-    public static let identity = Matrix2(1.0, 0.0, 0.0, 1.0)
+    public static var identity: Matrix2 {
+        Matrix2(1.0, 0.0, 0.0, 1.0)
+    }
     
     public init(_ matrix: Self = .identity) {
         self = matrix
@@ -101,11 +105,11 @@ public struct Matrix2: Matrixable, Hashable {
         self.init(m11, m12, m21, m22)
     }
     
-    public init(row1: Vector2, row2: Vector2) {
+    public init(row1: Vector, row2: Vector) {
         self.init(row1.x, row1.y, row2.x, row2.y)
     }
     
-    public init(column1: Vector2, column2: Vector2) {
+    public init(column1: Vector, column2: Vector) {
         self.init(column1.x, column2.x, column1.y, column2.y)
     }
     
@@ -156,25 +160,25 @@ public extension Matrix2 {
     @available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
     var half2x2: Half2x2 {
         get { (self.row1.half2, self.row2.half2) }
-        set(v) {
-            self.row1.half2 = v.0
-            self.row2.half2 = v.1
+        set {
+            self.row1.half2 = newValue.0
+            self.row2.half2 = newValue.1
         }
     }
     
     var float2x2: Float2x2 {
         get { (self.row1.float2, self.row1.float2) }
-        set(v) {
-            self.row1.float2 = v.0
-            self.row2.float2 = v.1
+        set {
+            self.row1.float2 = newValue.0
+            self.row2.float2 = newValue.1
         }
     }
     
     var double2x2: Double2x2 {
         get { (self.row1.double2, self.row1.double2) }
-        set(v) {
-            self.row1.double2 = v.0
-            self.row2.double2 = v.1
+        set {
+            self.row1.double2 = newValue.0
+            self.row2.double2 = newValue.1
         }
     }
     
@@ -193,13 +197,13 @@ public extension Matrix2 {
 }
 
 public extension Vector2 {
-    func applying(_ m: Matrix2) -> Self {
+    func applying(_ m: Matrix2<Scalar>) -> Self {
         let x = Self.dot(self, m.column1)
         let y = Self.dot(self, m.column2)
         return Self(x, y)
     }
     
-    mutating func apply(_ m: Matrix2) {
+    mutating func apply(_ m: Matrix2<Scalar>) {
         self = self.applying(m)
     }
 }

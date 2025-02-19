@@ -11,11 +11,6 @@ public actor Loop: LoopProtocol {
     public var running: Bool = false
     
     public init() throws {
-        errno = 0
-        
-        setbuf(stdout, nil)
-        setbuf(stderr, nil)
-        
         poller = try Loop.respondent()
     }
     
@@ -45,10 +40,9 @@ public actor Loop: LoopProtocol {
         }
     }
     
-    public func invalidate() async throws {
+    public func terminate() async throws {
         try poller.invalidate()
         running = false
-        exit(0)
     }
 }
 

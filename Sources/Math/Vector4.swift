@@ -1,10 +1,12 @@
-public struct Vector4: Vectorable, Hashable {
+public struct Vector4<Scalar: BinaryFloatingPoint & Sendable>: Vectorable, Hashable, Sendable {
     public var x: Scalar
     public var y: Scalar
     public var z: Scalar
     public var w: Scalar
 
-    public static let zero = Vector4(0.0, 0.0, 0.0, 0.0)
+    public static var zero: Vector4 {
+        Vector4(0.0, 0.0, 0.0, 0.0)
+    }
 
     public static var components: Int { 4 }
     
@@ -38,7 +40,7 @@ public struct Vector4: Vectorable, Hashable {
         self = vector
     }
 
-    public init(_ v: Vector3, _ w: some BinaryFloatingPoint) {
+    public init(_ v: Vector3<Scalar>, _ w: some BinaryFloatingPoint) {
         self.init(v.x, v.y, v.z, Scalar(w))
     }
 
@@ -56,7 +58,7 @@ public struct Vector4: Vectorable, Hashable {
     public static func dot(_ lhs: Vector4, _ rhs: Vector4) -> Scalar {
         (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w)
     }
-
+    /*
     public static func cross(_ v1: Vector4, _ v2: Vector4, _ v3: Vector4) -> Vector4 {
         let x =   v1.y * (v2.z * v3.w - v3.z * v2.w) - v1.z * (v2.y * v3.w - v3.y * v2.w) + v1.w * (v2.y * v3.z - v2.z * v3.y)
         let y = -(v1.x * (v2.z * v3.w - v3.z * v2.w) - v1.z * (v2.x * v3.w - v3.x * v2.w) + v1.w * (v2.x * v3.z - v3.x * v2.z))
@@ -64,7 +66,7 @@ public struct Vector4: Vectorable, Hashable {
         let w = -(v1.x * (v2.y * v3.z - v3.y * v2.z) - v1.y * (v2.x * v3.z - v3.x * v2.z) + v1.z * (v2.x * v3.y - v3.x * v2.y))
         return Vector4(x, y, z, w)
     }
-
+    */
     public static func + (lhs: Self, rhs: Self) -> Self {
         Self(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w)
     }

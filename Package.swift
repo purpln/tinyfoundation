@@ -20,8 +20,9 @@ let package = Package(name: "TinyFoundation", products: [
         "LibC"
     ]),
     .target(name: "Math", dependencies: [
-        "LibC"
+        "MathExternal"
     ]),
+    .systemLibrary(name: "MathExternal"),
     .target(name: "Process", dependencies: [
         "LibC"
     ], linkerSettings: [

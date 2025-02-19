@@ -321,7 +321,7 @@ internal var _ENOLCK: CInt { ENOLCK }
 @_alwaysEmitIntoClient
 internal var _ENOSYS: CInt { ENOSYS }
 
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
 @_alwaysEmitIntoClient
 internal var _EFTYPE: CInt { EFTYPE }
 
@@ -373,7 +373,7 @@ internal var _ENOMSG: CInt { ENOMSG }
 @_alwaysEmitIntoClient
 internal var _EILSEQ: CInt { EILSEQ }
 
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
 @_alwaysEmitIntoClient
 internal var _ENOATTR: CInt { ENOATTR }
 #endif
@@ -382,11 +382,10 @@ internal var _ENOATTR: CInt { ENOATTR }
 @_alwaysEmitIntoClient
 internal var _EBADMSG: CInt { EBADMSG }
 
-#if !os(OpenBSD)
 @_alwaysEmitIntoClient
 internal var _EMULTIHOP: CInt { EMULTIHOP }
 
-#if !os(WASI) && !os(FreeBSD)
+#if !os(WASI)
 @_alwaysEmitIntoClient
 internal var _ENODATA: CInt { ENODATA }
 #endif
@@ -394,7 +393,7 @@ internal var _ENODATA: CInt { ENODATA }
 @_alwaysEmitIntoClient
 internal var _ENOLINK: CInt { ENOLINK }
 
-#if !os(WASI) && !os(FreeBSD)
+#if !os(WASI)
 @_alwaysEmitIntoClient
 internal var _ENOSR: CInt { ENOSR }
 
@@ -406,10 +405,9 @@ internal var _ENOSTR: CInt { ENOSTR }
 @_alwaysEmitIntoClient
 internal var _EPROTO: CInt { EPROTO }
 
-#if !os(OpenBSD) && !os(WASI) && !os(FreeBSD)
+#if !os(WASI)
 @_alwaysEmitIntoClient
 internal var _ETIME: CInt { ETIME }
-#endif
 #endif
 
 
@@ -435,23 +433,12 @@ internal var _ENOTRECOVERABLE: CInt { ENOTRECOVERABLE }
 internal var _EOWNERDEAD: CInt { EOWNERDEAD }
 #endif
 
-#if os(FreeBSD)
-@_alwaysEmitIntoClient
-internal var _ENOTCAPABLE: CInt { ENOTCAPABLE }
-
-@_alwaysEmitIntoClient
-internal var _ECAPMODE: CInt { ECAPMODE }
-
-@_alwaysEmitIntoClient
-internal var _EINTEGRITY: CInt { EINTEGRITY }
-#endif
-
 #if os(macOS) || os(iOS)
 @_alwaysEmitIntoClient
 internal var _EQFULL: CInt { EQFULL }
 #endif
 
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
 @_alwaysEmitIntoClient
 internal var _ELAST: CInt { ELAST }
 #endif
@@ -463,7 +450,7 @@ internal var _DT_DIR: CInt {
 #if os(WASI)
     _getConst_DT_DIR()
 #else
-    DT_DIR
+    CInt(DT_DIR)
 #endif
 }
 
@@ -510,7 +497,7 @@ internal var _O_APPEND: CInt {
 #endif
 }
 
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
 @_alwaysEmitIntoClient
 internal var _O_SHLOCK: CInt { O_SHLOCK }
 
@@ -603,7 +590,7 @@ internal var _SEEK_CUR: CInt { SEEK_CUR }
 @_alwaysEmitIntoClient
 internal var _SEEK_END: CInt { SEEK_END }
 
-#if os(macOS) || os(iOS) || os(FreeBSD)
+#if os(macOS) || os(iOS)
 @_alwaysEmitIntoClient
 internal var _SEEK_HOLE: CInt { SEEK_HOLE }
 

@@ -1,4 +1,5 @@
 public protocol Matrixable: Equatable, Sendable {
+    associatedtype Scalar: BinaryFloatingPoint
     associatedtype Vector
     
     mutating func invert()
@@ -15,7 +16,7 @@ public protocol Matrixable: Equatable, Sendable {
     static var numRows: Int { get }
     static var numCols: Int { get }
     subscript(row: Int, column: Int) -> Scalar { get set }
-    subscript(row: Int) -> Self.Vector { get set }
+    subscript(row: Int) -> Vector { get set }
     
     static var identity: Self { get }
     

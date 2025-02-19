@@ -1,5 +1,3 @@
-public typealias Scalar = Double
-
 extension Comparable {
     public func clamp(min: Self, max: Self) -> Self {
         if self < min { return min }

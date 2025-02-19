@@ -1,4 +1,4 @@
-public protocol Vectorable: Equatable, Sendable {
+public protocol Vectorable: Equatable {
     associatedtype Scalar: BinaryFloatingPoint
 
     static var components: Int { get }
@@ -40,16 +40,16 @@ public protocol Vectorable: Equatable, Sendable {
 }
 
 public extension Vectorable {
-    var length: Scalar              { self.lengthSquared.squareRoot() }
+    var length: Scalar              { lengthSquared.squareRoot() }
     var lengthSquared: Scalar       { Self.dot(self, self) }
 
-    var magnitude: Scalar           { self.length }
-    var magnitudeSquared: Scalar    { self.lengthSquared }
+    var magnitude: Scalar           { length }
+    var magnitudeSquared: Scalar    { lengthSquared }
 
     func dot(_ v: Self) -> Scalar   { Self.dot(self, v) }
 
     func normalized() -> Self {
-        let lengthSq = self.lengthSquared
+        let lengthSq = lengthSquared
         if lengthSq.isZero == false {
             return self * (1.0 / lengthSq.squareRoot())
         }
@@ -57,7 +57,7 @@ public extension Vectorable {
     }
 
     mutating func normalize() {
-        self = self.normalized()
+        self = normalized()
     }
 
     static func lerp(_ lhs: Self, _ rhs: Self, _ t: some BinaryFloatingPoint) -> Self {

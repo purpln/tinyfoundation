@@ -1,5 +1,5 @@
 /// The platform-specific type of a loaded image handle.
-#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(FreeBSD) || os(OpenBSD)
+#if os(macOS) || os(iOS) || os(Linux) || os(Android)
 public typealias ImageAddress = UnsafeMutableRawPointer
 #elseif os(Windows)
 public typealias ImageAddress = HMODULE
@@ -16,7 +16,7 @@ public typealias ImageAddress = Never
 /// and cannot be imported directly into Swift. As well, `RTLD_DEFAULT` is only
 /// defined on Linux when `_GNU_SOURCE` is defined, so it is not sufficient to
 /// declare a wrapper function in the internal module's Stubs.h file.
-#if os(macOS) || os(iOS) || os(FreeBSD) || os(OpenBSD)
+#if os(macOS) || os(iOS)
 private nonisolated(unsafe) let RTLD_DEFAULT = ImageAddress(bitPattern: -2)
 #elseif os(Android) && _pointerBitWidth(_32)
 private nonisolated(unsafe) let RTLD_DEFAULT = ImageAddress(bitPattern: 0xFFFFFFFF as UInt)
@@ -47,7 +47,7 @@ private nonisolated(unsafe) let RTLD_DEFAULT = ImageAddress(bitPattern: 0)
 /// calling `EnumProcessModules()` and iterating over the returned handles
 /// looking for one containing the given function.
 public func symbol(in handle: ImageAddress? = nil, named symbolName: String) -> UnsafeRawPointer? {
-#if os(macOS) || os(iOS) || os(Linux) || os(Android) || os(FreeBSD) || os(OpenBSD)
+#if os(macOS) || os(iOS) || os(Linux) || os(Android)
     dlsym(handle ?? RTLD_DEFAULT, symbolName).map(UnsafeRawPointer.init)
 #elseif os(Windows)
     symbolName.withCString { symbolName in
@@ -72,12 +72,12 @@ public func symbol(in handle: ImageAddress? = nil, named symbolName: String) -> 
 }
 /*
  let test = symbol(named: "test").map({
- unsafeBitCast($0, to: (@convention(c) () -> Void).self)
+     unsafeBitCast($0, to: (@convention(c) () -> Void).self)
  })
  test?()
  
  @_cdecl("test")
  func test() {
- print("test")
+     print("test")
  }
  */

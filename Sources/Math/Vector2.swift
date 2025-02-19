@@ -1,8 +1,10 @@
-public struct Vector2: Vectorable, Hashable {
+public struct Vector2<Scalar: BinaryFloatingPoint & Sendable>: Vectorable, Hashable, Sendable {
     public var x: Scalar
     public var y: Scalar
 
-    public static let zero = Vector2(0.0, 0.0)
+    public static var zero: Vector2 {
+        Vector2(0.0, 0.0)
+    }
 
     public static var components: Int { 2 }
     
@@ -53,9 +55,9 @@ public struct Vector2: Vectorable, Hashable {
         // Rotate
         // | cos  sin|
         // |-sin  cos|
-        let a = Scalar(angle)
-        let cosR = cos(a)
-        let sinR = sin(a)
+        let a = Double(angle)
+        let cosR = Scalar(cos(a))
+        let sinR = Scalar(sin(a))
         return Self(x * cosR - y * sinR, x * sinR + y * cosR)
     }
 

@@ -1,7 +1,7 @@
 import LibC
 
 public struct Socket: Sendable {
-    internal let descriptor: FileDescriptor
+    public let descriptor: FileDescriptor
     
     public init(family: SocketFamily, type: SocketType = .stream) throws(Errno) {
         let result = try valueOrErrno(retryOnInterrupt: false, {
