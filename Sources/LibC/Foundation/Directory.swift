@@ -75,3 +75,33 @@ public func getExecutablePath() -> String? {
     return nil
 #endif
 }
+
+public func getDirectoryContents(_ path: String) throws -> [String] {
+    let allocator = Allocator(open: {
+        opendir(path)
+    }, close: { pointer in
+        closedir(pointer)
+    })
+    let pointer = try allocator.pointer()
+    
+    var results = [String]()
+    while let entity = system_readdir(pointer) {
+#if !os(WASI)
+        var name = entity.pointee.d_name
+        let path = withUnsafePointer(to: &name) { pointer -> String in
+            let buffer = pointer.withMemoryRebound(to: UInt8.self, capacity: Int(entity.pointee.d_reclen)) { pointer -> [UInt8] in
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+                [UInt8](UnsafeBufferPointer(start: pointer, count: Int(entity.pointee.d_namlen)))
+#elseif os(Linux) || os(Android)
+                [UInt8](UnsafeBufferPointer(start: pointer, count: 256))
+#endif
+            }
+            return String(decoding: buffer, as: UTF8.self)
+        }
+#else
+        let path = String(cString: _platform_shims_dirent_d_name(entity))
+#endif
+        results.append(path)
+    }
+    return results
+}

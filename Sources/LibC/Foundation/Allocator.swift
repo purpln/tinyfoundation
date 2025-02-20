@@ -1,6 +1,4 @@
-import LibC
-
-class Allocator<Pointer> {
+public class Allocator<Pointer> {
     public var allocated: Bool = false
     private var open: () -> Pointer?
     private var close: (Pointer) -> Void
