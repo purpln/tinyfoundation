@@ -1,5 +1,0 @@
-module LibCExternal [system] {
-    header "module.h"
-    header "platform_shims.h"
-    export *
-}

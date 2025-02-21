@@ -10,7 +10,7 @@ public struct Document {
     public var path: Path
     public var mode: Mode
     
-    private var allocator: Allocator<Pointer>
+    private var allocator: Allocator<Pointer, Never>
     private var descriptor: FileDescriptor?
     
     public init(path: Path, mode: Mode) {
@@ -76,7 +76,7 @@ private extension Document {
     @discardableResult
     func result<T>(task: (Pointer) throws(Errno) -> T) throws(Errno) -> T {
         do {
-            let pointer = try allocator.pointer()
+            let pointer = try allocator.allocate()
             return try task(pointer)
         } catch {
             throw error

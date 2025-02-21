@@ -1,4 +1,0 @@
-module MathExternal [system] {
-    header "module.h"
-    export *
-}

@@ -4,38 +4,30 @@ import PackageDescription
 
 let package = Package(name: "TinyFoundation", products: [
     .library(name: "TinyFoundation", targets: [
-        "Documents", "LibC", "Loop", "Math", "Process", "Signal", "Socket", "Timestamp", "UniqueID", "Version"
+        "Documents", "Loop", "Process", "Signal", "Socket", "Timestamp", "UniqueID", "Version"
     ]),
+], dependencies: [
+    .package(url: "https://github.com/purpln/libc.git", branch: "main"),
 ], targets: [
     .target(name: "Documents", dependencies: [
-        "LibC"
+        .product(name: "LibC", package: "libc"),
     ]),
-    .target(name: "LibC", dependencies: [
-        "LibCExternal"
-    ], linkerSettings: [
-        .linkedLibrary("android", .when(platforms: [.android])),
-    ]),
-    .target(name: "LibCExternal"),
     .target(name: "Loop", dependencies: [
-        "LibC"
+        .product(name: "LibC", package: "libc"),
     ]),
-    .target(name: "Math", dependencies: [
-        "MathExternal"
-    ]),
-    .systemLibrary(name: "MathExternal"),
     .target(name: "Process", dependencies: [
-        "LibC"
+        .product(name: "LibC", package: "libc"),
     ], linkerSettings: [
         .linkedLibrary("android-spawn", .when(platforms: [.android])),
     ]),
     .target(name: "Signal", dependencies: [
-        "LibC"
+        .product(name: "LibC", package: "libc"),
     ]),
     .target(name: "Socket", dependencies: [
-        "LibC"
+        .product(name: "LibC", package: "libc"),
     ]),
     .target(name: "Timestamp", dependencies: [
-        "LibC"
+        .product(name: "LibC", package: "libc"),
     ]),
     .target(name: "UniqueID", dependencies: [
         "Timestamp"

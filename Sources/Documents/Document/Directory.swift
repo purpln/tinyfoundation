@@ -9,7 +9,7 @@ private typealias Pointer = UnsafeMutablePointer<DIR>
 public struct Directory {
     public var path: Path
     
-    private var allocator: Allocator<Pointer>
+    private var allocator: Allocator<Pointer, Never>
     
     public init(path: Path) {
         self.path = path
@@ -25,8 +25,7 @@ public struct Directory {
 
 public extension Directory {
     func contents() throws -> [String] {
-        try getDirectoryContents(path.resolved.rawValue)
-            .filter({ !(($0 == ".") || ($0 == "..")) })
+        try getDirectoryContents(path.resolved.rawValue).map(\.name)
     }
     /*
     func create() throws {
