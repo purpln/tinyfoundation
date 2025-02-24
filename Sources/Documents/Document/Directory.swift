@@ -1,24 +1,21 @@
 import LibC
 
-#if os(Linux) || os(Android) || os(WASI)
-private typealias Pointer = OpaquePointer
-#else
-private typealias Pointer = UnsafeMutablePointer<DIR>
-#endif
-
 public struct Directory {
     public var path: Path
     
-    private var allocator: Allocator<Pointer, Never>
+    private var allocator: Allocator<system_DIRPtr, Errno>
     
     public init(path: Path) {
         self.path = path
         
         let path = path.resolved.rawValue
-        allocator = Allocator(open: {
-            opendir(path)
-        }, close: { pointer in
-            closedir(pointer)
+        allocator = Allocator(open: { () throws(Errno) in
+            guard let pointer = opendir(path) else { throw Errno() }
+            return pointer
+        }, close: { pointer throws(Errno) in
+            try nothingOrErrno(retryOnInterrupt: false, {
+                closedir(pointer)
+            }).get()
         })
     }
 }

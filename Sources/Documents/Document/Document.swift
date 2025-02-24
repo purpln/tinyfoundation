@@ -1,16 +1,10 @@
 import LibC
 
-#if canImport(Android) || os(WASI)
-private typealias Pointer = OpaquePointer
-#else
-private typealias Pointer = UnsafeMutablePointer<FILE>
-#endif
-
 public struct Document {
     public var path: Path
     public var mode: Mode
     
-    private var allocator: Allocator<Pointer, Never>
+    private var allocator: Allocator<system_FILEPtr, Errno>
     private var descriptor: FileDescriptor?
     
     public init(path: Path, mode: Mode) {
@@ -18,17 +12,20 @@ public struct Document {
         self.mode = mode
         
         let path = path.resolved.rawValue
-        allocator = Allocator(open: {
-            fopen(path, mode.rawValue)
-        }, close: { pointer in
-            fclose(pointer)
+        allocator = Allocator(open: { () throws(Errno) in
+            guard let pointer = fopen(path, mode.rawValue) else { throw Errno() }
+            return pointer
+        }, close: { pointer throws(Errno) in
+            try nothingOrErrno(retryOnInterrupt: false, {
+                fclose(pointer)
+            }).get()
         })
     }
 }
 
 private extension Document {
     func seek(value: Int, option: CInt) throws(Errno) {
-        try result { pointer throws(Errno) -> Void in
+        try result { pointer throws(Errno) in
             try nothingOrErrno(retryOnInterrupt: false, {
                 fseek(pointer, value, option)
             }).get()
@@ -36,7 +33,7 @@ private extension Document {
     }
     
     func tell() throws(Errno) -> Int {
-        try result { pointer throws(Errno) -> Int in
+        try result { pointer throws(Errno) in
             try valueOrErrno(retryOnInterrupt: false, {
                 ftell(pointer)
             }).get()
@@ -44,7 +41,7 @@ private extension Document {
     }
     
     func write(array: [UInt8]) throws(Errno) -> Int {
-        try result { pointer throws(Errno) -> Int in
+        try result { pointer throws(Errno) in
             try valueOrErrno(retryOnInterrupt: false, {
                 fwrite(array, 1, array.count, pointer)
             }).get()
@@ -52,7 +49,7 @@ private extension Document {
     }
     
     func read(array: inout [UInt8], count: Int) throws(Errno) -> Int {
-        try result { pointer throws(Errno) -> Int in
+        try result { pointer throws(Errno) in
             try valueOrErrno(retryOnInterrupt: false, {
                 fread(&array, 1, count, pointer)
             }).get()
@@ -60,13 +57,12 @@ private extension Document {
     }
     
     func get(array: inout [UInt8]) throws(Errno) {
-        try result { pointer in
-            fgets(&array, BUFSIZ, pointer)
-        }
+        let pointer = try allocator.allocate()
+        fgets(&array, BUFSIZ, pointer)
     }
     
     func put(array: [UInt8]) throws(Errno) {
-        try result { pointer throws(Errno) -> Void in
+        try result { pointer throws(Errno) in
             try nothingOrErrno(retryOnInterrupt: false, {
                 fputs(array, pointer)
             }).get()
@@ -74,7 +70,7 @@ private extension Document {
     }
     
     @discardableResult
-    func result<T>(task: (Pointer) throws(Errno) -> T) throws(Errno) -> T {
+    func result<T>(task: (system_FILEPtr) throws(Errno) -> T) throws(Errno) -> T {
         do {
             let pointer = try allocator.allocate()
             return try task(pointer)

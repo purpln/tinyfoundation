@@ -106,7 +106,7 @@ extension Timestamp: AdditiveArithmetic {
 public extension Timestamp {
     @inlinable
     static var now: Timestamp {
-        Timestamp(timespec: .now())
+        Timestamp(timespec: .now)
     }
     
     @inlinable
