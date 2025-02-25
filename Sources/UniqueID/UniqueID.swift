@@ -103,7 +103,7 @@ public extension UniqueID {
             UnsafeMutableBufferPointer(
                 start: tuple.baseAddress.unsafelyUnwrapped.assumingMemoryBound(to: UInt8.self),
                 count: 16
-            ).initialize(from: tuple).1
+            ).initialize(from: bytes).1
         }
         guard copied == 16 else { return nil }
         self.init(tuple: tuple)
