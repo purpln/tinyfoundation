@@ -13,8 +13,8 @@ public extension UniqueID {
             utf8 = utf8.dropFirst().dropLast()
         }
         // Parse the bytes.
-        var uuid = UniqueID.zero.bytes
-        let success = withUnsafeMutableBytes(of: &uuid) { uuidBytes -> Bool in
+        var tuple = UniqueID.zero.tuple
+        let success = withUnsafeMutableBytes(of: &tuple) { uuidBytes -> Bool in
             var i = utf8.startIndex
             for storagePosition in 0..<16 {
                 while i < utf8.endIndex, utf8[i] == 0x2D /* "-" */ {
@@ -28,7 +28,7 @@ public extension UniqueID {
             return i == utf8.endIndex
         }
         guard success else { return nil }
-        self = UniqueID(bytes: uuid)
+        self = UniqueID(tuple: tuple)
     }
 }
 

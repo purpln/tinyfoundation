@@ -13,7 +13,7 @@ public struct Document {
         
         let path = path.resolved.rawValue
         allocator = Allocator(open: { () throws(Errno) in
-            guard let pointer = fopen(path, mode.rawValue) else { throw Errno() }
+            guard let pointer = fopen(path, mode.rawValue) else { throw Errno.current }
             return pointer
         }, close: { pointer throws(Errno) in
             try nothingOrErrno(retryOnInterrupt: false, {

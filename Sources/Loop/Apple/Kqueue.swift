@@ -31,15 +31,6 @@ struct Kqueue: PollerProtocol {
             }).get()
         }
         events = []
-        /*
-        guard count >= 0 else {
-            let errno = Errno()
-            if errno == .interrupted {
-                return []
-            }
-            throw errno
-        }
-        */
         return result.prefix(upTo: Int(count))
     }
     

@@ -4,11 +4,11 @@ public struct UniqueID: Sendable {
         UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
     )
     
-    public let bytes: Bytes
+    public let tuple: Bytes
     
     @inlinable
-    public init(bytes: Bytes) {
-        self.bytes = bytes
+    public init(tuple: Bytes) {
+        self.tuple = tuple
     }
 }
 
@@ -56,15 +56,15 @@ extension UniqueID: Codable {
 extension UniqueID: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) {
-        withUnsafeBytes(of: bytes) { hasher.combine(bytes: $0) }
+        withUnsafeBytes(of: tuple) { hasher.combine(bytes: $0) }
     }
 }
 
 extension UniqueID: Equatable {
     @inlinable
     public static func == (lhs: UniqueID, rhs: UniqueID) -> Bool {
-        withUnsafeBytes(of: lhs.bytes) { lhsBytes in
-            withUnsafeBytes(of: rhs.bytes) { rhsBytes in
+        withUnsafeBytes(of: lhs.tuple) { lhsBytes in
+            withUnsafeBytes(of: rhs.tuple) { rhsBytes in
                 lhsBytes.elementsEqual(rhsBytes)
             }
         }
@@ -74,8 +74,8 @@ extension UniqueID: Equatable {
 extension UniqueID: Comparable {
     @inlinable
     public static func < (lhs: UniqueID, rhs: UniqueID) -> Bool {
-        withUnsafeBytes(of: lhs.bytes) { lhsBytes in
-            withUnsafeBytes(of: rhs.bytes) { rhsBytes in
+        withUnsafeBytes(of: lhs.tuple) { lhsBytes in
+            withUnsafeBytes(of: rhs.tuple) { rhsBytes in
                 lhsBytes.lexicographicallyPrecedes(rhsBytes)
             }
         }
@@ -85,32 +85,38 @@ extension UniqueID: Comparable {
 public extension UniqueID {
     @inlinable 
     static var zero: UniqueID {
-        UniqueID(bytes: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+        UniqueID(tuple: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
     }
     
     @inlinable 
     var version: Int? {
-        guard (bytes.8 &>> 6) == 0b00000010 else { return nil }
-        return Int((bytes.6 & 0b1111_0000) &>> 4)
+        guard (tuple.8 &>> 6) == 0b00000010 else { return nil }
+        return Int((tuple.6 & 0b1111_0000) &>> 4)
     }
 }
 
 public extension UniqueID {
     @inlinable
     init?<Bytes: Sequence>(bytes: Bytes) where Bytes.Element == UInt8 {
-        var uuid = UniqueID.zero.bytes
-        let copied = withUnsafeMutableBytes(of: &uuid) { bytes in
+        var tuple = UniqueID.zero.tuple
+        let copied = withUnsafeMutableBytes(of: &tuple) { tuple in
             UnsafeMutableBufferPointer(
-                start: bytes.baseAddress.unsafelyUnwrapped.assumingMemoryBound(to: UInt8.self),
+                start: tuple.baseAddress.unsafelyUnwrapped.assumingMemoryBound(to: UInt8.self),
                 count: 16
-            ).initialize(from: bytes).1
+            ).initialize(from: tuple).1
         }
         guard copied == 16 else { return nil }
-        self.init(bytes: uuid)
+        self.init(tuple: tuple)
     }
     
     @inlinable
     init() {
         self = .random()
+    }
+    
+    var bytes: [UInt8] {
+        withUnsafePointer(to: tuple, {
+            Array(UnsafeBufferPointer(start: UnsafeRawPointer($0).assumingMemoryBound(to: UInt8.self), count: 16))
+        })
     }
 }

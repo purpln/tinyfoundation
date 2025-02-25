@@ -9,7 +9,7 @@ public extension UniqueID {
 extension UniqueID {
     @inlinable
     internal static func random<RNG: RandomNumberGenerator>(using rng: inout RNG) -> UniqueID {
-        var storage = UniqueID.zero.bytes
+        var storage = UniqueID.zero.tuple
         withUnsafeMutableBytes(of: &storage) { bytes in
             var random = rng.next()
             withUnsafePointer(to: &random) {
@@ -26,6 +26,6 @@ extension UniqueID {
         // octet 8 = clock_seq_high_and_reserved.
         // high 2 bits = variant (10 = standard).
         storage.8 = (storage.8 & 0x3F) | 0x80
-        return UniqueID(bytes: storage)
+        return UniqueID(tuple: storage)
     }
 }

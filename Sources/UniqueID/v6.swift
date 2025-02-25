@@ -49,7 +49,7 @@ public extension UniqueID {
         let sequenceAndVariant = ((sequence & 0x3fff) | 0x8000).bigEndian
         let nodeBE = node.bigEndian
         
-        var storage = UniqueID.zero.bytes
+        var storage = UniqueID.zero.tuple
         withUnsafeMutableBytes(of: &storage) { bytes in
             withUnsafeBytes(of: timestampAndVersion) {
                 bytes.baseAddress!.copyMemory(from: $0.baseAddress!, byteCount: 8)
@@ -61,7 +61,7 @@ public extension UniqueID {
                 (bytes.baseAddress! + 10).copyMemory(from: $0.baseAddress! + 2, byteCount: 6)
             }
         }
-        return UniqueID(bytes: storage)
+        return UniqueID(tuple: storage)
     }
     
     @inlinable

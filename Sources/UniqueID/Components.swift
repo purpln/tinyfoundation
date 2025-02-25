@@ -33,7 +33,7 @@ extension UniqueID {
         internal var rawTimestamp: UInt64 {
             var timestamp: UInt64 = 0
             withUnsafeMutableBytes(of: &timestamp) { timestamp_bytes in
-                withUnsafeBytes(of: uuid.bytes) { uuidBytes in
+                withUnsafeBytes(of: uuid.tuple) { uuidBytes in
                     timestamp_bytes.copyMemory(from: UnsafeRawBufferPointer(start: uuidBytes.baseAddress, count: 8))
                 }
                 // Remove the UUID version bits.
@@ -52,7 +52,7 @@ extension UniqueID {
         public var sequence: UInt16 {
             var clk_seq: UInt16 = 0
             withUnsafeMutableBytes(of: &clk_seq) { clk_seq_bytes in
-                withUnsafeBytes(of: uuid.bytes) { uuid_bytes in
+                withUnsafeBytes(of: uuid.tuple) { uuid_bytes in
                     clk_seq_bytes.copyMemory(from: UnsafeRawBufferPointer(start: uuid_bytes.baseAddress! + 8, count: 2))
                 }
             }
@@ -63,7 +63,7 @@ extension UniqueID {
         public var node: UInt {
             var node: UInt = 0
             withUnsafeMutableBytes(of: &node) { nodeID_bytes in
-                withUnsafeBytes(of: uuid.bytes) { uuidBytes in
+                withUnsafeBytes(of: uuid.tuple) { uuidBytes in
                     nodeID_bytes.baseAddress!.advanced(by: 2).copyMemory(from: uuidBytes.baseAddress! + 10, byteCount: 6)
                 }
             }

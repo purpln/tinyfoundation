@@ -10,7 +10,7 @@ public struct Directory {
         
         let path = path.resolved.rawValue
         allocator = Allocator(open: { () throws(Errno) in
-            guard let pointer = opendir(path) else { throw Errno() }
+            guard let pointer = opendir(path) else { throw Errno.current }
             return pointer
         }, close: { pointer throws(Errno) in
             try nothingOrErrno(retryOnInterrupt: false, {
@@ -36,7 +36,7 @@ public extension Directory {
         }
         
         guard mkdir(path.rawValue, S_IRWXU | S_IRWXG | S_IRWXO) == 0 else {
-            throw Errno()
+            throw Errno.current
         }
     }
     */

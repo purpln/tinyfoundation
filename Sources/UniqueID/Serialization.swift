@@ -14,7 +14,7 @@ public extension UniqueID {
         uppercase: Bool, separators: Bool
     ) -> Int {
         // format = 8-4-4-4-12
-        withUnsafeBytes(of: bytes) { octets in
+        withUnsafeBytes(of: tuple) { octets in
             var i = 0
             // 8:
             for octetPosition in 0..<4 {
