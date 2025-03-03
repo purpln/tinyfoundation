@@ -34,7 +34,7 @@ public extension Path {
     
     @inlinable
     static var application: Path {
-        Path(getExecutablePath()!)
+        Path(getExecutablePath())
     }
     
     @inlinable
