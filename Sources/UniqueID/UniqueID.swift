@@ -14,14 +14,14 @@ public struct UniqueID: Sendable {
 
 extension UniqueID: LosslessStringConvertible {
     @inlinable
-    public init?(_ string: String) {
-        self.init(internal: string)
+    public init?(_ description: String) {
+        self.init(internal: description)
     }
     
     @inlinable
-    internal init?<S: StringProtocol>(internal string: S) where S.UTF8View: BidirectionalCollection {
-        let parsed = string.utf8.withContiguousStorageIfAvailable { UniqueID(utf8: $0) } ?? UniqueID(utf8: string.utf8)
-        guard let parsed = parsed else {
+    public init?<S: StringProtocol>(internal string: S) {
+        let parsed = string.utf8.withContiguousStorageIfAvailable { UniqueID(utf8: $0) }
+        guard let parsed = parsed, let parsed = parsed else {
             return nil
         }
         self = parsed

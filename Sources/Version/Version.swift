@@ -22,12 +22,12 @@ public struct Version: Sendable {
 
 extension Version: LosslessStringConvertible {
     @inlinable
-    public init?(_ string: String) {
-        self.init(internal: string)
+    public init?(_ description: String) {
+        self.init(internal: description)
     }
     
     @inlinable
-    internal init?<S: StringProtocol>(internal string: S) {
+    public init?<S: StringProtocol>(internal string: S) {
         let string = string.dropFirst(string.first == "v" ? 1 : 0)
         let prereleaseStartIndex = string.firstIndex(of: "-")
         let metadataStartIndex = string.firstIndex(of: "+")
