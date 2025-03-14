@@ -24,7 +24,7 @@ public struct Timestamp: Sendable {
     
     @inlinable
     public init<T: BinaryFloatingPoint>(_ value: T) {
-        let (whole, fraction) = modf(Double(value))
+        let (whole, _) = modf(Double(value))
         switch numberOfDigits(in: Int(whole)) {
         case 0..<12:
             self = .seconds(value)
