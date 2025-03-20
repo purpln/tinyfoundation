@@ -4,12 +4,11 @@ import PackageDescription
 
 let package = Package(name: "TinyFoundation", products: [
     .library(name: "TinyFoundation", targets: [
-        "Lock", "Loop", "Process", "Signal", "Socket", "Sorting", "Timestamp", "UniqueID", "Version"
+        "Loop", "Process", "Signal", "Socket", "Sorting", "Timestamp", "UniqueID", "Version"
     ]),
 ], dependencies: [
     .package(url: "https://github.com/purpln/libc.git", branch: "main"),
 ], targets: [
-    .target(name: "Lock"),
     .target(name: "Loop", dependencies: [
         .product(name: "LibC", package: "libc"),
     ]),

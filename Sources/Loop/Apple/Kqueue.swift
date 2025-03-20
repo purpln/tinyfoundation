@@ -65,4 +65,11 @@ extension Kqueue {
         events.append(event)
     }
 }
+
+private extension FileDescriptor {
+    var flags: CInt {
+        get { fcntl(rawValue, F_GETFD, 0) }
+        nonmutating set { _ = fcntl(rawValue, F_SETFD, newValue) }
+    }
+}
 #endif
