@@ -83,12 +83,12 @@ extension UniqueID: Comparable {
 }
 
 public extension UniqueID {
-    @inlinable 
+    @inlinable
     static var zero: UniqueID {
         UniqueID(tuple: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
     }
     
-    @inlinable 
+    @inlinable
     var version: Int? {
         guard (tuple.8 &>> 6) == 0b00000010 else { return nil }
         return Int((tuple.6 & 0b1111_0000) &>> 4)

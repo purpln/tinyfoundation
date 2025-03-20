@@ -55,14 +55,7 @@ extension Timestamp: ExpressibleByIntegerLiteral {
 extension Timestamp: CustomStringConvertible {
     @inlinable
     public var description: String {
-        var seconds = value.tv_sec
-        let ts = localtime(&seconds)
-        
-        let length = 64
-        let buffer = [UInt8](unsafeUninitializedCapacity: length) { buffer, count in
-            count = strftime(buffer.baseAddress!, length, /* %A */ "%Y-%m-%d %H:%M:%S %z", ts!)
-        }
-        return String(decoding: buffer, as: UTF8.self)
+        value.description
     }
 }
 
@@ -183,10 +176,17 @@ public extension Timestamp {
     var elapsed: TimeInterval {
         distance(to: .now)
     }
+#if !os(Windows)
     @inlinable
     var components: (seconds: time_t, nanoseconds: Int) {
         (value.tv_sec, value.tv_nsec)
     }
+#else
+    @inlinable
+    var components: (seconds: time_t, nanoseconds: CInt) {
+        (value.tv_sec, value.tv_nsec)
+    }
+#endif
 }
 
 public extension Timestamp {

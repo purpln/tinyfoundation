@@ -3,10 +3,10 @@ public extension UniqueID {
         uppercase: Bool = false, separators: Bool = true
     ) -> String {
         let capacity = 32 + (separators ? 4 : 0)
-        let buffer = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, count in
+        let bytes = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, count in
             count = serialize(into: buffer, uppercase: uppercase, separators: separators)
         }
-        return String(decoding: buffer, as: UTF8.self)
+        return String(decoding: bytes, as: UTF8.self)
     }
     
     internal func serialize(

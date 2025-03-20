@@ -17,11 +17,17 @@ extension Timestamp: AtomicRepresentable {
     
     public static func decodeAtomicRepresentation(_ storage: consuming AtomicRepresentation) -> Timestamp {
         let wordPair = WordPair.decodeAtomicRepresentation(storage)
-        
+#if !os(Windows)
         return Timestamp(timespec: .init(
             tv_sec: time_t(Int(bitPattern: wordPair.first)),
             tv_nsec: Int(bitPattern: wordPair.second)
         ))
+#else
+        return Timestamp(timespec: .init(
+            tv_sec: time_t(Int(bitPattern: wordPair.first)),
+            tv_nsec: CInt(Int(bitPattern: wordPair.second))
+        ))
+#endif
     }
 }
 #endif
