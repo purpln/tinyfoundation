@@ -67,7 +67,15 @@ extension Version: LosslessStringConvertible {
 extension Version: CustomStringConvertible {
     @inlinable
     public var description: String {
-        var components = "\(major).\(minor).\(patch)"
+        var components: String
+        switch (major, minor, patch) {
+        case (_, 0, 0):
+            components = "\(major)"
+        case (_, _, 0):
+            components = "\(major).\(minor)"
+        default:
+            components = "\(major).\(minor).\(patch)"
+        }
         if !prerelease.isEmpty {
             components += "-" + prerelease.joined(separator: ".")
         }
