@@ -7,16 +7,11 @@ public struct Version: Sendable {
     
     @inlinable
     public init(major: Int, minor: Int, patch: Int, prerelease: [String] = [], build: [String] = []) {
-        self.major = abs(major)
-        self.minor = abs(minor)
-        self.patch = abs(patch)
+        self.major = major
+        self.minor = minor
+        self.patch = patch
         self.prerelease = prerelease
         self.build = build
-        
-        if major < 0 || minor < 0 || patch < 0 {
-            print("warning: negative component in version: \(major).\(minor).\(patch)")
-            print("notice: negative components were abs’d")
-        }
     }
 }
 
