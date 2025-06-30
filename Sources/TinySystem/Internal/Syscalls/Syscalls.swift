@@ -133,7 +133,7 @@ public let SYSTEM_CS_DARWIN_USER_CACHE_DIR = _CS_DARWIN_USER_CACHE_DIR
 
 public func system_confstr(
     _ name: CInt,
-    _ buffer: UnsafeMutablePointer<PlatformChar>,
+    _ buffer: UnsafeMutablePointer<PlatformChar>?,
     _ length: Int
 ) -> Int {
     confstr(name, buffer, length)
