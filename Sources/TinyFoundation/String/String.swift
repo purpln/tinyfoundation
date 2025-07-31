@@ -25,8 +25,10 @@ extension String {
         self = strRes.result
         return
         
-#else
+#elseif swift(>=6.0)
         self.init(validatingCString: platformString)
+#else
+        self.init(validatingUTF8: platformString)
 #endif
     }
     

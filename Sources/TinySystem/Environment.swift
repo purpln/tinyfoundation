@@ -1,10 +1,10 @@
 import LibC
 
 public var environment: [String: String] {
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS) || os(Linux) || os(Android) || os(WASI)
-    return parse(environ: environ)
-#elseif os(Windows)
+#if os(Windows)
     return parseWindowsEnvironment()
+#else
+    return parse(environ: environ)
 #endif
 }
 
@@ -26,25 +26,7 @@ internal func split(row: String) -> (key: String, value: String)? {
     }
 }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS) || os(Linux) || os(Android) || os(WASI)
-@inlinable
-internal func parse(environ: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>) -> [String: String] {
-    var result = [String: String]()
-    
-    for i in 0... {
-        guard let pointer = environ[i] else { break }
-        
-        guard let row = String(validatingCString: pointer),
-              let (key, value) = split(row: row) else {
-            continue
-        }
-        
-        result[key] = value
-    }
-    
-    return result
-}
-#elseif os(Windows)
+#if os(Windows)
 @inlinable
 internal func parseWindowsEnvironment() -> [String: String] {
     guard let environ = GetEnvironmentStringsW() else {
@@ -65,6 +47,25 @@ internal func parseWindowsEnvironment() -> [String: String] {
             result[key] = value
         }
     }
+    return result
+}
+#else
+@inlinable
+internal func parse(environ: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>) -> [String: String] {
+    var result = [String: String]()
+    
+    for i in 0... {
+        guard let pointer = environ[i] else { break }
+        
+        let row = String(cString: pointer)
+        
+        guard let (key, value) = split(row: row) else {
+            continue
+        }
+        
+        result[key] = value
+    }
+    
     return result
 }
 #endif

@@ -126,7 +126,7 @@ public func system_rmdir(
     rmdir(path)
 }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 public let SYSTEM_CS_DARWIN_USER_DIR = _CS_DARWIN_USER_DIR
 public let SYSTEM_CS_DARWIN_USER_TEMP_DIR = _CS_DARWIN_USER_TEMP_DIR
 public let SYSTEM_CS_DARWIN_USER_CACHE_DIR = _CS_DARWIN_USER_CACHE_DIR
@@ -148,7 +148,7 @@ public typealias system_DIRPtr = OpaquePointer
 public typealias system_DIRPtr = UnsafeMutablePointer<DIR>
 #endif
 
-#if canImport(Android) || os(WASI)
+#if os(Android) || os(WASI)
 public typealias system_FILEPtr = OpaquePointer
 #else
 public typealias system_FILEPtr = UnsafeMutablePointer<FILE>
@@ -220,7 +220,7 @@ public func system_getenv(
 public func system_setenv(
     _ name: UnsafePointer<PlatformChar>,
     _ value: UnsafePointer<PlatformChar>,
-    _ overwrite: Int32
+    _ overwrite: CInt
 ) -> CInt {
     setenv(name, value, overwrite)
 }
@@ -261,5 +261,13 @@ public func system_closesocket(
     _ descriptor: CInt
 ) -> CInt {
     closesocket(descriptor)
+}
+#else
+public func system_fcntl(
+    _ descriptor: CInt,
+    _ command: CInt,
+    _ arguments: CInt
+) -> CInt {
+    fcntl(descriptor, command, arguments)
 }
 #endif

@@ -1,3 +1,5 @@
+@_exported import TinySystem
+
 private func valueOrErrno<I: FixedWidthInteger>(
     _ i: I
 ) -> Result<I, Errno> {

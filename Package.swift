@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(name: "TinyFoundation", products: [
-    .library(name: "TinyFoundation", targets: ["TinyFoundation", "TinySystem"]),
+    .library(name: "TinyFoundation", targets: ["TinyFoundation"]),
 ], dependencies: [
     .package(url: "https://github.com/purpln/libc.git", branch: "main"),
 ], targets: [

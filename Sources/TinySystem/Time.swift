@@ -37,12 +37,12 @@ public extension timespec {
     @inlinable
     var interval: Double {
         let (seconds, nanoseconds) = components
-        return (seconds) + (nanoseconds * 1e-9)
+        return Double(seconds) + (Double(nanoseconds) * 1e-9)
     }
     
     @inlinable
-    var components: (seconds: Double, nanoseconds: Double) {
-        (Double(tv_sec), Double(tv_nsec))
+    var components: (seconds: Int, nanoseconds: Int) {
+        (Int(tv_sec), Int(tv_nsec))
     }
 }
 
@@ -74,12 +74,12 @@ public extension timeval {
     @inlinable
     var interval: Double {
         let (seconds, microseconds) = components
-        return (seconds) + (microseconds * 1e-6)
+        return Double(seconds) + (Double(microseconds) * 1e-6)
     }
     
     @inlinable
-    var components: (seconds: Double, microseconds: Double) {
-        (Double(tv_sec), Double(tv_usec))
+    var components: (seconds: Int, microseconds: Int) {
+        (Int(tv_sec), Int(tv_usec))
     }
 }
 

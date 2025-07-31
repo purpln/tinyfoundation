@@ -18,7 +18,7 @@ internal func getenv(
 internal func setenv(
     _ name: UnsafePointer<PlatformChar>,
     _ value: UnsafePointer<PlatformChar>,
-    _ overwrite: Int32
+    _ overwrite: CInt
 ) -> CInt {
     if overwrite == 0 {
         if GetEnvironmentVariableW(name, nil, 0) == 0 && GetLastError() != ERROR_ENVVAR_NOT_FOUND {
@@ -99,16 +99,15 @@ internal func symlink(
     return 0
 }
 
-nonisolated(unsafe)
-private var _umask: PlatformMode = 0o22
+private var umask: PlatformMode = 0o22
 
 @inline(__always)
 internal func umask(
     _ mode: PlatformMode
 ) -> PlatformMode {
-    let oldMask = _umask
-    _umask = mode
-    return oldMask
+    let previous = PlatformMode.umask
+    PlatformMode.umask = mode
+    return previous
 }
 
 @inline(__always)

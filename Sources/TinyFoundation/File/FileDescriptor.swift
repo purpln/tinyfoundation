@@ -63,7 +63,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var exclusiveCreate: OpenOptions { .init(rawValue: _O_EXCL) }
         
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
         @_alwaysEmitIntoClient
         public static var sharedLock: OpenOptions { .init(rawValue: _O_SHLOCK) }
         
@@ -79,12 +79,7 @@ extension FileDescriptor {
         public static var directory: OpenOptions { .init(rawValue: _O_DIRECTORY) }
 #endif
         
-#if os(FreeBSD)
-        @_alwaysEmitIntoClient
-        public static var sync: OpenOptions { .init(rawValue: _O_SYNC) }
-#endif
-        
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
         @_alwaysEmitIntoClient
         public static var symlink: OpenOptions { .init(rawValue: _O_SYMLINK) }
         
@@ -115,7 +110,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var end: SeekOrigin { SeekOrigin(rawValue: _SEEK_END) }
         
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
         @_alwaysEmitIntoClient
         public static var nextHole: SeekOrigin { SeekOrigin(rawValue: _SEEK_HOLE) }
         
@@ -145,7 +140,7 @@ extension FileDescriptor.SeekOrigin: CustomStringConvertible {
         case .start: return "start"
         case .current: return "current"
         case .end: return "end"
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
         case .nextHole: return "nextHole"
         case .nextData: return "nextData"
 #endif
@@ -158,7 +153,7 @@ extension FileDescriptor.OpenOptions: CustomStringConvertible {
     /// A textual representation of the open options.
     @inline(never)
     public var description: String {
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
         let descriptions: [(Element, StaticString)] = [
             (.nonBlocking, ".nonBlocking"),
             (.append, ".append"),

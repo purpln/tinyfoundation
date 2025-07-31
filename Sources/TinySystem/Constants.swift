@@ -255,7 +255,7 @@ public var _EHOSTUNREACH: CInt { EHOSTUNREACH }
 @_alwaysEmitIntoClient
 public var _ENOTEMPTY: CInt { ENOTEMPTY }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _EPROCLIM: CInt { EPROCLIM }
 #endif
@@ -300,7 +300,7 @@ public var _EREMOTE: CInt {
 }
 #endif
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _EBADRPC: CInt { EBADRPC }
 
@@ -323,7 +323,7 @@ public var _ENOLCK: CInt { ENOLCK }
 @_alwaysEmitIntoClient
 public var _ENOSYS: CInt { ENOSYS }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _EFTYPE: CInt { EFTYPE }
 
@@ -334,7 +334,7 @@ public var _EAUTH: CInt { EAUTH }
 public var _ENEEDAUTH: CInt { ENEEDAUTH }
 #endif
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _EPWROFF: CInt { EPWROFF }
 
@@ -347,7 +347,7 @@ public var _EDEVERR: CInt { EDEVERR }
 public var _EOVERFLOW: CInt { EOVERFLOW }
 #endif
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _EBADEXEC: CInt { EBADEXEC }
 
@@ -375,7 +375,7 @@ public var _ENOMSG: CInt { ENOMSG }
 @_alwaysEmitIntoClient
 public var _EILSEQ: CInt { EILSEQ }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _ENOATTR: CInt { ENOATTR }
 #endif
@@ -422,7 +422,7 @@ public var _EOPNOTSUPP: CInt {
 #endif
 }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _ENOPOLICY: CInt { ENOPOLICY }
 #endif
@@ -435,7 +435,7 @@ public var _ENOTRECOVERABLE: CInt { ENOTRECOVERABLE }
 public var _EOWNERDEAD: CInt { EOWNERDEAD }
 #endif
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _EQFULL: CInt { EQFULL }
 
@@ -514,7 +514,7 @@ public var _DT_SOCK: CInt {
 }
 #endif
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _DT_WHT: CInt {
     CInt(DT_WHT)
@@ -564,7 +564,7 @@ public var _O_APPEND: CInt {
 #endif
 }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _O_SHLOCK: CInt { O_SHLOCK }
 
@@ -580,14 +580,6 @@ public var _O_ASYNC: CInt { O_ASYNC }
 
 @_alwaysEmitIntoClient
 public var _O_NOFOLLOW: CInt { O_NOFOLLOW }
-#endif
-
-#if os(FreeBSD)
-@_alwaysEmitIntoClient
-public var _O_FSYNC: CInt { O_FSYNC }
-
-@_alwaysEmitIntoClient
-public var _O_SYNC: CInt { O_SYNC }
 #endif
 
 @_alwaysEmitIntoClient
@@ -617,7 +609,7 @@ public var _O_EXCL: CInt {
 #endif
 }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _O_EVTONLY: CInt { O_EVTONLY }
 #endif
@@ -636,7 +628,7 @@ public var _O_DIRECTORY: CInt {
 }
 #endif
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _O_SYMLINK: CInt { O_SYMLINK }
 #endif
@@ -655,7 +647,7 @@ public var _SEEK_CUR: CInt { SEEK_CUR }
 @_alwaysEmitIntoClient
 public var _SEEK_END: CInt { SEEK_END }
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
 @_alwaysEmitIntoClient
 public var _SEEK_HOLE: CInt { SEEK_HOLE }
 
@@ -685,7 +677,7 @@ public var _CLOCK_REALTIME: clockid_t {
 
 @_alwaysEmitIntoClient
 public var _STDIN_FILENO: CInt {
-#if os(WASI)
+#if os(Windows)
     0
 #else
     STDIN_FILENO
@@ -694,7 +686,7 @@ public var _STDIN_FILENO: CInt {
 
 @_alwaysEmitIntoClient
 public var _STDOUT_FILENO: CInt {
-#if os(WASI)
+#if os(Windows)
     1
 #else
     STDOUT_FILENO
@@ -703,9 +695,86 @@ public var _STDOUT_FILENO: CInt {
 
 @_alwaysEmitIntoClient
 public var _STDERR_FILENO: CInt {
-#if os(WASI)
+#if os(Windows)
     2
 #else
     STDERR_FILENO
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _IPPROTO_TCP: CInt {
+#if !os(Windows)
+    CInt(IPPROTO_TCP)
+#else
+    IPPROTO_TCP.rawValue
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _IPPROTO_UDP: CInt {
+#if !os(Windows)
+    CInt(IPPROTO_UDP)
+#else
+    IPPROTO_UDP.rawValue
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _IPPROTO_RAW: CInt {
+#if !os(Windows)
+    CInt(IPPROTO_RAW)
+#else
+    IPPROTO_RAW.rawValue
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _IPPROTO_IP: CInt {
+    CInt(IPPROTO_IP)
+}
+
+@_alwaysEmitIntoClient
+public var _IPPROTO_IPV6: CInt {
+#if !os(Windows)
+    CInt(IPPROTO_IPV6)
+#else
+    IPPROTO_IPV6.rawValue
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _SOCK_STREAM: CInt {
+#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+    SOCK_STREAM
+#elseif canImport(Glibc)
+    CInt(SOCK_STREAM.rawValue)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _SOCK_DGRAM: CInt {
+#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+    SOCK_DGRAM
+#elseif canImport(Glibc)
+    CInt(SOCK_DGRAM.rawValue)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _SOCK_SEQPACKET: CInt {
+#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+    SOCK_SEQPACKET
+#elseif canImport(Glibc)
+    CInt(SOCK_SEQPACKET.rawValue)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _SOCK_RAW: CInt {
+#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+    SOCK_RAW
+#elseif canImport(Glibc)
+    CInt(SOCK_RAW.rawValue)
 #endif
 }

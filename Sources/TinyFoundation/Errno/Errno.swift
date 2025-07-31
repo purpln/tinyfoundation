@@ -306,7 +306,7 @@ public extension Errno {
     //Directory not empty
     @inlinable
     static var directoryNotEmpty: Errno { Errno(rawValue: _ENOTEMPTY) }
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
     //Too many processes
     @inlinable
     static var tooManyProcesses: Errno { Errno(rawValue: _EPROCLIM) }
@@ -328,7 +328,7 @@ public extension Errno {
     @inlinable
     static var tooManyRemote: Errno { Errno(rawValue: _EREMOTE) }
 #endif
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
     //Program version wrong
     @inlinable
     static var wrongVersion: Errno { Errno(rawValue: _EPROGMISMATCH) }
@@ -344,7 +344,7 @@ public extension Errno {
     //Function not implemented
     @inlinable
     static var notImplemented: Errno { Errno(rawValue: _ENOSYS) }
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
     //Inappropriate file type or format
     @inlinable
     static var inappropriateFile: Errno { Errno(rawValue: _EFTYPE) }
@@ -357,7 +357,7 @@ public extension Errno {
     @inlinable
     static var authenticationNeeded: Errno { Errno(rawValue: _ENEEDAUTH) }
 #endif
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
     //Device power is off
     @inlinable
     static var powerOff: Errno { Errno(rawValue: _EPWROFF) }
@@ -371,7 +371,7 @@ public extension Errno {
     @inlinable
     static var overflow: Errno { Errno(rawValue: _EOVERFLOW) }
 #endif
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
     //Bad executable (or shared library)
     @inlinable
     static var badExecutable: Errno { Errno(rawValue: _EBADEXEC) }
@@ -403,7 +403,7 @@ public extension Errno {
     //Illegal byte sequence
     @inlinable
     static var illegalSequence: Errno { Errno(rawValue: _EILSEQ) }
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
+#if canImport(Darwin.C)
     //Attribute not found
     @inlinable
     static var noAttribute: Errno { Errno(rawValue: _ENOATTR) }

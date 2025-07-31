@@ -235,8 +235,16 @@ extension in6_addr {
 
 #if hasFeature(RetroactiveAttribute)
 extension sockaddr_in: @retroactive CustomStringConvertible {}
+extension sockaddr_in6: @retroactive CustomStringConvertible {}
+extension sockaddr_un: @retroactive CustomStringConvertible {}
+extension in_addr: @retroactive CustomStringConvertible {}
+extension in6_addr: @retroactive CustomStringConvertible {}
 #else
 extension sockaddr_in: CustomStringConvertible {}
+extension sockaddr_in6: CustomStringConvertible {}
+extension sockaddr_un: CustomStringConvertible {}
+extension in_addr: CustomStringConvertible {}
+extension in6_addr: CustomStringConvertible {}
 #endif
 
 extension sockaddr_in {
@@ -245,23 +253,11 @@ extension sockaddr_in {
     }
 }
 
-#if hasFeature(RetroactiveAttribute)
-extension sockaddr_in6: @retroactive CustomStringConvertible {}
-#else
-extension sockaddr_in6: CustomStringConvertible {}
-#endif
-
 extension sockaddr_in6 {
     public var description: String {
         "[\(address)]:\(port)"
     }
 }
-
-#if hasFeature(RetroactiveAttribute)
-extension sockaddr_un: @retroactive CustomStringConvertible {}
-#else
-extension sockaddr_un: CustomStringConvertible {}
-#endif
 
 extension sockaddr_un {
     public var description: String {
@@ -276,14 +272,6 @@ extension sockaddr_un {
 #endif
     }
 }
-
-#if hasFeature(RetroactiveAttribute)
-extension in_addr: @retroactive CustomStringConvertible {}
-extension in6_addr: @retroactive CustomStringConvertible {}
-#else
-extension in_addr: CustomStringConvertible {}
-extension in6_addr: CustomStringConvertible {}
-#endif
 
 extension in_addr {
     public var description: String {
