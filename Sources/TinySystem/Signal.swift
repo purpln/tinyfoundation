@@ -3,18 +3,18 @@ import LibC
 
 public extension sigaction {
 #if canImport(Darwin.C)
-    typealias Handler = __sigaction_u
+    typealias Union = __sigaction_u
 #elseif canImport(Glibc)
-    typealias Handler = __Unnamed_union___sigaction_handler
+    typealias Union = __Unnamed_union___sigaction_handler
 #elseif canImport(Musl)
-    typealias Handler = __Unnamed_union___sa_handler
+    typealias Union = __Unnamed_union___sa_handler
 #elseif canImport(Android) && _pointerBitWidth(_32)
-    typealias Handler = __Unnamed_union___Anonymous_field0
+    typealias Union = __Unnamed_union___Anonymous_field0
 #elseif canImport(Android)
-    typealias Handler = __Unnamed_union___Anonymous_field1
+    typealias Union = __Unnamed_union___Anonymous_field1
 #endif
     
-    init(_ handler: Handler, sa_mask: sigset_t, sa_flags: CInt, sa_restorer: @convention(c) () -> Void) {
+    init(_ handler: Union, sa_mask: sigset_t, sa_flags: CInt, sa_restorer: @convention(c) () -> Void) {
 #if canImport(Darwin.C)
         self.init(__sigaction_u: handler, sa_mask: sa_mask, sa_flags: sa_flags)
 #elseif canImport(Glibc)
@@ -28,7 +28,7 @@ public extension sigaction {
 #endif
     }
     
-    var handler: Handler {
+    var handler: Union {
         get {
 #if canImport(Darwin.C)
             __sigaction_u
@@ -58,8 +58,11 @@ public extension sigaction {
     }
 }
 
-public extension sigaction.Handler {
-    init(handler: @convention(c) (CInt) -> Void) {
+public extension sigaction.Union {
+    typealias Handler = @convention(c) (CInt) -> Void
+    typealias Action = @convention(c) (CInt, UnsafeMutablePointer<siginfo_t>?, UnsafeMutableRawPointer?) -> Void
+    
+    init(handler: Handler) {
 #if canImport(Darwin.C)
         self.init(__sa_handler: handler)
 #elseif canImport(Glibc)
@@ -71,7 +74,7 @@ public extension sigaction.Handler {
 #endif
     }
     
-    var handler: @convention(c) (CInt) -> Void {
+    var handler: Handler? {
         get {
 #if canImport(Darwin.C)
             __sa_handler
@@ -96,7 +99,7 @@ public extension sigaction.Handler {
         }
     }
     
-    init(sigaction: @convention(c) (CInt, UnsafeMutablePointer<siginfo_t>?, UnsafeMutableRawPointer?) -> Void) {
+    init(sigaction: Action) {
 #if canImport(Darwin.C)
         self.init(__sa_sigaction: sigaction)
 #elseif canImport(Glibc)
@@ -108,7 +111,7 @@ public extension sigaction.Handler {
 #endif
     }
     
-    var sigaction: @convention(c) (CInt, UnsafeMutablePointer<siginfo_t>?, UnsafeMutableRawPointer?) -> Void {
+    var sigaction: Action? {
         get {
 #if canImport(Darwin.C)
             __sa_sigaction
