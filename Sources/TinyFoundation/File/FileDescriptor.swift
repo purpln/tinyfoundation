@@ -63,7 +63,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var exclusiveCreate: OpenOptions { .init(rawValue: _O_EXCL) }
         
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         @_alwaysEmitIntoClient
         public static var sharedLock: OpenOptions { .init(rawValue: _O_SHLOCK) }
         
@@ -79,7 +79,7 @@ extension FileDescriptor {
         public static var directory: OpenOptions { .init(rawValue: _O_DIRECTORY) }
 #endif
         
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         @_alwaysEmitIntoClient
         public static var symlink: OpenOptions { .init(rawValue: _O_SYMLINK) }
         
@@ -110,7 +110,7 @@ extension FileDescriptor {
         @_alwaysEmitIntoClient
         public static var end: SeekOrigin { SeekOrigin(rawValue: _SEEK_END) }
         
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         @_alwaysEmitIntoClient
         public static var nextHole: SeekOrigin { SeekOrigin(rawValue: _SEEK_HOLE) }
         
@@ -140,7 +140,7 @@ extension FileDescriptor.SeekOrigin: CustomStringConvertible {
         case .start: return "start"
         case .current: return "current"
         case .end: return "end"
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         case .nextHole: return "nextHole"
         case .nextData: return "nextData"
 #endif
@@ -153,7 +153,7 @@ extension FileDescriptor.OpenOptions: CustomStringConvertible {
     /// A textual representation of the open options.
     @inline(never)
     public var description: String {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         let descriptions: [(Element, StaticString)] = [
             (.nonBlocking, ".nonBlocking"),
             (.append, ".append"),

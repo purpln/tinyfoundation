@@ -88,7 +88,7 @@ extension sockaddr_in {
     
     public init(_ address: in_addr, _ port: UInt16) {
         var sockaddr = sockaddr_in()
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         sockaddr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
 #endif
         sockaddr.family = AF_INET
@@ -128,7 +128,7 @@ extension sockaddr_in6 {
     
     public init(_ address: in6_addr, _ port: UInt16) {
         var sockaddr = sockaddr_in6()
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         sockaddr.sin6_len = UInt8(MemoryLayout<sockaddr_in6>.size)
 #endif
         sockaddr.family = AF_INET6
@@ -173,7 +173,7 @@ extension sockaddr_un {
             memcpy(&sockaddr.sun_path, $0, address.count)
         }
 #endif
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         sockaddr.sun_len = UInt8(sockaddr_un.size)
 #endif
         sockaddr.family = AF_UNIX
@@ -182,7 +182,7 @@ extension sockaddr_un {
 }
 
 extension in6_addr {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
     public init(
         _ tuple: (
             UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16

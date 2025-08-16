@@ -126,7 +126,7 @@ public func system_rmdir(
     rmdir(path)
 }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 public let SYSTEM_CS_DARWIN_USER_DIR = _CS_DARWIN_USER_DIR
 public let SYSTEM_CS_DARWIN_USER_TEMP_DIR = _CS_DARWIN_USER_TEMP_DIR
 public let SYSTEM_CS_DARWIN_USER_CACHE_DIR = _CS_DARWIN_USER_CACHE_DIR

@@ -32,7 +32,7 @@ extension FileType {
         case _DT_SOCK:
             self = .socket
 #endif
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         case _DT_WHT:
             self = .whiteout
 #endif

@@ -2,7 +2,7 @@
 import LibC
 
 public extension sigaction {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
     typealias Union = __sigaction_u
 #elseif canImport(Glibc)
     typealias Union = __Unnamed_union___sigaction_handler
@@ -15,7 +15,7 @@ public extension sigaction {
 #endif
     
     init(_ handler: Union, sa_mask: sigset_t, sa_flags: CInt, sa_restorer: @convention(c) () -> Void) {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         self.init(__sigaction_u: handler, sa_mask: sa_mask, sa_flags: sa_flags)
 #elseif canImport(Glibc)
         self.init(__sigaction_handler: handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
@@ -30,7 +30,7 @@ public extension sigaction {
     
     var handler: Union {
         get {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
             __sigaction_u
 #elseif canImport(Glibc)
             __sigaction_handler
@@ -43,7 +43,7 @@ public extension sigaction {
 #endif
         }
         set {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
             __sigaction_u = newValue
 #elseif canImport(Glibc)
             __sigaction_handler = newValue
@@ -63,7 +63,7 @@ public extension sigaction.Union {
     typealias Action = @convention(c) (CInt, UnsafeMutablePointer<siginfo_t>?, UnsafeMutableRawPointer?) -> Void
     
     init(handler: Handler) {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         self.init(__sa_handler: handler)
 #elseif canImport(Glibc)
         self.init(sa_handler: handler)
@@ -76,7 +76,7 @@ public extension sigaction.Union {
     
     var handler: Handler? {
         get {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
             __sa_handler
 #elseif canImport(Glibc)
             sa_handler
@@ -87,7 +87,7 @@ public extension sigaction.Union {
 #endif
         }
         set {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
             __sa_handler = newValue
 #elseif canImport(Glibc)
             sa_handler = newValue
@@ -100,7 +100,7 @@ public extension sigaction.Union {
     }
     
     init(sigaction: Action) {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
         self.init(__sa_sigaction: sigaction)
 #elseif canImport(Glibc)
         self.init(sa_sigaction: sigaction)
@@ -113,7 +113,7 @@ public extension sigaction.Union {
     
     var sigaction: Action? {
         get {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
             __sa_sigaction
 #elseif canImport(Glibc)
             sa_sigaction
@@ -124,7 +124,7 @@ public extension sigaction.Union {
 #endif
         }
         set {
-#if canImport(Darwin.C)
+#if canImport(Darwin)
             __sa_sigaction = newValue
 #elseif canImport(Glibc)
             sa_sigaction = newValue

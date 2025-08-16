@@ -255,7 +255,7 @@ public var _EHOSTUNREACH: CInt { EHOSTUNREACH }
 @_alwaysEmitIntoClient
 public var _ENOTEMPTY: CInt { ENOTEMPTY }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _EPROCLIM: CInt { EPROCLIM }
 #endif
@@ -300,7 +300,7 @@ public var _EREMOTE: CInt {
 }
 #endif
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _EBADRPC: CInt { EBADRPC }
 
@@ -323,7 +323,7 @@ public var _ENOLCK: CInt { ENOLCK }
 @_alwaysEmitIntoClient
 public var _ENOSYS: CInt { ENOSYS }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _EFTYPE: CInt { EFTYPE }
 
@@ -334,7 +334,7 @@ public var _EAUTH: CInt { EAUTH }
 public var _ENEEDAUTH: CInt { ENEEDAUTH }
 #endif
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _EPWROFF: CInt { EPWROFF }
 
@@ -347,7 +347,7 @@ public var _EDEVERR: CInt { EDEVERR }
 public var _EOVERFLOW: CInt { EOVERFLOW }
 #endif
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _EBADEXEC: CInt { EBADEXEC }
 
@@ -375,7 +375,7 @@ public var _ENOMSG: CInt { ENOMSG }
 @_alwaysEmitIntoClient
 public var _EILSEQ: CInt { EILSEQ }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _ENOATTR: CInt { ENOATTR }
 #endif
@@ -422,7 +422,7 @@ public var _EOPNOTSUPP: CInt {
 #endif
 }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _ENOPOLICY: CInt { ENOPOLICY }
 #endif
@@ -435,7 +435,7 @@ public var _ENOTRECOVERABLE: CInt { ENOTRECOVERABLE }
 public var _EOWNERDEAD: CInt { EOWNERDEAD }
 #endif
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _EQFULL: CInt { EQFULL }
 
@@ -514,7 +514,7 @@ public var _DT_SOCK: CInt {
 }
 #endif
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _DT_WHT: CInt {
     CInt(DT_WHT)
@@ -564,7 +564,7 @@ public var _O_APPEND: CInt {
 #endif
 }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _O_SHLOCK: CInt { O_SHLOCK }
 
@@ -609,7 +609,7 @@ public var _O_EXCL: CInt {
 #endif
 }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _O_EVTONLY: CInt { O_EVTONLY }
 #endif
@@ -628,7 +628,7 @@ public var _O_DIRECTORY: CInt {
 }
 #endif
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _O_SYMLINK: CInt { O_SYMLINK }
 #endif
@@ -647,7 +647,7 @@ public var _SEEK_CUR: CInt { SEEK_CUR }
 @_alwaysEmitIntoClient
 public var _SEEK_END: CInt { SEEK_END }
 
-#if canImport(Darwin.C)
+#if canImport(Darwin)
 @_alwaysEmitIntoClient
 public var _SEEK_HOLE: CInt { SEEK_HOLE }
 
@@ -745,7 +745,7 @@ public var _IPPROTO_IPV6: CInt {
 
 @_alwaysEmitIntoClient
 public var _SOCK_STREAM: CInt {
-#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+#if canImport(Darwin) || canImport(Musl) || canImport(Android) || canImport(ucrt)
     SOCK_STREAM
 #elseif canImport(Glibc)
     CInt(SOCK_STREAM.rawValue)
@@ -754,7 +754,7 @@ public var _SOCK_STREAM: CInt {
 
 @_alwaysEmitIntoClient
 public var _SOCK_DGRAM: CInt {
-#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+#if canImport(Darwin) || canImport(Musl) || canImport(Android) || canImport(ucrt)
     SOCK_DGRAM
 #elseif canImport(Glibc)
     CInt(SOCK_DGRAM.rawValue)
@@ -763,7 +763,7 @@ public var _SOCK_DGRAM: CInt {
 
 @_alwaysEmitIntoClient
 public var _SOCK_SEQPACKET: CInt {
-#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+#if canImport(Darwin) || canImport(Musl) || canImport(Android) || canImport(ucrt)
     SOCK_SEQPACKET
 #elseif canImport(Glibc)
     CInt(SOCK_SEQPACKET.rawValue)
@@ -772,7 +772,7 @@ public var _SOCK_SEQPACKET: CInt {
 
 @_alwaysEmitIntoClient
 public var _SOCK_RAW: CInt {
-#if canImport(Darwin.C) || canImport(Musl) || canImport(Android) || canImport(ucrt)
+#if canImport(Darwin) || canImport(Musl) || canImport(Android) || canImport(ucrt)
     SOCK_RAW
 #elseif canImport(Glibc)
     CInt(SOCK_RAW.rawValue)
