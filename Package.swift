@@ -19,8 +19,6 @@ let package = Package(name: "TinyFoundation", products: [
 for target in package.targets {
     target.swiftSettings = target.swiftSettings ?? []
     target.swiftSettings? += [
-        //.strictMemorySafety(),
-        
         //swift 6
         .enableUpcomingFeature("StrictConcurrency"),
         
