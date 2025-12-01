@@ -1,4 +1,8 @@
+#if compiler(>=6.0)
+public import LibC
+#else
 import LibC
+#endif
 
 // open
 public func system_open(

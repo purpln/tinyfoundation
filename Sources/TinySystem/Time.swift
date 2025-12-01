@@ -1,4 +1,8 @@
+#if compiler(>=6.0)
+public import LibC
+#else
 import LibC
+#endif
 
 @usableFromInline
 internal let absoluteTimeIntervalSince1970: Double = 978307200
@@ -103,12 +107,20 @@ public extension timeval {
     }
 }
 
+#if compiler(>=5.8)
 #if hasFeature(RetroactiveAttribute)
 extension timespec: @retroactive Equatable {}
 extension timespec: @retroactive Comparable {}
 extension timespec: @retroactive Hashable {}
 extension timespec: @retroactive AdditiveArithmetic {}
 extension timespec: @retroactive CustomStringConvertible {}
+#else
+extension timespec: Equatable {}
+extension timespec: Comparable {}
+extension timespec: Hashable {}
+extension timespec: AdditiveArithmetic {}
+extension timespec: CustomStringConvertible {}
+#endif
 #else
 extension timespec: Equatable {}
 extension timespec: Comparable {}
@@ -177,12 +189,20 @@ extension timespec /* CustomStringConvertible */ {
     }
 }
 
+#if compiler(>=5.8)
 #if hasFeature(RetroactiveAttribute)
 extension timeval: @retroactive Equatable {}
 extension timeval: @retroactive Comparable {}
 extension timeval: @retroactive Hashable {}
 extension timeval: @retroactive AdditiveArithmetic {}
 extension timeval: @retroactive CustomStringConvertible {}
+#else
+extension timeval: Equatable {}
+extension timeval: Comparable {}
+extension timeval: Hashable {}
+extension timeval: AdditiveArithmetic {}
+extension timeval: CustomStringConvertible {}
+#endif
 #else
 extension timeval: Equatable {}
 extension timeval: Comparable {}

@@ -1,4 +1,8 @@
+#if compiler(>=6.0)
+public import LibC
+#else
 import LibC
+#endif
 
 #if os(Windows)
 private typealias Family = UInt16
@@ -233,12 +237,20 @@ extension in6_addr {
 #endif
 }
 
+#if compiler(>=5.8)
 #if hasFeature(RetroactiveAttribute)
 extension sockaddr_in: @retroactive CustomStringConvertible {}
 extension sockaddr_in6: @retroactive CustomStringConvertible {}
 extension sockaddr_un: @retroactive CustomStringConvertible {}
 extension in_addr: @retroactive CustomStringConvertible {}
 extension in6_addr: @retroactive CustomStringConvertible {}
+#else
+extension sockaddr_in: CustomStringConvertible {}
+extension sockaddr_in6: CustomStringConvertible {}
+extension sockaddr_un: CustomStringConvertible {}
+extension in_addr: CustomStringConvertible {}
+extension in6_addr: CustomStringConvertible {}
+#endif
 #else
 extension sockaddr_in: CustomStringConvertible {}
 extension sockaddr_in6: CustomStringConvertible {}
@@ -299,12 +311,20 @@ extension in6_addr {
     }
 }
 
+#if compiler(>=5.8)
 #if hasFeature(RetroactiveAttribute)
 extension sockaddr_in: @retroactive Equatable {}
 extension sockaddr_in6: @retroactive Equatable {}
 extension sockaddr_un: @retroactive Equatable {}
 extension in_addr: @retroactive Equatable {}
 extension in6_addr: @retroactive Equatable {}
+#else
+extension sockaddr_in: Equatable {}
+extension sockaddr_in6: Equatable {}
+extension sockaddr_un: Equatable {}
+extension in_addr: Equatable {}
+extension in6_addr: Equatable {}
+#endif
 #else
 extension sockaddr_in: Equatable {}
 extension sockaddr_in6: Equatable {}

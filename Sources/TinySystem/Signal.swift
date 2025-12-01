@@ -1,5 +1,9 @@
 #if !os(Windows)
+#if compiler(>=6.0)
+public import LibC
+#else
 import LibC
+#endif
 
 public extension sigaction {
 #if canImport(Darwin)
@@ -8,10 +12,12 @@ public extension sigaction {
     typealias Union = __Unnamed_union___sigaction_handler
 #elseif canImport(Musl)
     typealias Union = __Unnamed_union___sa_handler
-#elseif canImport(Android) && _pointerBitWidth(_32)
-    typealias Union = __Unnamed_union___Anonymous_field0
 #elseif canImport(Android)
+#if arch(arm)
+    typealias Union = __Unnamed_union___Anonymous_field0
+#else
     typealias Union = __Unnamed_union___Anonymous_field1
+#endif
 #endif
     
     init(_ handler: Union, sa_mask: sigset_t, sa_flags: CInt, sa_restorer: @convention(c) () -> Void) {
@@ -21,10 +27,12 @@ public extension sigaction {
         self.init(__sigaction_handler: handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
 #elseif canImport(Musl)
         self.init(__sa_handler: handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
-#elseif canImport(Android) && _pointerBitWidth(_32)
-        self.init(handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
 #elseif canImport(Android)
+#if arch(arm)
+        self.init(handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
+#else
         self.init(sa_flags: sa_flags, handler, sa_mask: sa_mask, sa_restorer: sa_restorer)
+#endif
 #endif
     }
     
@@ -36,10 +44,12 @@ public extension sigaction {
             __sigaction_handler
 #elseif canImport(Musl)
             __sa_handler
-#elseif canImport(Android) && _pointerBitWidth(_32)
-            __Anonymous_field0
 #elseif canImport(Android)
+#if arch(arm)
+            __Anonymous_field0
+#elseif arch(arm64)
             __Anonymous_field1
+#endif
 #endif
         }
         set {
@@ -49,10 +59,12 @@ public extension sigaction {
             __sigaction_handler = newValue
 #elseif canImport(Musl)
             __sa_handler = newValue
-#elseif canImport(Android) && _pointerBitWidth(_32)
-            __Anonymous_field0 = newValue
 #elseif canImport(Android)
+#if arch(arm)
+            __Anonymous_field0 = newValue
+#elseif arch(arm64)
             __Anonymous_field1 = newValue
+#endif
 #endif
         }
     }
