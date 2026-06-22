@@ -8,15 +8,15 @@ private func valueOrErrno<I: FixedWidthInteger>(
 
 private func nothingOrErrno<I: FixedWidthInteger>(
     _ i: I
-) -> Result<(), Errno> {
+) -> Result<Void, Errno> {
     valueOrErrno(i).map({ _ in () })
 }
 
 public func valueOrErrno<I: FixedWidthInteger>(
-    retryOnInterrupt: Bool, _ f: () -> I
+    retryOnInterrupt: Bool, _ body: () -> I
 ) -> Result<I, Errno> {
     repeat {
-        switch valueOrErrno(f()) {
+        switch valueOrErrno(body()) {
         case .success(let r): return .success(r)
         case .failure(let error):
             guard retryOnInterrupt && error == .interrupted else { return .failure(error) }
@@ -26,9 +26,9 @@ public func valueOrErrno<I: FixedWidthInteger>(
 }
 
 public func nothingOrErrno<I: FixedWidthInteger>(
-    retryOnInterrupt: Bool, _ f: () -> I
-) -> Result<(), Errno> {
-    valueOrErrno(retryOnInterrupt: retryOnInterrupt, f).map({ _ in () })
+    retryOnInterrupt: Bool, _ body: () -> I
+) -> Result<Void, Errno> {
+    valueOrErrno(retryOnInterrupt: retryOnInterrupt, body).map({ _ in () })
 }
 
 extension OptionSet {

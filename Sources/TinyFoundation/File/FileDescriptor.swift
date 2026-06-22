@@ -10,13 +10,19 @@ public struct FileDescriptor: RawRepresentable, Sendable, Equatable, Hashable {
 
 public extension FileDescriptor {
     @inlinable
-    static var input: FileDescriptor  { FileDescriptor(rawValue: _STDIN_FILENO) }
+    static var input: FileDescriptor  {
+        FileDescriptor(rawValue: _STDIN_FILENO)
+    }
     
     @inlinable
-    static var output: FileDescriptor { FileDescriptor(rawValue: _STDOUT_FILENO) }
+    static var output: FileDescriptor {
+        FileDescriptor(rawValue: _STDOUT_FILENO)
+    }
     
     @inlinable
-    static var error: FileDescriptor  { FileDescriptor(rawValue: _STDERR_FILENO) }
+    static var error: FileDescriptor  {
+        FileDescriptor(rawValue: _STDERR_FILENO)
+    }
 }
 
 extension FileDescriptor {
@@ -29,13 +35,19 @@ extension FileDescriptor {
         public init(rawValue: CInt) { self.rawValue = rawValue }
         
         @_alwaysEmitIntoClient
-        public static var readOnly: AccessMode { AccessMode(rawValue: _O_RDONLY) }
+        public static var readOnly: AccessMode {
+            AccessMode(rawValue: _O_RDONLY)
+        }
         
         @_alwaysEmitIntoClient
-        public static var writeOnly: AccessMode { AccessMode(rawValue: _O_WRONLY) }
+        public static var writeOnly: AccessMode {
+            AccessMode(rawValue: _O_WRONLY)
+        }
         
         @_alwaysEmitIntoClient
-        public static var readWrite: AccessMode { AccessMode(rawValue: _O_RDWR) }
+        public static var readWrite: AccessMode {
+            AccessMode(rawValue: _O_RDWR)
+        }
     }
     
     @frozen
@@ -48,48 +60,72 @@ extension FileDescriptor {
         
 #if !os(Windows)
         @_alwaysEmitIntoClient
-        public static var nonBlocking: OpenOptions { .init(rawValue: _O_NONBLOCK) }
+        public static var nonBlocking: OpenOptions {
+            OpenOptions(rawValue: _O_NONBLOCK)
+        }
 #endif
         
         @_alwaysEmitIntoClient
-        public static var append: OpenOptions { .init(rawValue: _O_APPEND) }
+        public static var append: OpenOptions {
+            OpenOptions(rawValue: _O_APPEND)
+        }
         
         @_alwaysEmitIntoClient
-        public static var create: OpenOptions { .init(rawValue: _O_CREAT) }
+        public static var create: OpenOptions {
+            OpenOptions(rawValue: _O_CREAT)
+        }
         
         @_alwaysEmitIntoClient
-        public static var truncate: OpenOptions { .init(rawValue: _O_TRUNC) }
+        public static var truncate: OpenOptions {
+            OpenOptions(rawValue: _O_TRUNC)
+        }
         
         @_alwaysEmitIntoClient
-        public static var exclusiveCreate: OpenOptions { .init(rawValue: _O_EXCL) }
+        public static var exclusiveCreate: OpenOptions {
+            OpenOptions(rawValue: _O_EXCL)
+        }
         
 #if canImport(Darwin)
         @_alwaysEmitIntoClient
-        public static var sharedLock: OpenOptions { .init(rawValue: _O_SHLOCK) }
+        public static var sharedLock: OpenOptions {
+            OpenOptions(rawValue: _O_SHLOCK)
+        }
         
         @_alwaysEmitIntoClient
-        public static var exclusiveLock: OpenOptions { .init(rawValue: _O_EXLOCK) }
+        public static var exclusiveLock: OpenOptions {
+            OpenOptions(rawValue: _O_EXLOCK)
+        }
 #endif
         
 #if !os(Windows)
         @_alwaysEmitIntoClient
-        public static var noFollow: OpenOptions { .init(rawValue: _O_NOFOLLOW) }
+        public static var noFollow: OpenOptions {
+            OpenOptions(rawValue: _O_NOFOLLOW)
+        }
         
         @_alwaysEmitIntoClient
-        public static var directory: OpenOptions { .init(rawValue: _O_DIRECTORY) }
+        public static var directory: OpenOptions {
+            OpenOptions(rawValue: _O_DIRECTORY)
+        }
 #endif
         
 #if canImport(Darwin)
         @_alwaysEmitIntoClient
-        public static var symlink: OpenOptions { .init(rawValue: _O_SYMLINK) }
+        public static var symlink: OpenOptions {
+            OpenOptions(rawValue: _O_SYMLINK)
+        }
         
         @_alwaysEmitIntoClient
-        public static var eventOnly: OpenOptions { .init(rawValue: _O_EVTONLY) }
+        public static var eventOnly: OpenOptions {
+            OpenOptions(rawValue: _O_EVTONLY)
+        }
 #endif
         
 #if !os(Windows)
         @_alwaysEmitIntoClient
-        public static var closeOnExec: OpenOptions { .init(rawValue: _O_CLOEXEC) }
+        public static var closeOnExec: OpenOptions {
+            OpenOptions(rawValue: _O_CLOEXEC)
+        }
 #endif
     }
     
@@ -102,20 +138,30 @@ extension FileDescriptor {
         public init(rawValue: CInt) { self.rawValue = rawValue }
         
         @_alwaysEmitIntoClient
-        public static var start: SeekOrigin { SeekOrigin(rawValue: _SEEK_SET) }
+        public static var start: SeekOrigin {
+            SeekOrigin(rawValue: _SEEK_SET)
+        }
         
         @_alwaysEmitIntoClient
-        public static var current: SeekOrigin { SeekOrigin(rawValue: _SEEK_CUR) }
+        public static var current: SeekOrigin {
+            SeekOrigin(rawValue: _SEEK_CUR)
+        }
         
         @_alwaysEmitIntoClient
-        public static var end: SeekOrigin { SeekOrigin(rawValue: _SEEK_END) }
+        public static var end: SeekOrigin {
+            SeekOrigin(rawValue: _SEEK_END)
+        }
         
 #if canImport(Darwin)
         @_alwaysEmitIntoClient
-        public static var nextHole: SeekOrigin { SeekOrigin(rawValue: _SEEK_HOLE) }
+        public static var nextHole: SeekOrigin {
+            SeekOrigin(rawValue: _SEEK_HOLE)
+        }
         
         @_alwaysEmitIntoClient
-        public static var nextData: SeekOrigin { SeekOrigin(rawValue: _SEEK_DATA) }
+        public static var nextData: SeekOrigin {
+            SeekOrigin(rawValue: _SEEK_DATA)
+        }
 #endif
         
     }
@@ -150,7 +196,6 @@ extension FileDescriptor.SeekOrigin: CustomStringConvertible {
 }
 
 extension FileDescriptor.OpenOptions: CustomStringConvertible {
-    /// A textual representation of the open options.
     @inline(never)
     public var description: String {
 #if canImport(Darwin)

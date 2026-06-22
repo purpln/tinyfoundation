@@ -708,28 +708,28 @@ public var _STDERR_FILENO: CInt {
 
 @_alwaysEmitIntoClient
 public var _IPPROTO_TCP: CInt {
-#if !os(Windows)
-    CInt(IPPROTO_TCP)
-#else
+#if os(Windows)
     IPPROTO_TCP.rawValue
+#else
+    CInt(IPPROTO_TCP)
 #endif
 }
 
 @_alwaysEmitIntoClient
 public var _IPPROTO_UDP: CInt {
-#if !os(Windows)
-    CInt(IPPROTO_UDP)
-#else
+#if os(Windows)
     IPPROTO_UDP.rawValue
+#else
+    CInt(IPPROTO_UDP)
 #endif
 }
 
 @_alwaysEmitIntoClient
 public var _IPPROTO_RAW: CInt {
-#if !os(Windows)
-    CInt(IPPROTO_RAW)
-#else
+#if os(Windows)
     IPPROTO_RAW.rawValue
+#else
+    CInt(IPPROTO_RAW)
 #endif
 }
 
@@ -740,10 +740,10 @@ public var _IPPROTO_IP: CInt {
 
 @_alwaysEmitIntoClient
 public var _IPPROTO_IPV6: CInt {
-#if !os(Windows)
-    CInt(IPPROTO_IPV6)
-#else
+#if os(Windows)
     IPPROTO_IPV6.rawValue
+#else
+    CInt(IPPROTO_IPV6)
 #endif
 }
 

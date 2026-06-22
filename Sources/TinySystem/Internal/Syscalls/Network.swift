@@ -8,11 +8,11 @@ public func system_unlink(
     _ path: UnsafePointer<CChar>?
 ) -> CInt {
 #if os(Android) || os(Linux)
-    var zero = CChar.zero
-    return withUnsafePointer(to: &zero) {
+    let zero = CChar.zero
+    return withUnsafePointer(to: zero, {
         // has a non-nullable pointer
         unlink(path ?? $0)
-    }
+    })
 #else
     unlink(path)
 #endif
@@ -109,7 +109,7 @@ public func system_listen(
     listen(descriptor, backlog)
 }
 
-// recieve
+// receive
 public func system_recv(
     _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
@@ -138,11 +138,11 @@ public func system_send(
     _ flags: CInt
 ) -> Int {
 #if os(Android)
-    var zero = UInt8.zero
-    return withUnsafePointer(to: &zero) {
+    let zero = CChar.zero
+    return withUnsafePointer(to: zero, {
         // has a non-nullable pointer
         send(descriptor, buffer ?? UnsafeRawPointer($0), size, flags)
-    }
+    })
 #else
     send(descriptor, buffer, size, flags)
 #endif
@@ -157,11 +157,11 @@ public func system_sendto(
     _ length: socklen_t
 ) -> Int {
 #if os(Android)
-    var zero = UInt8.zero
-    return withUnsafePointer(to: &zero) {
+    let zero = CChar.zero
+    return withUnsafePointer(to: zero, {
         // has a non-nullable pointer
         sendto(descriptor, buffer ?? UnsafeRawPointer($0), size, flags, address, length)
-    }
+    })
 #else
     sendto(descriptor, buffer, size, flags, address, length)
 #endif

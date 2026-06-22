@@ -17,6 +17,8 @@ let package = Package(name: "TinyFoundation", products: [
 ])
 
 for target in package.targets {
+    guard ![.system, .plugin].contains(target.type) else { continue }
+    
     target.swiftSettings = target.swiftSettings ?? []
     target.swiftSettings? += [
         //swift 6

@@ -45,10 +45,10 @@ internal func unsetenv(
 
 @inline(__always)
 internal func strerror(_ number: CInt) -> UnsafeMutablePointer<CChar>? {
-    var buffer = [CChar](unsafeUninitializedCapacity: 1024) { buffer, length in
+    var buffer = [CChar](unsafeUninitializedCapacity: 1024, { buffer, length in
         _ = strerror_s(buffer.baseAddress!, buffer.count, number)
         length = strnlen(buffer.baseAddress!, buffer.count)
-    }
+    })
     return buffer.withUnsafeMutableBufferPointer({ $0.baseAddress! })
 }
 
@@ -133,15 +133,15 @@ internal func open(
         bInheritHandle: decodedFlags.bInheritHandle
     )
     
-    let hFile = CreateFileW(path,
-                            decodedFlags.dwDesiredAccess,
-                            DWORD(FILE_SHARE_DELETE
-                                  | FILE_SHARE_READ
-                                  | FILE_SHARE_WRITE),
-                            &saAttrs,
-                            decodedFlags.dwCreationDisposition,
-                            decodedFlags.dwFlagsAndAttributes,
-                            nil)
+    let hFile = CreateFileW(
+        path,
+        decodedFlags.dwDesiredAccess,
+        DWORD(FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE),
+        &saAttrs,
+        decodedFlags.dwCreationDisposition,
+        decodedFlags.dwFlagsAndAttributes,
+        nil
+    )
     
     if hFile == INVALID_HANDLE_VALUE {
         ucrt._set_errno(Win32Error().errno.rawValue)
@@ -175,15 +175,17 @@ internal func open(
         bInheritHandle: decodedFlags.bInheritHandle
     )
     
-    let hFile = CreateFileW(path,
-                            decodedFlags.dwDesiredAccess,
-                            DWORD(FILE_SHARE_DELETE
-                                  | FILE_SHARE_READ
-                                  | FILE_SHARE_WRITE),
-                            &saAttrs,
-                            decodedFlags.dwCreationDisposition,
-                            decodedFlags.dwFlagsAndAttributes,
-                            nil)
+    let hFile = CreateFileW(
+        path,
+        decodedFlags.dwDesiredAccess,
+        DWORD(FILE_SHARE_DELETE
+              | FILE_SHARE_READ
+              | FILE_SHARE_WRITE),
+        &saAttrs,
+        decodedFlags.dwCreationDisposition,
+        decodedFlags.dwFlagsAndAttributes,
+        nil
+    )
     
     if hFile == INVALID_HANDLE_VALUE {
         ucrt._set_errno(Win32Error().errno.rawValue)
@@ -246,7 +248,10 @@ internal func pread(
     _ descriptor: CInt, _ buffer: UnsafeMutableRawPointer!, _ nbyte: Int, _ offset: off_t
 ) -> Int {
     let handle: intptr_t = ucrt._get_osfhandle(descriptor)
-    if handle == /* INVALID_HANDLE_VALUE */ -1 { ucrt._set_errno(EBADF); return -1 }
+    if handle == /* INVALID_HANDLE_VALUE */ -1 {
+        ucrt._set_errno(EBADF)
+        return -1
+    }
     
     // NOTE: this is a non-owning handle, do *not* call CloseHandle on it
     let hFile: HANDLE = HANDLE(bitPattern: handle)!
@@ -256,7 +261,9 @@ internal func pread(
     ovlOverlapped.Offset = DWORD(UInt32(offset >> 0) & 0xffffffff)
     
     var nNumberOfBytesRead: DWORD = 0
-    if !ReadFile(hFile, buffer, DWORD(nbyte), &nNumberOfBytesRead, &ovlOverlapped) {
+    if !ReadFile(
+        hFile, buffer, DWORD(nbyte), &nNumberOfBytesRead, &ovlOverlapped
+    ) {
         ucrt._set_errno(Win32Error().errno.rawValue)
         return Int(-1)
     }
@@ -278,8 +285,10 @@ internal func pwrite(
     ovlOverlapped.Offset = DWORD(UInt32(offset >> 0) & 0xffffffff)
     
     var nNumberOfBytesWritten: DWORD = 0
-    if !WriteFile(hFile, buffer, DWORD(nbyte), &nNumberOfBytesWritten,
-                  &ovlOverlapped) {
+    if !WriteFile(
+        hFile, buffer, DWORD(nbyte), &nNumberOfBytesWritten,
+        &ovlOverlapped
+    ) {
         ucrt._set_errno(Win32Error().errno.rawValue)
         return Int(-1)
     }
@@ -296,7 +305,10 @@ internal func pipe(
 @inline(__always)
 internal func ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
     let handle: intptr_t = ucrt._get_osfhandle(descriptor)
-    if handle == /* INVALID_HANDLE_VALUE */ -1 { ucrt._set_errno(EBADF); return -1 }
+    if handle == /* INVALID_HANDLE_VALUE */ -1 {
+        ucrt._set_errno(EBADF)
+        return -1
+    }
     
     // NOTE: this is a non-owning handle, do *not* call CloseHandle on it
     let hFile: HANDLE = HANDLE(bitPattern: handle)!
@@ -304,8 +316,10 @@ internal func ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
     var liCurrentOffset = LARGE_INTEGER(QuadPart: 0)
     
     // Save the current position and restore it when we're done
-    if !SetFilePointerEx(hFile, liCurrentOffset, &liCurrentOffset,
-                         DWORD(FILE_CURRENT)) {
+    if !SetFilePointerEx(
+        hFile, liCurrentOffset, &liCurrentOffset,
+        DWORD(FILE_CURRENT)
+    ) {
         ucrt._set_errno(Win32Error().errno.rawValue)
         return -1
     }
@@ -330,8 +344,10 @@ internal func mkdir(
 ) -> CInt {
     let actualMode = mode & ~_umask
     
-    guard let pSD = _createSecurityDescriptor(from: actualMode,
-                                              for: .directory) else {
+    guard let pSD = _createSecurityDescriptor(
+        from: actualMode,
+        for: .directory
+    ) else {
         ucrt._set_errno(Win32Error().errno.rawValue)
         return -1
     }
@@ -414,11 +430,13 @@ fileprivate func getTokenInformation<T>(
         
         var length = DWORD(0)
         
-        if GetTokenInformation(hToken,
-                               ticTokenClass,
-                               buffer,
-                               DWORD(capacity),
-                               &length) {
+        if GetTokenInformation(
+            hToken,
+            ticTokenClass,
+            buffer,
+            DWORD(capacity),
+            &length
+        ) {
             return UnsafePointer(buffer.assumingMemoryBound(to: T.self))
         }
         
@@ -437,20 +455,25 @@ internal enum _FileOrDirectory {
 /// Build a SECURITY_DESCRIPTOR from UNIX-style "mode" bits.  This only
 /// takes account of the rwx and sticky bits; there's really nothing that
 /// we can do about setuid/setgid.
-internal func _createSecurityDescriptor(from mode: PlatformMode,
-                                        for fileOrDirectory: _FileOrDirectory)
--> PSECURITY_DESCRIPTOR? {
+internal func _createSecurityDescriptor(
+    from mode: PlatformMode,
+    for fileOrDirectory: _FileOrDirectory
+) -> PSECURITY_DESCRIPTOR? {
     let ownerPerm = (Int(mode) >> 6) & 0o7
     let groupPerm = (Int(mode) >> 3) & 0o7
     let otherPerm = Int(mode) & 0o7
     
     let ownerRights = rightsFromModeBits(ownerPerm, for: fileOrDirectory)
-    let groupRights = rightsFromModeBits(groupPerm,
-                                         sticky: (mode & 0o1000) != 0,
-                                         for: fileOrDirectory)
-    let otherRights = rightsFromModeBits(otherPerm,
-                                         sticky: (mode & 0o1000) != 0,
-                                         for: fileOrDirectory)
+    let groupRights = rightsFromModeBits(
+        groupPerm,
+        sticky: (mode & 0o1000) != 0,
+        for: fileOrDirectory
+    )
+    let otherRights = rightsFromModeBits(
+        otherPerm,
+        sticky: (mode & 0o1000) != 0,
+        for: fileOrDirectory
+    )
     
     // If group or other permissions are *more* permissive, then we need
     // some DENY ACEs as well to implement the expected semantics
@@ -461,10 +484,12 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
     var SIDAuthWorld = SID_IDENTIFIER_AUTHORITY(Value: (0, 0, 0, 0, 0, 1))
     var everyone: PSID? = nil
     
-    guard AllocateAndInitializeSid(&SIDAuthWorld, 1,
-                                   DWORD(SECURITY_WORLD_RID),
-                                   0, 0, 0, 0, 0, 0, 0,
-                                   &everyone) else {
+    guard AllocateAndInitializeSid(
+        &SIDAuthWorld, 1,
+        DWORD(SECURITY_WORLD_RID),
+        0, 0, 0, 0, 0, 0, 0,
+        &everyone
+    ) else {
         return nil
     }
     guard let everyone = everyone else {
@@ -476,9 +501,11 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
     
     let hToken = GetCurrentThreadEffectiveToken()!
     
-    guard let pTokenUser = getTokenInformation(of: TOKEN_USER.self,
-                                               hToken: hToken,
-                                               ticTokenClass: TokenUser) else {
+    guard let pTokenUser = getTokenInformation(
+        of: TOKEN_USER.self,
+        hToken: hToken,
+        ticTokenClass: TokenUser
+    ) else {
         return nil
     }
     defer {
@@ -510,7 +537,7 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
                 TrusteeForm: TRUSTEE_IS_SID,
                 TrusteeType: TRUSTEE_IS_USER,
                 ptstrName:
-                    user.assumingMemoryBound(to: PlatformChar.self)
+                    user.assumingMemoryBound(to: PlatformCharacter.self)
             )
         ),
         EXPLICIT_ACCESS_W(
@@ -523,7 +550,7 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
                 TrusteeForm: TRUSTEE_IS_SID,
                 TrusteeType: TRUSTEE_IS_GROUP,
                 ptstrName:
-                    group.assumingMemoryBound(to: PlatformChar.self)
+                    group.assumingMemoryBound(to: PlatformCharacter.self)
             )
         ),
         EXPLICIT_ACCESS_W(
@@ -536,7 +563,7 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
                 TrusteeForm: TRUSTEE_IS_SID,
                 TrusteeType: TRUSTEE_IS_GROUP,
                 ptstrName:
-                    everyone.assumingMemoryBound(to: PlatformChar.self)
+                    everyone.assumingMemoryBound(to: PlatformCharacter.self)
             )
         )
     ]
@@ -553,7 +580,7 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
                     TrusteeForm: TRUSTEE_IS_SID,
                     TrusteeType: TRUSTEE_IS_USER,
                     ptstrName:
-                        user.assumingMemoryBound(to: PlatformChar.self)
+                        user.assumingMemoryBound(to: PlatformCharacter.self)
                 )
             )
         )
@@ -571,17 +598,19 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
                     TrusteeForm: TRUSTEE_IS_SID,
                     TrusteeType: TRUSTEE_IS_GROUP,
                     ptstrName:
-                        group.assumingMemoryBound(to: PlatformChar.self)
+                        group.assumingMemoryBound(to: PlatformCharacter.self)
                 )
             )
         )
     }
     
     var pACL: PACL? = nil
-    guard SetEntriesInAclW(ULONG(eas.count),
-                           &eas,
-                           nil,
-                           &pACL) == ERROR_SUCCESS else {
+    guard SetEntriesInAclW(
+        ULONG(eas.count),
+        &eas,
+        nil,
+        &pACL
+    ) == ERROR_SUCCESS else {
         return nil
     }
     defer {
@@ -592,20 +621,26 @@ internal func _createSecurityDescriptor(from mode: PlatformMode,
     // take effect, since that wouldn't match the behaviour of mode bits.
     var descriptor = SECURITY_DESCRIPTOR()
     
-    guard InitializeSecurityDescriptor(&descriptor,
-                                       DWORD(SECURITY_DESCRIPTOR_REVISION)) else {
+    guard InitializeSecurityDescriptor(
+        &descriptor,
+        DWORD(SECURITY_DESCRIPTOR_REVISION)
+    ) else {
         return nil
     }
     
-    guard SetSecurityDescriptorControl(&descriptor,
-                                       SECURITY_DESCRIPTOR_CONTROL(SE_DACL_PROTECTED),
-                                       SECURITY_DESCRIPTOR_CONTROL(SE_DACL_PROTECTED))
+    guard SetSecurityDescriptorControl(
+        &descriptor,
+        SECURITY_DESCRIPTOR_CONTROL(SE_DACL_PROTECTED),
+        SECURITY_DESCRIPTOR_CONTROL(SE_DACL_PROTECTED)
+    )
             && SetSecurityDescriptorOwner(&descriptor, user, false)
             && SetSecurityDescriptorGroup(&descriptor, group, false)
-            && SetSecurityDescriptorDacl(&descriptor,
-                                         true,
-                                         pACL,
-                                         false) else {
+            && SetSecurityDescriptorDacl(
+                &descriptor,
+                true,
+                pACL,
+                false
+            ) else {
         return nil
     }
     

@@ -36,7 +36,7 @@ public typealias PlatformMode = CInt
 /// The platform's preferred character type. On Unix, this is an 8-bit C
 /// `char` (which may be signed or unsigned, depending on platform). On
 /// Windows, this is `UInt16` (a "wide" character).
-public typealias PlatformChar = UInt16
+public typealias PlatformCharacter = UInt16
 
 /// The platform's preferred Unicode encoding. On Unix this is UTF-8 and on
 /// Windows it is UTF-16. Native strings may contain invalid Unicode,
@@ -50,7 +50,7 @@ public typealias PlatformMode = mode_t
 /// The platform's preferred character type. On Unix, this is an 8-bit C
 /// `char` (which may be signed or unsigned, depending on platform). On
 /// Windows, this is `UInt16` (a "wide" character).
-public typealias PlatformChar = CChar
+public typealias PlatformCharacter = Int8
 
 /// The platform's preferred Unicode encoding. On Unix this is UTF-8 and on
 /// Windows it is UTF-16. Native strings may contain invalid Unicode,
@@ -60,7 +60,7 @@ public typealias PlatformUnicodeEncoding = UTF8
 #endif
 
 // strlen for the platform string
-public func system_platform_strlen(_ s: UnsafePointer<PlatformChar>) -> Int {
+public func system_platform_strlen(_ s: UnsafePointer<PlatformCharacter>) -> Int {
 #if os(Windows)
     return wcslen(s)
 #else

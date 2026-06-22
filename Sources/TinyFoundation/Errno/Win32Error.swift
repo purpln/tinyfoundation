@@ -19,18 +19,16 @@ extension Win32Error: CustomStringConvertible {
         let languageId: DWORD = MAKELANGID(WORD(LANG_NEUTRAL), WORD(SUBLANG_DEFAULT))
         
         var buffer: UnsafeMutablePointer<WCHAR>?
-        let result = withUnsafeMutablePointer(to: &buffer) {
-            $0.withMemoryRebound(to: WCHAR.self, capacity: 2) {
+        let result = withUnsafeMutablePointer(to: &buffer, {
+            $0.withMemoryRebound(to: WCHAR.self, capacity: 2, {
                 FormatMessageW(flags, nil, rawValue, languageId, $0, 0, nil)
-            }
-        }
+            })
+        })
         guard result > 0, let message = buffer else { return "Unknown error" }
         defer { LocalFree(message) }
         let string = String(decodingCString: message, as: UTF16.self)
-        if string.hasSuffix("\r\n") {
-            return String(string.dropLast(1))
-        }
-        return string
+        guard string.hasSuffix("\r\n") else { return string }
+        return String(string.dropLast(1))
     }
 }
 

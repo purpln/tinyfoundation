@@ -2,27 +2,27 @@ import TinySystem
 
 extension String {
     @_disfavoredOverload
-    public init(platformString: UnsafePointer<PlatformChar>) {
+    public init(platformString: UnsafePointer<PlatformCharacter>) {
         self.init(_errorCorrectingPlatformString: platformString)
     }
     
     @inlinable
     @_alwaysEmitIntoClient
-    public init(platformString: [PlatformChar]) {
+    public init(platformString: [PlatformCharacter]) {
         guard let _ = platformString.firstIndex(of: 0) else {
             fatalError(
                 "input of String.init(platformString:) must be null-terminated"
             )
         }
-        self = platformString.withUnsafeBufferPointer {
+        self = platformString.withUnsafeBufferPointer({
             String(platformString: $0.baseAddress!)
-        }
+        })
     }
     
     @inlinable
     @_alwaysEmitIntoClient
     @available(*, deprecated, message: "Use String.init(_ scalar: Unicode.Scalar)")
-    public init(platformString: inout PlatformChar) {
+    public init(platformString: inout PlatformCharacter) {
         guard platformString == 0 else {
             fatalError(
                 "input of String.init(platformString:) must be null-terminated"
@@ -43,7 +43,7 @@ extension String {
     }
     
     public init?(
-        validatingPlatformString platformString: UnsafePointer<PlatformChar>
+        validatingPlatformString platformString: UnsafePointer<PlatformCharacter>
     ) {
         self.init(_platformString: platformString)
     }
@@ -51,7 +51,7 @@ extension String {
     @inlinable
     @_alwaysEmitIntoClient
     public init?(
-        validatingPlatformString platformString: [PlatformChar]
+        validatingPlatformString platformString: [PlatformCharacter]
     ) {
         guard let _ = platformString.firstIndex(of: 0) else {
             fatalError(
@@ -70,7 +70,7 @@ extension String {
     @_alwaysEmitIntoClient
     @available(*, deprecated, message: "Use String(_ scalar: Unicode.Scalar)")
     public init?(
-        validatingPlatformString platformString: inout PlatformChar
+        validatingPlatformString platformString: inout PlatformCharacter
     ) {
         guard platformString == 0 else {
             fatalError(
@@ -93,15 +93,15 @@ extension String {
         }
     }
     
-    public func withPlatformString<Result>(
-        _ body: (UnsafePointer<PlatformChar>) throws -> Result
-    ) rethrows -> Result {
+    public func withPlatformString<T, E>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
+    ) throws(E) -> T {
         try _withPlatformString(body)
     }
 }
 
-extension PlatformChar {
-    internal var _platformCodeUnit: PlatformUnicodeEncoding.CodeUnit {
+extension PlatformCharacter {
+    internal var platformCodeUnit: PlatformUnicodeEncoding.CodeUnit {
 #if os(Windows)
         return self
 #else
@@ -111,20 +111,20 @@ extension PlatformChar {
 }
 
 extension PlatformUnicodeEncoding.CodeUnit {
-    internal var _platformChar: PlatformChar {
+    internal var platformChar: PlatformCharacter {
 #if os(Windows)
         return self
 #else
-        return PlatformChar(bitPattern: self)
+        return PlatformCharacter(bitPattern: self)
 #endif
     }
 }
 
-internal protocol _PlatformStringable {
-    func _withPlatformString<Result>(
-        _ body: (UnsafePointer<PlatformChar>) throws -> Result
-    ) rethrows -> Result
+internal protocol PlatformStringable {
+    func _withPlatformString<T, E>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
+    ) throws(E) -> T
     
-    init?(_platformString: UnsafePointer<PlatformChar>)
+    init?(_platformString: UnsafePointer<PlatformCharacter>)
 }
-extension String: _PlatformStringable {}
+extension String: PlatformStringable {}

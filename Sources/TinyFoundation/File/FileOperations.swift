@@ -10,17 +10,25 @@ extension FileDescriptor {
         retryOnInterrupt: Bool = true
     ) throws -> FileDescriptor {
 #if os(Windows)
-        try path.withPlatformString {
+        try path.withPlatformString({
             try FileDescriptor.open(
-                $0, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+                $0,
+                mode,
+                options: options,
+                permissions: permissions,
+                retryOnInterrupt: retryOnInterrupt
             )
-        }
+        })
 #else
-        try path.withCString {
+        try path.withCString({
             try FileDescriptor.open(
-                $0, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+                $0,
+                mode,
+                options: options,
+                permissions: permissions,
+                retryOnInterrupt: retryOnInterrupt
             )
-        }
+        })
 #endif
     }
     
@@ -35,7 +43,11 @@ extension FileDescriptor {
         retryOnInterrupt: Bool = true
     ) throws(Errno) -> FileDescriptor {
         try FileDescriptor._open(
-            path, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+            path,
+            mode,
+            options: options,
+            permissions: permissions,
+            retryOnInterrupt: retryOnInterrupt
         ).get()
     }
 #endif
@@ -50,7 +62,11 @@ extension FileDescriptor {
         retryOnInterrupt: Bool = true
     ) throws -> FileDescriptor {
         try FileDescriptor._open(
-            path, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+            path,
+            mode,
+            options: options,
+            permissions: permissions,
+            retryOnInterrupt: retryOnInterrupt
         ).get()
     }
 #endif
@@ -66,13 +82,13 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<FileDescriptor, Errno> {
         let oFlag = mode.rawValue | options.rawValue
-        let descOrError: Result<CInt, Errno> = valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
+        let result: Result<CInt, Errno> = valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
             if let permissions = permissions {
                 return system_open(path, oFlag, permissions.rawValue)
             }
             return system_open(path, oFlag)
         }
-        return descOrError.map { FileDescriptor(rawValue: $0) }
+        return result.map { FileDescriptor(rawValue: $0) }
     }
 #else
 #if compiler(>=6.0)
@@ -85,7 +101,11 @@ extension FileDescriptor {
         retryOnInterrupt: Bool = true
     ) throws(Errno) -> FileDescriptor {
         try FileDescriptor._open(
-            path, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+            path,
+            mode,
+            options: options,
+            permissions: permissions,
+            retryOnInterrupt: retryOnInterrupt
         ).get()
     }
 #else
@@ -98,7 +118,11 @@ extension FileDescriptor {
         retryOnInterrupt: Bool = true
     ) throws -> FileDescriptor {
         try FileDescriptor._open(
-            path, mode, options: options, permissions: permissions, retryOnInterrupt: retryOnInterrupt
+            path,
+            mode,
+            options: options,
+            permissions: permissions,
+            retryOnInterrupt: retryOnInterrupt
         ).get()
     }
 #endif
@@ -112,14 +136,14 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<FileDescriptor, Errno> {
         let oFlag = mode.rawValue | options.rawValue
-        let descOrError: Result<CInt, Errno> = valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
+        let result: Result<CInt, Errno> = valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
             if let permissions = permissions {
                 return system_open(path, oFlag, permissions.rawValue)
             }
             precondition(!options.contains(.create), "Create must be given permissions")
             return system_open(path, oFlag)
-        }
-        return descOrError.map { FileDescriptor(rawValue: $0) }
+        })
+        return result.map({ FileDescriptor(rawValue: $0) })
     }
 #endif
     
@@ -132,7 +156,7 @@ extension FileDescriptor {
 #endif
     
     @usableFromInline
-    internal func _close() -> Result<(), Errno> {
+    internal func _close() -> Result<Void, Errno> {
         nothingOrErrno(retryOnInterrupt: false) {
             system_close(rawValue)
         }
@@ -160,9 +184,13 @@ extension FileDescriptor {
     internal func _seek(
         offset: Int64, from whence: FileDescriptor.SeekOrigin
     ) -> Result<Int64, Errno> {
-        valueOrErrno(retryOnInterrupt: false) {
-            Int64(system_lseek(rawValue, PlatformOffset(offset), whence.rawValue))
-        }
+        valueOrErrno(retryOnInterrupt: false, {
+            Int64(system_lseek(
+                rawValue,
+                PlatformOffset(offset),
+                whence.rawValue
+            ))
+        })
     }
     
 #if compiler(>=6.0)
@@ -245,9 +273,14 @@ extension FileDescriptor {
         into buffer: UnsafeMutableRawBufferPointer,
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
-        valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_pread(rawValue, buffer.baseAddress, buffer.count, PlatformOffset(offset))
-        }
+        valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
+            system_pread(
+                rawValue,
+                buffer.baseAddress,
+                buffer.count,
+                PlatformOffset(offset)
+            )
+        })
     }
     
 #if compiler(>=6.0)
@@ -303,9 +336,9 @@ extension FileDescriptor {
         _ buffer: UnsafeRawBufferPointer,
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
-        valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
+        valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
             system_write(rawValue, buffer.baseAddress, buffer.count)
-        }
+        })
     }
     
 #if compiler(>=6.0)
@@ -315,7 +348,11 @@ extension FileDescriptor {
         _ buffer: UnsafeRawBufferPointer,
         retryOnInterrupt: Bool = true
     ) throws(Errno) -> Int {
-        try _write(toAbsoluteOffset: offset, buffer, retryOnInterrupt: retryOnInterrupt).get()
+        try _write(
+            toAbsoluteOffset: offset,
+            buffer,
+            retryOnInterrupt: retryOnInterrupt
+        ).get()
     }
 #else
     @_alwaysEmitIntoClient
@@ -324,7 +361,11 @@ extension FileDescriptor {
         _ buffer: UnsafeRawBufferPointer,
         retryOnInterrupt: Bool = true
     ) throws -> Int {
-        try _write(toAbsoluteOffset: offset, buffer, retryOnInterrupt: retryOnInterrupt).get()
+        try _write(
+            toAbsoluteOffset: offset,
+            buffer,
+            retryOnInterrupt: retryOnInterrupt
+        ).get()
     }
 #endif
     
@@ -334,9 +375,14 @@ extension FileDescriptor {
         _ buffer: UnsafeRawBufferPointer,
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
-        valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
-            system_pwrite(rawValue, buffer.baseAddress, buffer.count, PlatformOffset(offset))
-        }
+        valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
+            system_pwrite(
+                rawValue,
+                buffer.baseAddress,
+                buffer.count,
+                PlatformOffset(offset)
+            )
+        })
     }
     
 #if compiler(>=6.0)
@@ -350,7 +396,8 @@ extension FileDescriptor {
         try write(
             toAbsoluteOffset: offset,
             buffer,
-            retryOnInterrupt: retryOnInterrupt)
+            retryOnInterrupt: retryOnInterrupt
+        )
     }
 #else
     @_alwaysEmitIntoClient
@@ -363,7 +410,8 @@ extension FileDescriptor {
         try write(
             toAbsoluteOffset: offset,
             buffer,
-            retryOnInterrupt: retryOnInterrupt)
+            retryOnInterrupt: retryOnInterrupt
+        )
     }
 #endif
 }
@@ -393,12 +441,12 @@ extension FileDescriptor {
         as target: FileDescriptor?,
         retryOnInterrupt: Bool
     ) -> Result<FileDescriptor, Errno> {
-        valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
+        valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
             if let target = target {
                 return system_dup2(rawValue, target.rawValue)
             }
             return system_dup(rawValue)
-        }.map(FileDescriptor.init(rawValue:))
+        }).map(FileDescriptor.init(rawValue:))
     }
 }
 #endif
@@ -419,14 +467,18 @@ extension FileDescriptor {
     
     @usableFromInline
     internal static func _pipe() -> Result<(read: FileDescriptor, write: FileDescriptor), Errno> {
-        var tunnel: (CInt, CInt) = (-1, -1)
-        return withUnsafeMutablePointer(to: &tunnel) { pointer in
-            pointer.withMemoryRebound(to: CInt.self, capacity: 2) { tunnel in
-                valueOrErrno(retryOnInterrupt: false) {
+        var tunnel: (read: CInt, write: CInt) = (-1, -1)
+        return withUnsafeMutablePointer(to: &tunnel, { pointer in
+            pointer.withMemoryRebound(to: CInt.self, capacity: 2, { tunnel in
+                valueOrErrno(retryOnInterrupt: false, {
                     system_pipe(tunnel)
-                }.map { _ in (.init(rawValue: tunnel[0]), .init(rawValue: tunnel[1])) }
-            }
-        }
+                })
+            })
+        }).map({ _ in
+            let read = FileDescriptor(rawValue: tunnel.read)
+            let write = FileDescriptor(rawValue: tunnel.write)
+            return (read, write)
+        })
     }
 }
 #endif
@@ -461,10 +513,10 @@ extension FileDescriptor {
     internal func _resize(
         to newSize: Int64,
         retryOnInterrupt: Bool
-    ) -> Result<(), Errno> {
-        nothingOrErrno(retryOnInterrupt: retryOnInterrupt) {
+    ) -> Result<Void, Errno> {
+        nothingOrErrno(retryOnInterrupt: retryOnInterrupt, {
             system_ftruncate(rawValue, PlatformOffset(newSize))
-        }
+        })
     }
 }
 
@@ -480,10 +532,10 @@ extension FilePermissions {
         }
     }
 #if compiler(>=6.0)
-    internal static func withCreationMask<R, E: Error>(
+    internal static func withCreationMask<T, E>(
         _ permissions: FilePermissions,
-        body: () throws(E) -> R
-    ) throws(E) -> R {
+        body: () throws(E) -> T
+    ) throws(E) -> T {
         let oldMask = _umask(permissions.rawValue)
         defer {
             _umask(oldMask)
@@ -491,10 +543,10 @@ extension FilePermissions {
         return try body()
     }
 #else
-    internal static func withCreationMask<R>(
+    internal static func withCreationMask<T>(
         _ permissions: FilePermissions,
-        body: () throws -> R
-    ) rethrows -> R {
+        body: () throws -> T
+    ) rethrows -> T {
         let oldMask = _umask(permissions.rawValue)
         defer {
             _umask(oldMask)

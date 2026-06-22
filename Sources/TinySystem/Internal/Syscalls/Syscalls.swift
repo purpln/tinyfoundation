@@ -6,14 +6,14 @@ import LibC
 
 // open
 public func system_open(
-    _ path: UnsafePointer<PlatformChar>,
+    _ path: UnsafePointer<PlatformCharacter>,
     _ oflag: CInt
 ) -> CInt {
     open(path, oflag)
 }
 
 public func system_open(
-    _ path: UnsafePointer<PlatformChar>,
+    _ path: UnsafePointer<PlatformCharacter>,
     _ oflag: CInt,
     _ mode: PlatformMode
 ) -> CInt {
@@ -29,7 +29,7 @@ public func system_close(
 
 // remove
 public func system_remove(
-    _ path: UnsafePointer<PlatformChar>
+    _ path: UnsafePointer<PlatformCharacter>
 ) -> CInt {
     remove(path)
 }
@@ -52,10 +52,10 @@ public func system_pread(
 ) -> Int {
 #if os(Android)
     var zero = UInt8.zero
-    return withUnsafeMutablePointer(to: &zero) {
+    return withUnsafeMutablePointer(to: &zero, {
         // has a non-nullable pointer
         pread(descriptor, buffer ?? UnsafeMutableRawPointer($0), size, offset)
-    }
+    })
 #else
     pread(descriptor, buffer, size, offset)
 #endif
@@ -88,10 +88,10 @@ public func system_pwrite(
 ) -> Int {
 #if os(Android)
     var zero = UInt8.zero
-    return withUnsafeMutablePointer(to: &zero) {
+    return withUnsafeMutablePointer(to: &zero, {
         // this pwrite has a non-nullable `buf` pointer
         pwrite(descriptor, buffer ?? UnsafeRawPointer($0), size, offset)
-    }
+    })
 #else
     pwrite(descriptor, buffer, size, offset)
 #endif
@@ -118,14 +118,14 @@ public func system_ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
 }
 
 public func system_mkdir(
-    _ path: UnsafePointer<PlatformChar>,
+    _ path: UnsafePointer<PlatformCharacter>,
     _ mode: PlatformMode
 ) -> CInt {
     mkdir(path, mode)
 }
 
 public func system_rmdir(
-    _ path: UnsafePointer<PlatformChar>
+    _ path: UnsafePointer<PlatformCharacter>
 ) -> CInt {
     rmdir(path)
 }
@@ -137,7 +137,7 @@ public let SYSTEM_CS_DARWIN_USER_CACHE_DIR = _CS_DARWIN_USER_CACHE_DIR
 
 public func system_confstr(
     _ name: CInt,
-    _ buffer: UnsafeMutablePointer<PlatformChar>?,
+    _ buffer: UnsafeMutablePointer<PlatformCharacter>?,
     _ length: Int
 ) -> Int {
     confstr(name, buffer, length)
@@ -160,7 +160,7 @@ public typealias system_FILEPtr = UnsafeMutablePointer<FILE>
 
 public func system_unlinkat(
     _ descriptor: CInt,
-    _ path: UnsafePointer<PlatformChar>,
+    _ path: UnsafePointer<PlatformCharacter>,
     _ flag: CInt
 ) -> CInt {
     unlinkat(descriptor, path, flag)
@@ -185,7 +185,7 @@ public func system_rewinddir(
 }
 
 public func system_opendir(
-    _ path: UnsafePointer<PlatformChar>
+    _ path: UnsafePointer<PlatformCharacter>
 ) -> system_DIRPtr? {
     opendir(path)
 }
@@ -198,7 +198,7 @@ public func system_closedir(
 
 public func system_openat(
     _ descriptor: CInt,
-    _ path: UnsafePointer<PlatformChar>,
+    _ path: UnsafePointer<PlatformCharacter>,
     _ oflag: CInt
 ) -> CInt {
     openat(descriptor, path, oflag)
@@ -216,34 +216,34 @@ public func system_umask(
 }
 
 public func system_getenv(
-    _ name: UnsafePointer<PlatformChar>
-) -> UnsafeMutablePointer<PlatformChar>? {
+    _ name: UnsafePointer<PlatformCharacter>
+) -> UnsafeMutablePointer<PlatformCharacter>? {
     getenv(name)
 }
 
 public func system_setenv(
-    _ name: UnsafePointer<PlatformChar>,
-    _ value: UnsafePointer<PlatformChar>,
+    _ name: UnsafePointer<PlatformCharacter>,
+    _ value: UnsafePointer<PlatformCharacter>,
     _ overwrite: CInt
 ) -> CInt {
     setenv(name, value, overwrite)
 }
 
 public func system_unsetenv(
-    _ name: UnsafePointer<PlatformChar>
+    _ name: UnsafePointer<PlatformCharacter>
 ) -> CInt {
     unsetenv(name)
 }
 
 public func system_getcwd(
-    _ buffer: UnsafeMutablePointer<PlatformChar>?,
+    _ buffer: UnsafeMutablePointer<PlatformCharacter>?,
     _ size: size_t
-) -> UnsafeMutablePointer<PlatformChar>? {
+) -> UnsafeMutablePointer<PlatformCharacter>? {
     getcwd(buffer, size)
 }
 
 public func system_chdir(
-    _ path: UnsafePointer<PlatformChar>
+    _ path: UnsafePointer<PlatformCharacter>
 ) -> CInt {
     chdir(path)
 }
@@ -255,8 +255,8 @@ public func system_free(
 }
 
 public func system_symlink(
-    _ original: UnsafePointer<PlatformChar>,
-    _ target: UnsafePointer<PlatformChar>
+    _ original: UnsafePointer<PlatformCharacter>,
+    _ target: UnsafePointer<PlatformCharacter>
 ) -> CInt {
     symlink(original, target)
 }

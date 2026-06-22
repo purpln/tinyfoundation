@@ -14,7 +14,9 @@ public struct Errno: Error, RawRepresentable, Sendable {
 
 extension Errno: CustomStringConvertible {
     public var description: String {
-        guard let pointer = system_strerror(rawValue) else { return "unknown error" }
+        guard let pointer = system_strerror(rawValue) else {
+            return "unknown error"
+        }
         return String(cString: pointer)
     }
 }
@@ -235,7 +237,7 @@ public extension Errno {
     @inlinable
     static var alreadyInUse: Errno { Errno(rawValue: _EADDRINUSE) }
     
-    //Can\'t assign requested address
+    //Can't assign requested address
     @inlinable
     static var assignAddress: Errno { Errno(rawValue: _EADDRNOTAVAIL) }
     
@@ -271,11 +273,11 @@ public extension Errno {
     @inlinable
     static var notConnected: Errno { Errno(rawValue: _ENOTCONN) }
 #if !os(WASI)
-    //Can\'t send after socket shutdown
+    //Can't send after socket shutdown
     @inlinable
     static var socketShutdown: Errno { Errno(rawValue: _ESHUTDOWN) }
     
-    //Too many references: can\'t splice
+    //Too many references: can't splice
     @inlinable
     static var tooManyReferences: Errno { Errno(rawValue: _ETOOMANYREFS) }
 #endif
