@@ -1,130 +1,134 @@
 import TinySystem
 
 @frozen
-public struct FilePermissions: OptionSet, Sendable, Hashable, Codable {
+public struct FilePermissions: OptionSet, Equatable, Hashable, Sendable {
     @_alwaysEmitIntoClient
     public let rawValue: PlatformMode
     
     @_alwaysEmitIntoClient
-    public init(rawValue: PlatformMode) { self.rawValue = rawValue }
-    
+    public init(rawValue: PlatformMode) {
+        self.rawValue = rawValue
+    }
+}
+
+public extension FilePermissions {
     @_alwaysEmitIntoClient
-    public static var otherRead: FilePermissions {
+    static var otherRead: FilePermissions {
         FilePermissions(rawValue: 0o4)
     }
     
     @_alwaysEmitIntoClient
-    public static var otherWrite: FilePermissions {
+    static var otherWrite: FilePermissions {
         FilePermissions(rawValue: 0o2)
     }
     
     @_alwaysEmitIntoClient
-    public static var otherExecute: FilePermissions {
+    static var otherExecute: FilePermissions {
         FilePermissions(rawValue: 0o1)
     }
     
     @_alwaysEmitIntoClient
-    public static var otherReadWrite: FilePermissions {
+    static var otherReadWrite: FilePermissions {
         FilePermissions(rawValue: 0o6)
     }
     
     @_alwaysEmitIntoClient
-    public static var otherReadExecute: FilePermissions {
+    static var otherReadExecute: FilePermissions {
         FilePermissions(rawValue: 0o5)
     }
     
     @_alwaysEmitIntoClient
-    public static var otherWriteExecute: FilePermissions {
+    static var otherWriteExecute: FilePermissions {
         FilePermissions(rawValue: 0o3)
     }
     
     @_alwaysEmitIntoClient
-    public static var otherReadWriteExecute: FilePermissions {
+    static var otherReadWriteExecute: FilePermissions {
         FilePermissions(rawValue: 0o7)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupRead: FilePermissions {
+    static var groupRead: FilePermissions {
         FilePermissions(rawValue: 0o40)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupWrite: FilePermissions {
+    static var groupWrite: FilePermissions {
         FilePermissions(rawValue: 0o20)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupExecute: FilePermissions {
+    static var groupExecute: FilePermissions {
         FilePermissions(rawValue: 0o10)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupReadWrite: FilePermissions {
+    static var groupReadWrite: FilePermissions {
         FilePermissions(rawValue: 0o60)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupReadExecute: FilePermissions {
+    static var groupReadExecute: FilePermissions {
         FilePermissions(rawValue: 0o50)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupWriteExecute: FilePermissions {
+    static var groupWriteExecute: FilePermissions {
         FilePermissions(rawValue: 0o30)
     }
     
     @_alwaysEmitIntoClient
-    public static var groupReadWriteExecute: FilePermissions {
+    static var groupReadWriteExecute: FilePermissions {
         FilePermissions(rawValue: 0o70)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerRead: FilePermissions {
+    static var ownerRead: FilePermissions {
         FilePermissions(rawValue: 0o400)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerWrite: FilePermissions {
+    static var ownerWrite: FilePermissions {
         FilePermissions(rawValue: 0o200)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerExecute: FilePermissions {
+    static var ownerExecute: FilePermissions {
         FilePermissions(rawValue: 0o100)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerReadWrite: FilePermissions {
+    static var ownerReadWrite: FilePermissions {
         FilePermissions(rawValue: 0o600)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerReadExecute: FilePermissions {
+    static var ownerReadExecute: FilePermissions {
         FilePermissions(rawValue: 0o500)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerWriteExecute: FilePermissions {
+    static var ownerWriteExecute: FilePermissions {
         FilePermissions(rawValue: 0o300)
     }
     
     @_alwaysEmitIntoClient
-    public static var ownerReadWriteExecute: FilePermissions {
+    static var ownerReadWriteExecute: FilePermissions {
         FilePermissions(rawValue: 0o700)
     }
     
     @_alwaysEmitIntoClient
-    public static var setUserID: FilePermissions {
+    static var setUserID: FilePermissions {
         FilePermissions(rawValue: 0o4000)
     }
     
     @_alwaysEmitIntoClient
-    public static var setGroupID: FilePermissions {
+    static var setGroupID: FilePermissions {
         FilePermissions(rawValue: 0o2000)
     }
     
     @_alwaysEmitIntoClient
-    public static var saveText: FilePermissions {
+    static var saveText: FilePermissions {
         FilePermissions(rawValue: 0o1000)
     }
 }

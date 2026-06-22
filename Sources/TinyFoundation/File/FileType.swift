@@ -1,6 +1,6 @@
 import TinySystem
 
-public enum FileType {
+public enum FileType: Equatable, Hashable, Sendable {
     case regular
     case block
     case character

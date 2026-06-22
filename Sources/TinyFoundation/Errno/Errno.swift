@@ -1,6 +1,6 @@
 import TinySystem
 
-public struct Errno: Error, RawRepresentable, Sendable {
+public struct Errno: Error, RawRepresentable, Equatable, Hashable, Sendable {
     public var rawValue: CInt
     
     public init(rawValue: CInt) {
@@ -18,18 +18,6 @@ extension Errno: CustomStringConvertible {
             return "unknown error"
         }
         return String(cString: pointer)
-    }
-}
-
-extension Errno: Equatable {
-    public static func == (lhs: Errno, rhs: Errno) -> Bool {
-        lhs.rawValue == rhs.rawValue
-    }
-}
-
-extension Errno: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
     }
 }
 

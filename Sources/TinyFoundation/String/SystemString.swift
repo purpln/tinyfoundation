@@ -1,6 +1,6 @@
 import TinySystem
 
-internal struct SystemCharacter: RawRepresentable, Sendable, Comparable, Hashable, Codable {
+internal struct SystemCharacter: RawRepresentable, Equatable, Hashable, Sendable, Comparable, Codable {
     internal typealias RawValue = PlatformCharacter
     
     internal var rawValue: RawValue
