@@ -40,27 +40,30 @@ public extension in6_addr {
 
 public extension sockaddr_in {
     init(_ storage: sockaddr_storage) {
-        var storage = storage
         var sockaddr = sockaddr_in()
-        memcpy(&sockaddr, &storage, Int(sockaddr_in.size))
+        _ = withUnsafePointer(to: storage, {
+            memcpy(&sockaddr, $0, Int(sockaddr_in.size))
+        })
         self = sockaddr
     }
 }
 
 public extension sockaddr_in6 {
     init(_ storage: sockaddr_storage) {
-        var storage = storage
         var sockaddr = sockaddr_in6()
-        memcpy(&sockaddr, &storage, Int(sockaddr_in6.size))
+        _ = withUnsafePointer(to: storage, {
+            memcpy(&sockaddr, $0, Int(sockaddr_in6.size))
+        })
         self = sockaddr
     }
 }
 
 public extension sockaddr_un {
     init(_ storage: sockaddr_storage) {
-        var storage = storage
         var sockaddr = sockaddr_un()
-        memcpy(&sockaddr, &storage, Int(sockaddr_un.size))
+        _ = withUnsafePointer(to: storage, {
+            memcpy(&sockaddr, $0, Int(sockaddr_un.size))
+        })
         self = sockaddr
     }
 }
@@ -173,9 +176,7 @@ public extension sockaddr_un {
 #if canImport(WASILibc)
         return nil
 #else
-        _ = address.withCString({
-            memcpy(&sockaddr.sun_path, $0, address.count)
-        })
+        memcpy(&sockaddr.sun_path, address, address.count)
 #endif
 #if canImport(Darwin)
         sockaddr.sun_len = UInt8(sockaddr_un.size)
