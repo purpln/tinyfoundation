@@ -1,6 +1,26 @@
 import TinySystem
 
 extension FileDescriptor {
+#if compiler(>=6.0)
+    @_alwaysEmitIntoClient
+    public static func open(
+        _ path: String,
+        _ mode: FileDescriptor.AccessMode,
+        options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
+        permissions: FilePermissions? = nil,
+        retryOnInterrupt: Bool = true
+    ) throws(Errno) -> FileDescriptor {
+        try path.withPlatformString({ pointer throws(Errno) in
+            try FileDescriptor.open(
+                pointer,
+                mode,
+                options: options,
+                permissions: permissions,
+                retryOnInterrupt: retryOnInterrupt
+            )
+        })
+    }
+#else
     @_alwaysEmitIntoClient
     public static func open(
         _ path: String,
@@ -9,28 +29,17 @@ extension FileDescriptor {
         permissions: FilePermissions? = nil,
         retryOnInterrupt: Bool = true
     ) throws -> FileDescriptor {
-#if os(Windows)
-        try path.withPlatformString({
+        try path.withPlatformString({ pointer in
             try FileDescriptor.open(
-                $0,
+                pointer,
                 mode,
                 options: options,
                 permissions: permissions,
                 retryOnInterrupt: retryOnInterrupt
             )
         })
-#else
-        try path.withCString({
-            try FileDescriptor.open(
-                $0,
-                mode,
-                options: options,
-                permissions: permissions,
-                retryOnInterrupt: retryOnInterrupt
-            )
-        })
-#endif
     }
+#endif
     
 #if compiler(>=6.0)
 #if os(Windows)
@@ -50,12 +59,46 @@ extension FileDescriptor {
             retryOnInterrupt: retryOnInterrupt
         ).get()
     }
+#else
+    @_alwaysEmitIntoClient
+    public static func open(
+        _ path: UnsafePointer<CChar>,
+        _ mode: FileDescriptor.AccessMode,
+        options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
+        permissions: FilePermissions? = nil,
+        retryOnInterrupt: Bool = true
+    ) throws(Errno) -> FileDescriptor {
+        try FileDescriptor._open(
+            path,
+            mode,
+            options: options,
+            permissions: permissions,
+            retryOnInterrupt: retryOnInterrupt
+        ).get()
+    }
 #endif
 #else
 #if os(Windows)
     @_alwaysEmitIntoClient
     public static func open(
         _ path: UnsafePointer<PlatformChar>,
+        _ mode: FileDescriptor.AccessMode,
+        options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
+        permissions: FilePermissions? = nil,
+        retryOnInterrupt: Bool = true
+    ) throws -> FileDescriptor {
+        try FileDescriptor._open(
+            path,
+            mode,
+            options: options,
+            permissions: permissions,
+            retryOnInterrupt: retryOnInterrupt
+        ).get()
+    }
+#else
+    @_alwaysEmitIntoClient
+    public static func open(
+        _ path: UnsafePointer<CChar>,
         _ mode: FileDescriptor.AccessMode,
         options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
         permissions: FilePermissions? = nil,
@@ -91,42 +134,6 @@ extension FileDescriptor {
         return result.map { FileDescriptor(rawValue: $0) }
     }
 #else
-#if compiler(>=6.0)
-    @_alwaysEmitIntoClient
-    public static func open(
-        _ path: UnsafePointer<CChar>,
-        _ mode: FileDescriptor.AccessMode,
-        options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
-        permissions: FilePermissions? = nil,
-        retryOnInterrupt: Bool = true
-    ) throws(Errno) -> FileDescriptor {
-        try FileDescriptor._open(
-            path,
-            mode,
-            options: options,
-            permissions: permissions,
-            retryOnInterrupt: retryOnInterrupt
-        ).get()
-    }
-#else
-    @_alwaysEmitIntoClient
-    public static func open(
-        _ path: UnsafePointer<CChar>,
-        _ mode: FileDescriptor.AccessMode,
-        options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
-        permissions: FilePermissions? = nil,
-        retryOnInterrupt: Bool = true
-    ) throws -> FileDescriptor {
-        try FileDescriptor._open(
-            path,
-            mode,
-            options: options,
-            permissions: permissions,
-            retryOnInterrupt: retryOnInterrupt
-        ).get()
-    }
-#endif
-    
     @usableFromInline
     internal static func _open(
         _ path: UnsafePointer<CChar>,
@@ -464,7 +471,6 @@ extension FileDescriptor {
         try _pipe().get()
     }
 #endif
-    
     @usableFromInline
     internal static func _pipe() -> Result<(read: FileDescriptor, write: FileDescriptor), Errno> {
         var tunnel: (read: CInt, write: CInt) = (-1, -1)
