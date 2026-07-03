@@ -28,7 +28,7 @@ extension FileType {
             self = .regular
         case _DT_LNK:
             self = .symlink
-#if !canImport(WASILibc)
+#if !os(WASI)
         case _DT_SOCK:
             self = .socket
 #endif

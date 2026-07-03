@@ -173,7 +173,7 @@ public extension sockaddr_un {
             return nil
         }
         var sockaddr = sockaddr_un()
-#if canImport(WASILibc)
+#if os(WASI)
         return nil
 #else
         memcpy(&sockaddr.sun_path, address, address.count)
