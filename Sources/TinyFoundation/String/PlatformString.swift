@@ -1,4 +1,4 @@
-import TinySystem
+public import TinySystem
 
 extension String {
     @_disfavoredOverload

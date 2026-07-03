@@ -1,4 +1,4 @@
-import TinySystem
+public import TinySystem
 
 public struct Errno: Error, RawRepresentable, Equatable, Hashable, Sendable {
     public var rawValue: CInt

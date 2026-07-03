@@ -1,4 +1,4 @@
-import TinySystem
+public import TinySystem
 
 public struct FileDescriptor: RawRepresentable, Sendable, Equatable, Hashable {
     public let rawValue: CInt

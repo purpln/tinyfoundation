@@ -1,4 +1,4 @@
-import TinySystem
+private import TinySystem
 
 public enum FileType: Equatable, Hashable, Sendable {
     case regular

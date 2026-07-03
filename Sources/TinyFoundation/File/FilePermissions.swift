@@ -1,4 +1,4 @@
-import TinySystem
+public import TinySystem
 
 @frozen
 public struct FilePermissions: OptionSet, Equatable, Hashable, Sendable {

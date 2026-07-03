@@ -1,6 +1,5 @@
-import TinySystem
+private import TinySystem
 
-@inlinable
 public func getenv(_ name: String) -> String? {
     name.withPlatformString({ name in
         system_getenv(name)

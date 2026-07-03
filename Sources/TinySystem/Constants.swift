@@ -782,3 +782,94 @@ public var _SOCK_RAW: CInt {
     CInt(SOCK_RAW.rawValue)
 #endif
 }
+
+#if canImport(Glibc) || canImport(Musl) || canImport(Android)
+@_alwaysEmitIntoClient
+public var _EPOLLIN: UInt32 {
+#if canImport(Glibc)
+    EPOLLIN.rawValue
+#elseif canImport(Musl) || canImport(Android)
+    UInt32(EPOLLIN)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLPRI: UInt32 {
+#if canImport(Glibc)
+    EPOLLPRI.rawValue
+#elseif canImport(Musl) || canImport(Android)
+    UInt32(EPOLLPRI)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLOUT: UInt32 {
+#if canImport(Glibc)
+    EPOLLOUT.rawValue
+#elseif canImport(Musl) || canImport(Android)
+    UInt32(EPOLLOUT)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLERR: UInt32 {
+#if canImport(Glibc)
+    EPOLLERR.rawValue
+#elseif canImport(Musl) || canImport(Android)
+    UInt32(EPOLLERR)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLHUP: UInt32 {
+#if canImport(Glibc)
+    EPOLLHUP.rawValue
+#elseif canImport(Musl) || canImport(Android)
+    UInt32(EPOLLHUP)
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLEXCLUSIVE: UInt32 {
+#if canImport(Glibc)
+    EPOLLEXCLUSIVE.rawValue
+#elseif canImport(Musl)
+    UInt32(EPOLLEXCLUSIVE)
+#elseif canImport(Android)
+    _getConst_EPOLLEXCLUSIVE()
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLWAKEUP: UInt32 {
+#if canImport(Glibc)
+    EPOLLWAKEUP.rawValue
+#elseif canImport(Musl)
+    UInt32(EPOLLWAKEUP)
+#elseif canImport(Android)
+    _getConst_EPOLLWAKEUP()
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLONESHOT: UInt32 {
+#if canImport(Glibc)
+    EPOLLONESHOT.rawValue
+#elseif canImport(Musl)
+    UInt32(EPOLLONESHOT)
+#elseif canImport(Android)
+    _getConst_EPOLLONESHOT()
+#endif
+}
+
+@_alwaysEmitIntoClient
+public var _EPOLLET: UInt32 {
+#if canImport(Glibc)
+    EPOLLET.rawValue
+#elseif canImport(Musl)
+    UInt32(EPOLLET)
+#elseif canImport(Android)
+    _getConst_EPOLLET()
+#endif
+}
+#endif
