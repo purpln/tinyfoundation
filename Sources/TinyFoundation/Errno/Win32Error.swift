@@ -2,9 +2,9 @@
 import WinSDK
 
 public struct Win32Error: Error, RawRepresentable, Sendable {
-    public var rawValue: DWORD
+    public var rawValue: UInt32
     
-    public init(rawValue: DWORD) {
+    public init(rawValue: UInt32) {
         self.rawValue = rawValue
     }
     

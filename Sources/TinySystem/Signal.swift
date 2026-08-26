@@ -40,14 +40,10 @@ public extension sigaction {
             __sigaction_handler
 #elseif canImport(Musl)
             __sa_handler
-            /*
-#elseif canImport(Bionic) && _pointerBitWidth(_32)
-            __Anonymous_field0
 #elseif canImport(Bionic)
-            __Anonymous_field1
-            */
-#elseif canImport(Bionic)
-            fatalError("")
+            var value = Union()
+            value.handler = sa_handler
+            return value
 #endif
         }
         set {
@@ -57,12 +53,8 @@ public extension sigaction {
             __sigaction_handler = newValue
 #elseif canImport(Musl)
             __sa_handler = newValue
-            /*
-#elseif canImport(Bionic) && _pointerBitWidth(_32)
-            __Anonymous_field0 = newValue
 #elseif canImport(Bionic)
-            __Anonymous_field1 = newValue
-            */
+            sa_handler = newValue.handler
 #endif
         }
     }

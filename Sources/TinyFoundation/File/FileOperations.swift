@@ -1,4 +1,4 @@
-import TinySystem
+public import TinySystem
 
 extension FileDescriptor {
 #if compiler(>=6.0)
@@ -45,7 +45,7 @@ extension FileDescriptor {
 #if os(Windows)
     @_alwaysEmitIntoClient
     public static func open(
-        _ path: UnsafePointer<PlatformChar>,
+        _ path: UnsafePointer<PlatformCharacter>,
         _ mode: FileDescriptor.AccessMode,
         options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
         permissions: FilePermissions? = nil,
@@ -81,7 +81,7 @@ extension FileDescriptor {
 #if os(Windows)
     @_alwaysEmitIntoClient
     public static func open(
-        _ path: UnsafePointer<PlatformChar>,
+        _ path: UnsafePointer<PlatformCharacter>,
         _ mode: FileDescriptor.AccessMode,
         options: FileDescriptor.OpenOptions = FileDescriptor.OpenOptions(),
         permissions: FilePermissions? = nil,
@@ -118,7 +118,7 @@ extension FileDescriptor {
 #if os(Windows)
     @usableFromInline
     internal static func _open(
-        _ path: UnsafePointer<PlatformChar>,
+        _ path: UnsafePointer<PlatformCharacter>,
         _ mode: FileDescriptor.AccessMode,
         options: FileDescriptor.OpenOptions,
         permissions: FilePermissions?,

@@ -9,7 +9,7 @@ extension String {
     @inlinable
     @_alwaysEmitIntoClient
     public init(platformString: [PlatformCharacter]) {
-        guard let _ = platformString.firstIndex(of: 0) else {
+        guard platformString.last == 0 else {
             fatalError(
                 "input of String.init(platformString:) must be null-terminated"
             )
@@ -53,7 +53,7 @@ extension String {
     public init?(
         validatingPlatformString platformString: [PlatformCharacter]
     ) {
-        guard let _ = platformString.firstIndex(of: 0) else {
+        guard platformString.last == 0 else {
             fatalError(
                 "input of String.init(validatingPlatformString:) must be null-terminated"
             )

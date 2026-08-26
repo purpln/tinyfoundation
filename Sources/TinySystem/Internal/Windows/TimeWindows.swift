@@ -1,10 +1,8 @@
 #if os(Windows)
 import WinSDK
 
-@usableFromInline
 internal let _CLOCK_REALTIME: Int = 0
 
-@usableFromInline
 internal let epoch: UInt64 = 11644473600
 
 internal extension FILETIME {
@@ -19,7 +17,6 @@ internal extension FILETIME {
 }
 
 @inline(__always)
-@usableFromInline
 @discardableResult
 internal func gettimeofday(
     _ tp: UnsafeMutablePointer<timeval>!,
@@ -38,7 +35,6 @@ internal func gettimeofday(
 }
 
 @inline(__always)
-@usableFromInline
 @discardableResult
 internal func clock_gettime(
     _ type: Int,

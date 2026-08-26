@@ -118,11 +118,11 @@ extension SystemString: RandomAccessCollection, MutableCollection {
     
     internal subscript(position: Index) -> SystemCharacter {
         _read {
-            precondition(position >= startIndex && position <= endIndex)
+            precondition(position >= startIndex && position < endIndex)
             yield nullTerminatedStorage[position]
         }
         set(newValue) {
-            precondition(position >= startIndex && position <= endIndex)
+            precondition(position >= startIndex && position < endIndex)
             nullTerminatedStorage[position] = newValue
             invariantCheck()
         }
@@ -216,7 +216,7 @@ extension SystemString {
                 assert(buffer.last == .zero)
                 return try body(UnsafeBufferPointer(
                     start: buffer.baseAddress,
-                    count: buffer.count&-1
+                    count: buffer.count - 1
                 ))
             })
         })

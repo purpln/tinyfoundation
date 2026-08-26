@@ -176,7 +176,16 @@ public extension sockaddr_un {
 #if os(WASI)
         return nil
 #else
-        memcpy(&sockaddr.sun_path, address, address.count)
+        let bytes = Array(address.utf8)
+        let capacity = MemoryLayout.size(ofValue: sockaddr.sun_path)
+        guard !bytes.contains(0), bytes.count < capacity else {
+            return nil
+        }
+        withUnsafeMutableBytes(of: &sockaddr.sun_path, { destination in
+            bytes.withUnsafeBytes({ source in
+                destination.copyBytes(from: source)
+            })
+        })
 #endif
 #if canImport(Darwin)
         sockaddr.sun_len = UInt8(sockaddr_un.size)
@@ -192,7 +201,11 @@ public extension in_addr {
         | (UInt32(tuple.1) << 16)
         | (UInt32(tuple.2) << 8)
         | UInt32(tuple.3)
+#if os(Windows)
+        self.init(S_un: in_addr.__Unnamed_union_S_un(S_addr: value.bigEndian))
+#else
         self.init(s_addr: value.bigEndian)
+#endif
     }
 }
 
@@ -205,27 +218,29 @@ public extension in6_addr {
 #if canImport(Darwin)
         self.init(
             __u6_addr: in6_addr.__Unnamed_union___u6_addr(
-                __u6_addr16: (tuple)
+                __u6_addr16: tuple
             )
         )
 #elseif canImport(Glibc)
         self.init(
             __in6_u: in6_addr.__Unnamed_union___in6_u(
-                __u6_addr16: (tuple)
+                __u6_addr16: tuple
             )
         )
 #elseif canImport(Musl)
         self.init(
             __in6_union: in6_addr.__Unnamed_union___in6_union(
-                __s6_addr16: (tuple)
+                __s6_addr16: tuple
             )
         )
 #elseif canImport(Android)
         self.init(
             in6_u: in6_addr.__Unnamed_union_in6_u(
-                u6_addr16: (tuple)
+                u6_addr16: tuple
             )
         )
+#elseif os(Windows)
+        self.init(u: in6_addr.__Unnamed_union_u(Word: tuple))
 #endif
     }
 }
@@ -268,34 +283,40 @@ extension sockaddr_un {
     public var description: String {
 #if !os(WASI)
         let size = MemoryLayout.size(ofValue: sun_path)
-        var bytes = [UInt8](repeating: 0, count: size)
+        var bytes = [CChar](repeating: 0, count: size)
         _ = withUnsafePointer(to: sun_path, {
             memcpy(&bytes, $0, size)
         })
-        return String(decoding: bytes, as: UTF8.self)
+        return bytes.prefix(while: { $0 != 0 }).withUnsafeBytes({
+            String(decoding: $0, as: UTF8.self)
+        })
 #else
-        return "unix socket"
+        return ""
 #endif
     }
 }
 
 extension in_addr {
     public var description: String {
-        var bytes = [UInt8](repeating: 0, count: Int(INET_ADDRSTRLEN))
+        var bytes = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
         guard withUnsafePointer(to: self, {
             inet_ntop(AF_INET, $0, &bytes, socklen_t(bytes.count))
         }) != nil else { return "" }
-        return String(decoding: bytes, as: UTF8.self)
+        return bytes.prefix(while: { $0 != 0 }).withUnsafeBytes({
+            String(decoding: $0, as: UTF8.self)
+        })
     }
 }
 
 extension in6_addr {
     public var description: String {
-        var bytes = [UInt8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
+        var bytes = [CChar](repeating: 0, count: Int(INET6_ADDRSTRLEN))
         guard withUnsafePointer(to: self, {
             inet_ntop(AF_INET6, $0, &bytes, socklen_t(bytes.count))
         }) != nil else { return "" }
-        return String(decoding: bytes, as: UTF8.self)
+        return bytes.prefix(while: { $0 != 0 }).withUnsafeBytes({
+            String(decoding: $0, as: UTF8.self)
+        })
     }
 }
 

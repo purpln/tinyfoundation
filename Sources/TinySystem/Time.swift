@@ -14,7 +14,6 @@ internal let absoluteTimeIntervalSince1601: Double = 12622780800
 internal let format: String = "%Y-%m-%d %H:%M:%S %z"
 
 public extension timespec {
-    @inlinable
     static var now: timespec {
         var timespec = timespec()
         clock_gettime(_CLOCK_REALTIME, &timespec)
@@ -51,7 +50,6 @@ public extension timespec {
 }
 
 public extension timeval {
-    @inlinable
     static var now: timeval {
         var timeval = timeval()
         gettimeofday(&timeval, nil)

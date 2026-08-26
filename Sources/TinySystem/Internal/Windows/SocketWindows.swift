@@ -1,14 +1,26 @@
 #if os(Windows)
 import WinSDK
 
+private let winsockStartupResult: CInt = {
+    var data = WSADATA()
+    return WSAStartup(0x0202, &data)
+}()
+
 @inline(__always)
 internal func socket(
     _ family: CInt,
     _ type: CInt,
     _ protocol: CInt
 ) -> CInt {
+    guard winsockStartupResult == 0 else {
+        system_errno = EIO
+        return -1
+    }
     let result = socket(family, type, `protocol`) as SOCKET
-    guard result != INVALID_SOCKET else { return -1 }
+    guard result != INVALID_SOCKET else {
+        system_errno = EIO
+        return -1
+    }
     return CInt(result)
 }
 
@@ -17,13 +29,6 @@ internal func closesocket(
     _ descriptor: CInt
 ) -> CInt {
     closesocket(SOCKET(descriptor))
-}
-
-@inline(__always)
-internal func unlink(
-    _ path: UnsafePointer<CChar>
-) -> CInt {
-    unlink(path)
 }
 
 @inline(__always)
