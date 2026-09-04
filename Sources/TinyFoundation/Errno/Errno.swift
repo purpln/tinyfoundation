@@ -1,6 +1,10 @@
+#if compiler(>=6.0)
 public import TinySystem
+#else
+import TinySystem
+#endif
 
-public struct Errno: Error, RawRepresentable, Equatable, Hashable, Sendable {
+public struct Errno: Error, RawRepresentable, Equatable, Hashable {
     public var rawValue: CInt
     
     public init(rawValue: CInt) {
@@ -20,6 +24,8 @@ extension Errno: CustomStringConvertible {
         return String(cString: pointer)
     }
 }
+
+extension Errno: Sendable {}
 
 public extension Errno {
     static var current: Errno {

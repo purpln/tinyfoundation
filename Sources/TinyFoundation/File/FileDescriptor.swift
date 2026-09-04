@@ -1,12 +1,18 @@
+#if compiler(>=6.0)
 public import TinySystem
+#else
+import TinySystem
+#endif
 
-public struct FileDescriptor: RawRepresentable, Sendable, Equatable, Hashable {
+public struct FileDescriptor: RawRepresentable, Equatable, Hashable {
     public let rawValue: CInt
     
     public init(rawValue: CInt) {
         self.rawValue = rawValue
     }
 }
+
+extension FileDescriptor: Sendable {}
 
 public extension FileDescriptor {
     @inlinable
@@ -27,7 +33,7 @@ public extension FileDescriptor {
 
 extension FileDescriptor {
     @frozen
-    public struct AccessMode: RawRepresentable, Sendable, Hashable, Codable {
+    public struct AccessMode: RawRepresentable, Hashable, Codable {
         @_alwaysEmitIntoClient
         public var rawValue: CInt
         
@@ -51,7 +57,7 @@ extension FileDescriptor {
     }
     
     @frozen
-    public struct OpenOptions: OptionSet, Sendable, Hashable, Codable {
+    public struct OpenOptions: OptionSet, Hashable, Codable {
         @_alwaysEmitIntoClient
         public var rawValue: CInt
         
@@ -130,7 +136,7 @@ extension FileDescriptor {
     }
     
     @frozen
-    public struct SeekOrigin: RawRepresentable, Sendable, Hashable, Codable {
+    public struct SeekOrigin: RawRepresentable, Hashable, Codable {
         @_alwaysEmitIntoClient
         public var rawValue: CInt
         
@@ -234,3 +240,7 @@ extension FileDescriptor.OpenOptions: CustomStringConvertible {
         return buildDescription(descriptions)
     }
 }
+
+extension FileDescriptor.AccessMode: Sendable {}
+extension FileDescriptor.OpenOptions: Sendable {}
+extension FileDescriptor.SeekOrigin: Sendable {}

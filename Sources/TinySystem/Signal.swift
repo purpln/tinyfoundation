@@ -12,26 +12,27 @@ public extension sigaction {
     typealias Union = __Unnamed_union___sigaction_handler
 #elseif canImport(Musl)
     typealias Union = __Unnamed_union___sa_handler
-#elseif canImport(Bionic) && _pointerBitWidth(_32)
+#elseif canImport(Bionic) && (arch(arm) || arch(i386))
     typealias Union = __Unnamed_union___Anonymous_field0
 #elseif canImport(Bionic)
     typealias Union = __Unnamed_union___Anonymous_field1
 #endif
     
-    init(_ handler: Union, sa_mask: sigset_t, sa_flags: CInt, sa_restorer: @convention(c) () -> Void) {
+    init(_ handler: Union, sa_mask: sigset_t, sa_flags: CInt, sa_restorer: @escaping @convention(c) () -> Void) {
 #if canImport(Darwin)
         self.init(__sigaction_u: handler, sa_mask: sa_mask, sa_flags: sa_flags)
 #elseif canImport(Glibc)
         self.init(__sigaction_handler: handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
 #elseif canImport(Musl)
         self.init(__sa_handler: handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
-#elseif canImport(Bionic) && _pointerBitWidth(_32)
+#elseif canImport(Bionic) && (arch(arm) || arch(i386))
         self.init(handler, sa_mask: sa_mask, sa_flags: sa_flags, sa_restorer: sa_restorer)
 #elseif canImport(Bionic)
         self.init(sa_flags: sa_flags, handler, sa_mask: sa_mask, sa_restorer: sa_restorer)
 #endif
     }
     
+#if compiler(>=5.7)
     var handler: Union {
         get {
 #if canImport(Darwin)
@@ -58,8 +59,10 @@ public extension sigaction {
 #endif
         }
     }
+#endif
 }
 
+#if compiler(>=5.7)
 public extension sigaction.Union {
     typealias Handler = @convention(c) (CInt) -> Void
     typealias Action = @convention(c) (CInt, UnsafeMutablePointer<siginfo_t>?, UnsafeMutableRawPointer?) -> Void
@@ -138,4 +141,5 @@ public extension sigaction.Union {
         }
     }
 }
+#endif
 #endif

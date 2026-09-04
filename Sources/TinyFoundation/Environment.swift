@@ -1,4 +1,8 @@
+#if compiler(>=6.0)
 private import TinySystem
+#else
+import TinySystem
+#endif
 
 public func getenv(_ name: String) -> String? {
     name.withPlatformString({ name in

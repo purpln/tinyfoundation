@@ -59,7 +59,6 @@ public typealias PlatformCharacter = Int8
 public typealias PlatformUnicodeEncoding = UTF8
 #endif
 
-// strlen for the platform string
 public func system_platform_strlen(_ s: UnsafePointer<PlatformCharacter>) -> Int {
 #if os(Windows)
     return wcslen(s)

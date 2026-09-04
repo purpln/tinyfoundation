@@ -40,14 +40,14 @@ public func trunc<T: FloatingPoint>(_ x: T) -> T {
 }
 
 @_transparent
-public func scalbn<T: FloatingPoint>(_ x: T, _ n : Int) -> T {
+public func scalbn<T: FloatingPoint>(_ x: T, _ n: Int) -> T {
     return T(sign: .plus, exponent: T.Exponent(n), significand: x)
 }
 
 @_transparent
 public func modf<T: FloatingPoint>(_ x: T) -> (T, T) {
     // inf/NaN: return canonicalized x, fractional part zero.
-    guard x.isFinite else { return (x+0, 0) }
+    guard x.isFinite else { return (x + 0, 0) }
     let integral = trunc(x)
     let fractional = x - integral
     return (integral, fractional)
@@ -55,7 +55,7 @@ public func modf<T: FloatingPoint>(_ x: T) -> (T, T) {
 
 @_transparent
 public func frexp<T: BinaryFloatingPoint>(_ x: T) -> (T, Int) {
-    guard x.isFinite else { return (x+0, 0) }
+    guard x.isFinite else { return (x + 0, 0) }
     guard x != 0 else { return (x, 0) }
     // The C stdlib `frexp` uses a different notion of significand / exponent
     // than IEEE 754, so we need to adjust them by a factor of two.

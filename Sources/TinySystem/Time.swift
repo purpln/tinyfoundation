@@ -135,12 +135,10 @@ extension timespec /* Equatable */ {
 
 extension timespec /* Comparable */ {
     public static func < (lhs: timespec, rhs: timespec) -> Bool {
-        if lhs.tv_sec < rhs.tv_sec { return true }
-        if lhs.tv_sec > rhs.tv_sec { return false }
-        
-        if lhs.tv_nsec < rhs.tv_nsec { return true }
-        
-        return false
+        guard lhs.tv_sec == rhs.tv_sec else {
+            return lhs.tv_sec < rhs.tv_sec
+        }
+        return lhs.tv_nsec < rhs.tv_nsec
     }
 }
 
@@ -217,12 +215,10 @@ extension timeval /* Equatable */ {
 
 extension timeval /* Comparable */ {
     public static func < (lhs: timeval, rhs: timeval) -> Bool {
-        if lhs.tv_sec < rhs.tv_sec { return true }
-        if lhs.tv_sec > rhs.tv_sec { return false }
-        
-        if lhs.tv_usec < rhs.tv_usec { return true }
-        
-        return false
+        guard lhs.tv_sec == rhs.tv_sec else {
+            return lhs.tv_sec < rhs.tv_sec
+        }
+        return lhs.tv_usec < rhs.tv_usec
     }
 }
 
@@ -284,11 +280,17 @@ extension timeval /* CustomStringConvertible */ {
 @inlinable
 internal func strftime(_ format: String, _ time: tm) -> String {
     let capacity = 64
-    let bytes = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, count in
-        count = withUnsafePointer(to: time, {
-            strftime(buffer.baseAddress!, capacity, format, $0)
-        })
-    }
+    let bytes = [UInt8](unsafeUninitializedCapacity: capacity, initializingWith: { buffer, count in
+        count = buffer.baseAddress!.withMemoryRebound(
+            to: CChar.self,
+            capacity: buffer.count,
+            { output in
+                withUnsafePointer(to: time, {
+                    strftime(output, capacity, format, $0)
+                })
+            }
+        )
+    })
     return String(decoding: bytes, as: UTF8.self)
 }
 

@@ -23,11 +23,11 @@ internal var environ: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> {
 
 @inlinable
 internal func split(row: String) -> (key: String, value: String)? {
-    row.firstIndex(of: "=").map { index in
+    row.firstIndex(of: "=").map({ index in
         let key = String(row.prefix(upTo: index))
         let value = String(row.suffix(from: index).dropFirst())
         return (key, value)
-    }
+    })
 }
 
 #if os(Windows)
@@ -46,10 +46,11 @@ internal func parseWindowsEnvironment() -> [String: String] {
         defer {
             pointer += wcslen(pointer) + 1
         }
-        if let row = String.decodeCString(pointer, as: UTF16.self)?.result,
-           let (key, value) = split(row: row) {
-            result[key] = value
+        guard let row = String.decodeCString(pointer, as: UTF16.self)?.result,
+              let (key, value) = split(row: row) else {
+            continue
         }
+        result[key] = value
     }
     return result
 }

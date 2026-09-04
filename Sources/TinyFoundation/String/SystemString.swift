@@ -1,6 +1,10 @@
+#if compiler(>=6.0)
+internal import TinySystem
+#else
 import TinySystem
+#endif
 
-internal struct SystemCharacter: RawRepresentable, Equatable, Hashable, Sendable, Comparable, Codable {
+internal struct SystemCharacter: RawRepresentable, Equatable, Hashable, Comparable, Codable {
     internal typealias RawValue = PlatformCharacter
     
     internal var rawValue: RawValue
@@ -13,6 +17,8 @@ internal struct SystemCharacter: RawRepresentable, Equatable, Hashable, Sendable
         lhs.rawValue < rhs.rawValue
     }
 }
+
+extension SystemCharacter: Sendable {}
 
 extension SystemCharacter {
     internal init(ascii: Unicode.Scalar) {
@@ -39,7 +45,7 @@ extension SystemCharacter {
     }
     
     internal var isASCII: Bool {
-        (0...0x7F).contains(rawValue)
+        (0...0x7f).contains(rawValue)
     }
     
     internal var isLetter: Bool {
@@ -53,7 +59,7 @@ extension SystemCharacter {
 // A platform-native string representation, currently for file paths
 //
 // Always null-terminated.
-internal struct SystemString: Sendable {
+internal struct SystemString {
     internal typealias Storage = [SystemCharacter]
     internal var nullTerminatedStorage: Storage
 }
@@ -141,6 +147,7 @@ extension SystemString: RangeReplaceableCollection {
         nullTerminatedStorage.reserveCapacity(1 + n)
     }
     
+#if compiler(>=6.0)
     internal func withContiguousStorageIfAvailable<T, E>(
         _ body: (UnsafeBufferPointer<SystemCharacter>) throws(E) -> T
     ) throws(E) -> T? {
@@ -175,6 +182,33 @@ extension SystemString: RangeReplaceableCollection {
             }
         })?.get()
     }
+#else
+    internal func withContiguousStorageIfAvailable<T>(
+        _ body: (UnsafeBufferPointer<SystemCharacter>) throws -> T
+    ) rethrows -> T? {
+        // Do not include the null terminator, it is outside the Collection
+        try nullTerminatedStorage.withContiguousStorageIfAvailable({ buffer in
+            try body(UnsafeBufferPointer(
+                start: buffer.baseAddress,
+                count: buffer.count - 1
+            ))
+        })
+    }
+
+    internal mutating func withContiguousMutableStorageIfAvailable<T>(
+        _ body: (inout UnsafeMutableBufferPointer<SystemCharacter>) throws -> T
+    ) rethrows -> T? {
+        defer { invariantCheck() }
+        // Do not include the null terminator, it is outside the Collection
+        return try nullTerminatedStorage.withContiguousMutableStorageIfAvailable({ buffer in
+            var buffer = UnsafeMutableBufferPointer<SystemCharacter>(
+                start: buffer.baseAddress,
+                count: buffer.count - 1
+            )
+            return try body(&buffer)
+        })
+    }
+#endif
 }
 
 extension SystemString: Hashable, Codable {
@@ -183,6 +217,7 @@ extension SystemString: Hashable, Codable {
     
     // Decoder is written explicitly to ensure that we validate invariants on
     // untrusted input.
+#if compiler(>=6.0)
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.nullTerminatedStorage = try container.decode(
@@ -197,10 +232,26 @@ extension SystemString: Hashable, Codable {
             )
         }
     }
+#else
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.nullTerminatedStorage = try container.decode(
+            Storage.self, forKey: .nullTerminatedStorage
+        )
+        guard invariantsSatisfied() else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .nullTerminatedStorage,
+                in: container,
+                debugDescription:
+                    "Encoding does not satisfy the invariants of SystemString"
+            )
+        }
+    }
+#endif
 }
 
 extension SystemString {
-    
+#if compiler(>=6.0)
     internal func withNullTerminatedSystemCharacters<T, E>(
         _ body: (UnsafeBufferPointer<SystemCharacter>) throws(E) -> T
     ) throws(E) -> T {
@@ -221,9 +272,35 @@ extension SystemString {
             })
         })
     }
+#else
+    internal func withNullTerminatedSystemCharacters<T>(
+        _ body: (UnsafeBufferPointer<SystemCharacter>) throws -> T
+    ) rethrows -> T {
+        try nullTerminatedStorage.withUnsafeBufferPointer(body)
+    }
+
+    // withCodeUnits does not include the null terminator
+    internal func withCodeUnits<T>(
+        _ body: (UnsafeBufferPointer<PlatformUnicodeEncoding.CodeUnit>) throws -> T
+    ) rethrows -> T {
+        try withNullTerminatedSystemCharacters({ characters in
+            try characters.withMemoryRebound(
+                to: PlatformUnicodeEncoding.CodeUnit.self,
+                { buffer in
+                    assert(buffer.last == .zero)
+                    return try body(UnsafeBufferPointer(
+                        start: buffer.baseAddress,
+                        count: buffer.count - 1
+                    ))
+                }
+            )
+        })
+    }
+#endif
 }
 
 extension Slice where Base == SystemString {
+#if compiler(>=6.0)
     internal func withCodeUnits<T, E>(
         _ body: (UnsafeBufferPointer<PlatformUnicodeEncoding.CodeUnit>) throws(E) -> T
     ) throws(E) -> T {
@@ -232,16 +309,31 @@ extension Slice where Base == SystemString {
         })
     }
     
-    internal var string: String {
-        withCodeUnits({
-            String(decoding: $0, as: PlatformUnicodeEncoding.self)
-        })
-    }
-    
     internal func withPlatformString<T, E>(
         _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
     ) throws(E) -> T {
         return try SystemString(self).withPlatformString(body)
+    }
+#else
+    internal func withCodeUnits<T>(
+        _ body: (UnsafeBufferPointer<PlatformUnicodeEncoding.CodeUnit>) throws -> T
+    ) rethrows -> T {
+        try base.withCodeUnits({ units in
+            try body(UnsafeBufferPointer(rebasing: units[indices]))
+        })
+    }
+
+    internal func withPlatformString<T>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws -> T
+    ) rethrows -> T {
+        return try SystemString(self).withPlatformString(body)
+    }
+#endif
+
+    internal var string: String {
+        withCodeUnits({
+            String(decoding: $0, as: PlatformUnicodeEncoding.self)
+        })
     }
     
 }
@@ -283,6 +375,8 @@ extension SystemString: CustomStringConvertible, CustomDebugStringConvertible {
     internal var debugDescription: String { description.debugDescription }
 }
 
+extension SystemString: Sendable {}
+
 extension SystemString {
     internal init(platformString: UnsafePointer<PlatformCharacter>) {
         let count = 1 + system_platform_strlen(platformString)
@@ -296,6 +390,7 @@ extension SystemString {
         self.init(nullTerminated: characters)
     }
     
+#if compiler(>=6.0)
     internal func withPlatformString<T, E>(
         _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
     ) throws(E) -> T {
@@ -309,4 +404,21 @@ extension SystemString {
                 })
         })
     }
+#else
+    internal func withPlatformString<T>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws -> T
+    ) rethrows -> T {
+        try withNullTerminatedSystemCharacters({ characters in
+            let length = characters.count * MemoryLayout<SystemCharacter>.stride
+            return try characters.baseAddress!.withMemoryRebound(
+                to: PlatformCharacter.self,
+                capacity: length / MemoryLayout<PlatformCharacter>.stride,
+                { pointer in
+                    assert(pointer[self.count] == 0)
+                    return try body(pointer)
+                }
+            )
+        })
+    }
+#endif
 }

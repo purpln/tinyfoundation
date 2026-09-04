@@ -1,7 +1,12 @@
+#if compiler(>=6.0)
+internal import TinySystem
+#else
 import TinySystem
+#endif
 
 // Interop between String and platfrom string
 extension String {
+#if compiler(>=6.0)
     internal func _withPlatformString<T, E>(
         _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
     ) throws(E) -> T {
@@ -26,6 +31,18 @@ extension String {
         }).get()
 #endif
     }
+#else
+    internal func _withPlatformString<T>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws -> T
+    ) rethrows -> T {
+        // Need to #if because CChar may be signed
+#if os(Windows)
+        return try withCString(encodedAs: PlatformUnicodeEncoding.self, body)
+#else
+        return try withCString(body)
+#endif
+    }
+#endif
     
     internal init?(_platformString platformString: UnsafePointer<PlatformCharacter>) {
         // Need to #if because CChar may be signed

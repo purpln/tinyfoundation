@@ -283,12 +283,14 @@ extension sockaddr_un {
     public var description: String {
 #if !os(WASI)
         let size = MemoryLayout.size(ofValue: sun_path)
-        var bytes = [CChar](repeating: 0, count: size)
-        _ = withUnsafePointer(to: sun_path, {
-            memcpy(&bytes, $0, size)
-        })
-        return bytes.prefix(while: { $0 != 0 }).withUnsafeBytes({
-            String(decoding: $0, as: UTF8.self)
+        return withUnsafePointer(to: sun_path, { pointer in
+            pointer.withMemoryRebound(to: UInt8.self, capacity: size, { bytes in
+                String(
+                    decoding: UnsafeBufferPointer(start: bytes, count: size)
+                        .prefix(while: { $0 != 0 }),
+                    as: UTF8.self
+                )
+            })
         })
 #else
         return ""
@@ -298,25 +300,33 @@ extension sockaddr_un {
 
 extension in_addr {
     public var description: String {
-        var bytes = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
-        guard withUnsafePointer(to: self, {
-            inet_ntop(AF_INET, $0, &bytes, socklen_t(bytes.count))
-        }) != nil else { return "" }
-        return bytes.prefix(while: { $0 != 0 }).withUnsafeBytes({
-            String(decoding: $0, as: UTF8.self)
+        var bytes = [UInt8](repeating: 0, count: Int(INET_ADDRSTRLEN))
+        let capacity = bytes.count
+        let result = bytes.withUnsafeMutableBufferPointer({ buffer in
+            buffer.baseAddress!.withMemoryRebound(to: CChar.self, capacity: capacity, { output in
+                withUnsafePointer(to: self, {
+                    inet_ntop(AF_INET, $0, output, socklen_t(capacity))
+                })
+            })
         })
+        guard result != nil else { return "" }
+        return String(decoding: bytes.prefix(while: { $0 != 0 }), as: UTF8.self)
     }
 }
 
 extension in6_addr {
     public var description: String {
-        var bytes = [CChar](repeating: 0, count: Int(INET6_ADDRSTRLEN))
-        guard withUnsafePointer(to: self, {
-            inet_ntop(AF_INET6, $0, &bytes, socklen_t(bytes.count))
-        }) != nil else { return "" }
-        return bytes.prefix(while: { $0 != 0 }).withUnsafeBytes({
-            String(decoding: $0, as: UTF8.self)
+        var bytes = [UInt8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
+        let capacity = bytes.count
+        let result = bytes.withUnsafeMutableBufferPointer({ buffer in
+            buffer.baseAddress!.withMemoryRebound(to: CChar.self, capacity: capacity, { output in
+                withUnsafePointer(to: self, {
+                    inet_ntop(AF_INET6, $0, output, socklen_t(capacity))
+                })
+            })
         })
+        guard result != nil else { return "" }
+        return String(decoding: bytes.prefix(while: { $0 != 0 }), as: UTF8.self)
     }
 }
 

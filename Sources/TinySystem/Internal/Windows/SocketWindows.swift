@@ -18,7 +18,7 @@ internal func socket(
     }
     let result = socket(family, type, `protocol`) as SOCKET
     guard result != INVALID_SOCKET else {
-        system_errno = EIO
+        setErrnoFromLastSocketError()
         return -1
     }
     return CInt(result)
@@ -28,7 +28,12 @@ internal func socket(
 internal func closesocket(
     _ descriptor: CInt
 ) -> CInt {
-    closesocket(SOCKET(descriptor))
+    let result = closesocket(SOCKET(descriptor))
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -49,7 +54,12 @@ internal func getsockopt(
     _ value: UnsafeMutableRawPointer?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> CInt {
-    getsockopt(SOCKET(descriptor), level, name, value, length)
+    let result = getsockopt(SOCKET(descriptor), level, name, value, length)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 @inline(__always)
 internal func setsockopt(
@@ -59,7 +69,12 @@ internal func setsockopt(
     _ value: UnsafeRawPointer?,
     _ length: socklen_t
 ) -> CInt {
-    setsockopt(SOCKET(descriptor), level, name, value, length)
+    let result = setsockopt(SOCKET(descriptor), level, name, value, length)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -68,7 +83,12 @@ internal func getsockname(
     _ name: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> CInt {
-    getsockname(SOCKET(descriptor), name, length)
+    let result = getsockname(SOCKET(descriptor), name, length)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -77,7 +97,12 @@ internal func getpeername(
     _ name: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> CInt {
-    getpeername(SOCKET(descriptor), name, length)
+    let result = getpeername(SOCKET(descriptor), name, length)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -87,7 +112,10 @@ internal func accept(
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> CInt {
     let result = accept(SOCKET(descriptor), address, length)
-    guard result != INVALID_SOCKET else { return -1 }
+    guard result != INVALID_SOCKET else {
+        setErrnoFromLastSocketError()
+        return -1
+    }
     return CInt(result)
 }
 
@@ -97,7 +125,12 @@ internal func bind(
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
 ) -> CInt {
-    bind(SOCKET(descriptor), address, length)
+    let result = bind(SOCKET(descriptor), address, length)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -106,7 +139,12 @@ internal func connect(
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
 ) -> CInt {
-    connect(SOCKET(descriptor), address, length)
+    let result = connect(SOCKET(descriptor), address, length)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -114,7 +152,12 @@ internal func listen(
     _ descriptor: CInt,
     _ backlog: CInt
 ) -> CInt {
-    listen(SOCKET(descriptor), backlog)
+    let result = listen(SOCKET(descriptor), backlog)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return result
+    }
+    return result
 }
 
 @inline(__always)
@@ -124,7 +167,12 @@ internal func recv(
     _ size: Int,
     _ flags: CInt
 ) -> Int {
-    Int(recv(SOCKET(descriptor), buffer, numericCast(size), flags))
+    let result = recv(SOCKET(descriptor), buffer, numericCast(size), flags)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return Int(result)
+    }
+    return Int(result)
 }
 
 @inline(__always)
@@ -136,7 +184,14 @@ internal func recvfrom(
     _ address: UnsafeMutablePointer<sockaddr>?,
     _ length: UnsafeMutablePointer<socklen_t>?
 ) -> Int {
-    Int(recvfrom(SOCKET(descriptor), buffer, numericCast(size), flags, address, length))
+    let result = recvfrom(
+        SOCKET(descriptor), buffer, numericCast(size), flags, address, length
+    )
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return Int(result)
+    }
+    return Int(result)
 }
 
 
@@ -147,7 +202,12 @@ internal func send(
     _ size: Int,
     _ flags: CInt
 ) -> Int {
-    Int(send(SOCKET(descriptor), buffer, numericCast(size), flags))
+    let result = send(SOCKET(descriptor), buffer, numericCast(size), flags)
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return Int(result)
+    }
+    return Int(result)
 }
 
 @inline(__always)
@@ -159,7 +219,51 @@ internal func sendto(
     _ address: UnsafePointer<sockaddr>?,
     _ length: socklen_t
 ) -> Int {
-    Int(sendto(SOCKET(descriptor), buffer, numericCast(size), flags, address, length))
+    let result = sendto(
+        SOCKET(descriptor), buffer, numericCast(size), flags, address, length
+    )
+    guard result != SOCKET_ERROR else {
+        setErrnoFromLastSocketError()
+        return Int(result)
+    }
+    return Int(result)
+}
+
+@inline(__always)
+private func setErrnoFromLastSocketError() {
+    let error = WSAGetLastError()
+    switch error {
+    case WSAEINTR: system_errno = EINTR
+    case WSAEACCES: system_errno = EACCES
+    case WSAEFAULT: system_errno = EFAULT
+    case WSAEINVAL: system_errno = EINVAL
+    case WSAEMFILE: system_errno = EMFILE
+    case WSAEWOULDBLOCK: system_errno = EWOULDBLOCK
+    case WSAEINPROGRESS: system_errno = EINPROGRESS
+    case WSAEALREADY: system_errno = EALREADY
+    case WSAENOTSOCK: system_errno = ENOTSOCK
+    case WSAEDESTADDRREQ: system_errno = EDESTADDRREQ
+    case WSAEMSGSIZE: system_errno = EMSGSIZE
+    case WSAEPROTOTYPE: system_errno = EPROTOTYPE
+    case WSAENOPROTOOPT: system_errno = ENOPROTOOPT
+    case WSAEPROTONOSUPPORT: system_errno = EPROTONOSUPPORT
+    case WSAEOPNOTSUPP: system_errno = EOPNOTSUPP
+    case WSAEAFNOSUPPORT: system_errno = EAFNOSUPPORT
+    case WSAEADDRINUSE: system_errno = EADDRINUSE
+    case WSAEADDRNOTAVAIL: system_errno = EADDRNOTAVAIL
+    case WSAENETDOWN: system_errno = ENETDOWN
+    case WSAENETUNREACH: system_errno = ENETUNREACH
+    case WSAENETRESET: system_errno = ENETRESET
+    case WSAECONNABORTED: system_errno = ECONNABORTED
+    case WSAECONNRESET: system_errno = ECONNRESET
+    case WSAENOBUFS: system_errno = ENOBUFS
+    case WSAEISCONN: system_errno = EISCONN
+    case WSAENOTCONN: system_errno = ENOTCONN
+    case WSAETIMEDOUT: system_errno = ETIMEDOUT
+    case WSAECONNREFUSED: system_errno = ECONNREFUSED
+    case WSAEHOSTUNREACH: system_errno = EHOSTUNREACH
+    default: system_errno = EIO
+    }
 }
 
 #endif

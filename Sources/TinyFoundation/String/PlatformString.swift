@@ -1,4 +1,8 @@
+#if compiler(>=6.0)
 public import TinySystem
+#else
+import TinySystem
+#endif
 
 extension String {
     @_disfavoredOverload
@@ -93,11 +97,19 @@ extension String {
         }
     }
     
+#if compiler(>=6.0)
     public func withPlatformString<T, E>(
         _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
     ) throws(E) -> T {
         try _withPlatformString(body)
     }
+#else
+    public func withPlatformString<T>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws -> T
+    ) rethrows -> T {
+        try _withPlatformString(body)
+    }
+#endif
 }
 
 extension PlatformCharacter {
@@ -121,9 +133,15 @@ extension PlatformUnicodeEncoding.CodeUnit {
 }
 
 internal protocol PlatformStringable {
+#if compiler(>=6.0)
     func _withPlatformString<T, E>(
         _ body: (UnsafePointer<PlatformCharacter>) throws(E) -> T
     ) throws(E) -> T
+#else
+    func _withPlatformString<T>(
+        _ body: (UnsafePointer<PlatformCharacter>) throws -> T
+    ) rethrows -> T
+#endif
     
     init?(_platformString: UnsafePointer<PlatformCharacter>)
 }

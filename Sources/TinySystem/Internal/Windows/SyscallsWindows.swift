@@ -21,7 +21,9 @@ internal func setenv(
     _ overwrite: CInt
 ) -> CInt {
     if overwrite == 0 {
-        if GetEnvironmentVariableW(name, nil, 0) == 0 && GetLastError() != ERROR_ENVVAR_NOT_FOUND {
+        SetLastError(ERROR_SUCCESS)
+        let length = GetEnvironmentVariableW(name, nil, 0)
+        guard length == 0, GetLastError() == ERROR_ENVVAR_NOT_FOUND else {
             return 0
         }
     }
@@ -101,12 +103,16 @@ internal func symlink(
 
 nonisolated(unsafe) private var umask: PlatformMode = 0o22
 
+extension UmaskStorage: @unchecked Sendable {}
+
+private let umaskStorage = UmaskStorage()
+
 @inline(__always)
 internal func umask(
     _ mode: PlatformMode
 ) -> PlatformMode {
-    let previous = umask
-    umask = mode
+    let previous = umaskStorage.value
+    umaskStorage.value = mode
     return previous
 }
 
@@ -143,12 +149,12 @@ internal func open(
         nil
     )
     
-    if hFile == INVALID_HANDLE_VALUE {
+    guard hFile != INVALID_HANDLE_VALUE else {
         setErrnoFromLastWindowsError()
         return -1
     }
     
-    return ucrt._open_osfhandle(intptr_t(bitPattern: hFile), oflag);
+    return ucrt._open_osfhandle(intptr_t(bitPattern: hFile), oflag)
 }
 
 @inline(__always)
@@ -156,7 +162,7 @@ internal func open(
     _ path: UnsafePointer<PlatformCharacter>, _ oflag: CInt,
     _ mode: PlatformMode
 ) -> CInt {
-    let actualMode = mode & ~umask
+    let actualMode = mode & ~umaskStorage.value
     
     guard let pSD = _createSecurityDescriptor(from: actualMode, for: .file) else {
         setErrnoFromLastWindowsError()
@@ -187,12 +193,12 @@ internal func open(
         nil
     )
     
-    if hFile == INVALID_HANDLE_VALUE {
+    guard hFile != INVALID_HANDLE_VALUE else {
         setErrnoFromLastWindowsError()
         return -1
     }
     
-    return ucrt._open_osfhandle(intptr_t(bitPattern: hFile), oflag);
+    return ucrt._open_osfhandle(intptr_t(bitPattern: hFile), oflag)
 }
 
 @inline(__always)
@@ -248,7 +254,7 @@ internal func pread(
     _ descriptor: CInt, _ buffer: UnsafeMutableRawPointer!, _ nbyte: Int, _ offset: off_t
 ) -> Int {
     let handle: intptr_t = ucrt._get_osfhandle(descriptor)
-    if handle == /* INVALID_HANDLE_VALUE */ -1 {
+    guard handle != /* INVALID_HANDLE_VALUE */ -1 else {
         ucrt._set_errno(EBADF)
         return -1
     }
@@ -261,9 +267,9 @@ internal func pread(
     ovlOverlapped.Offset = DWORD(UInt32(offset >> 0) & 0xffffffff)
     
     var nNumberOfBytesRead: DWORD = 0
-    if !ReadFile(
+    guard ReadFile(
         hFile, buffer, DWORD(nbyte), &nNumberOfBytesRead, &ovlOverlapped
-    ) {
+    ) else {
         setErrnoFromLastWindowsError()
         return Int(-1)
     }
@@ -275,7 +281,10 @@ internal func pwrite(
     _ descriptor: CInt, _ buffer: UnsafeRawPointer!, _ nbyte: Int, _ offset: off_t
 ) -> Int {
     let handle: intptr_t = ucrt._get_osfhandle(descriptor)
-    if handle == /* INVALID_HANDLE_VALUE */ -1 { ucrt._set_errno(EBADF); return -1 }
+    guard handle != /* INVALID_HANDLE_VALUE */ -1 else {
+        ucrt._set_errno(EBADF)
+        return -1
+    }
     
     // NOTE: this is a non-owning handle, do *not* call CloseHandle on it
     let hFile: HANDLE = HANDLE(bitPattern: handle)!
@@ -285,10 +294,10 @@ internal func pwrite(
     ovlOverlapped.Offset = DWORD(UInt32(offset >> 0) & 0xffffffff)
     
     var nNumberOfBytesWritten: DWORD = 0
-    if !WriteFile(
+    guard WriteFile(
         hFile, buffer, DWORD(nbyte), &nNumberOfBytesWritten,
         &ovlOverlapped
-    ) {
+    ) else {
         setErrnoFromLastWindowsError()
         return Int(-1)
     }
@@ -299,13 +308,13 @@ internal func pwrite(
 internal func pipe(
     _ descriptors: UnsafeMutablePointer<CInt>, bytesReserved: UInt32 = 4096
 ) -> CInt {
-    return ucrt._pipe(descriptors, bytesReserved, _O_BINARY | _O_NOINHERIT);
+    return ucrt._pipe(descriptors, bytesReserved, _O_BINARY | _O_NOINHERIT)
 }
 
 @inline(__always)
 internal func ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
     let handle: intptr_t = ucrt._get_osfhandle(descriptor)
-    if handle == /* INVALID_HANDLE_VALUE */ -1 {
+    guard handle != /* INVALID_HANDLE_VALUE */ -1 else {
         ucrt._set_errno(EBADF)
         return -1
     }
@@ -316,25 +325,25 @@ internal func ftruncate(_ descriptor: CInt, _ length: off_t) -> CInt {
     var liCurrentOffset = LARGE_INTEGER(QuadPart: 0)
     
     // Save the current position and restore it when we're done
-    if !SetFilePointerEx(
+    guard SetFilePointerEx(
         hFile, liCurrentOffset, &liCurrentOffset,
         DWORD(FILE_CURRENT)
-    ) {
+    ) else {
         setErrnoFromLastWindowsError()
         return -1
     }
     defer {
-        _ = SetFilePointerEx(hFile, liCurrentOffset, nil, DWORD(FILE_BEGIN));
+        _ = SetFilePointerEx(hFile, liCurrentOffset, nil, DWORD(FILE_BEGIN))
     }
     
     // Truncate (or extend) the file
-    if !SetFilePointerEx(hFile, liDesiredLength, nil, DWORD(FILE_BEGIN))
-        || !SetEndOfFile(hFile) {
+    guard SetFilePointerEx(hFile, liDesiredLength, nil, DWORD(FILE_BEGIN)),
+          SetEndOfFile(hFile) else {
         setErrnoFromLastWindowsError()
         return -1
     }
     
-    return 0;
+    return 0
 }
 
 @inline(__always)
@@ -342,7 +351,7 @@ internal func mkdir(
     _ path: UnsafePointer<PlatformCharacter>,
     _ mode: PlatformMode
 ) -> CInt {
-    let actualMode = mode & ~umask
+    let actualMode = mode & ~umaskStorage.value
     
     guard let pSD = _createSecurityDescriptor(
         from: actualMode,
@@ -361,12 +370,12 @@ internal func mkdir(
         bInheritHandle: false
     )
     
-    if !CreateDirectoryW(path, &saAttrs) {
+    guard CreateDirectoryW(path, &saAttrs) else {
         setErrnoFromLastWindowsError()
         return -1
     }
     
-    return 0;
+    return 0
 }
 
 @inline(__always)
@@ -378,7 +387,7 @@ internal func rmdir(
         return -1
     }
     
-    return 0;
+    return 0
 }
 
 @inline(__always)
@@ -476,13 +485,11 @@ internal enum _FileOrDirectory {
     case directory
 }
 
-/// Build a SECURITY_DESCRIPTOR from UNIX-style "mode" bits.  This only
-/// takes account of the rwx and sticky bits; there's really nothing that
-/// we can do about setuid/setgid.
 internal func _createSecurityDescriptor(
     from mode: PlatformMode,
     for fileOrDirectory: _FileOrDirectory
 ) -> PSECURITY_DESCRIPTOR? {
+    // This models rwx and sticky bits. Windows has no setuid/setgid equivalent.
     let ownerPerm = (Int(mode) >> 6) & 0o7
     let groupPerm = (Int(mode) >> 3) & 0o7
     let otherPerm = Int(mode) & 0o7
@@ -713,7 +720,7 @@ fileprivate struct DecodedOpenFlags {
         // on Windows; in particular, _O_RDONLY is zero, which means we can't
         // test for it by AND-ing.
         dwDesiredAccess = 0
-        switch (oflag & (_O_RDONLY|_O_WRONLY|_O_RDWR)) {
+        switch oflag & (_O_RDONLY | _O_WRONLY | _O_RDWR) {
         case _O_RDONLY:
             dwDesiredAccess |= DWORD(GENERIC_READ)
         case _O_WRONLY:

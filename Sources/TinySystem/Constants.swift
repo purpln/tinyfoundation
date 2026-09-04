@@ -537,7 +537,7 @@ public var _O_RDWR: CInt { O_RDWR }
 
 #if !os(Windows)
 #if canImport(Musl)
-public var _O_ACCMODE: CInt { 0x03|O_SEARCH }
+public var _O_ACCMODE: CInt { 0x03 | O_SEARCH }
 #else
 @_alwaysEmitIntoClient
 public var _O_ACCMODE: CInt {

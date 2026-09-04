@@ -74,7 +74,6 @@ public func system_getpeername(
     getpeername(descriptor, name, length)
 }
 
-// accept
 public func system_accept(
     _ descriptor: CInt,
     _ address: UnsafeMutablePointer<sockaddr>?,
@@ -83,7 +82,6 @@ public func system_accept(
     accept(descriptor, address, length)
 }
 
-// bind
 public func system_bind(
     _ descriptor: CInt,
     _ address: UnsafePointer<sockaddr>,
@@ -92,7 +90,6 @@ public func system_bind(
     bind(descriptor, address, length)
 }
 
-// connect
 public func system_connect(
     _ descriptor: CInt,
     _ address: UnsafePointer<sockaddr>,
@@ -101,7 +98,6 @@ public func system_connect(
     connect(descriptor, address, length)
 }
 
-// listen
 public func system_listen(
     _ descriptor: CInt,
     _ backlog: CInt
@@ -109,7 +105,6 @@ public func system_listen(
     listen(descriptor, backlog)
 }
 
-// receive
 public func system_recv(
     _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
@@ -130,7 +125,6 @@ public func system_recvfrom(
     recvfrom(descriptor, buffer, size, flags, address, length)
 }
 
-// send
 public func system_send(
     _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,

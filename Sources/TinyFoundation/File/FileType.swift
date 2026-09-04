@@ -1,6 +1,10 @@
+#if compiler(>=6.0)
 private import TinySystem
+#else
+import TinySystem
+#endif
 
-public enum FileType: Equatable, Hashable, Sendable {
+public enum FileType: Equatable, Hashable {
     case regular
     case block
     case character
@@ -68,3 +72,5 @@ extension FileType: CustomStringConvertible {
         }
     }
 }
+
+extension FileType: Sendable {}

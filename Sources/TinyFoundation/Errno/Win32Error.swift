@@ -1,7 +1,7 @@
 #if os(Windows)
 import WinSDK
 
-public struct Win32Error: Error, RawRepresentable, Sendable {
+public struct Win32Error: Error, RawRepresentable {
     public var rawValue: UInt32
     
     public init(rawValue: UInt32) {
@@ -43,6 +43,8 @@ extension Win32Error: Hashable {
         hasher.combine(rawValue)
     }
 }
+
+extension Win32Error: Sendable {}
 
 public extension Win32Error {
     static var current: Win32Error {

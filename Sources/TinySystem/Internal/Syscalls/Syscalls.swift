@@ -4,7 +4,6 @@ public import LibC
 import LibC
 #endif
 
-// open
 public func system_open(
     _ path: UnsafePointer<PlatformCharacter>,
     _ oflag: CInt
@@ -20,21 +19,18 @@ public func system_open(
     open(path, oflag, mode)
 }
 
-// close
 public func system_close(
     _ descriptor: CInt
 ) -> CInt {
     close(descriptor)
 }
 
-// remove
 public func system_remove(
     _ path: UnsafePointer<PlatformCharacter>
 ) -> CInt {
     remove(path)
 }
 
-// read
 public func system_read(
     _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
@@ -43,7 +39,6 @@ public func system_read(
     read(descriptor, buffer, size)
 }
 
-// pread
 public func system_pread(
     _ descriptor: CInt,
     _ buffer: UnsafeMutableRawPointer?,
@@ -61,7 +56,6 @@ public func system_pread(
 #endif
 }
 
-// lseek
 public func system_lseek(
     _ descriptor: CInt,
     _ offset: off_t,
@@ -70,7 +64,6 @@ public func system_lseek(
     lseek(descriptor, offset, whence)
 }
 
-// write
 public func system_write(
     _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
@@ -79,7 +72,6 @@ public func system_write(
     write(descriptor, buffer, size)
 }
 
-// pwrite
 public func system_pwrite(
     _ descriptor: CInt,
     _ buffer: UnsafeRawPointer?,
@@ -211,7 +203,7 @@ public func system_umask(
 #if !os(WASI)
     umask(mode)
 #else
-    0755
+    0o755
 #endif
 }
 

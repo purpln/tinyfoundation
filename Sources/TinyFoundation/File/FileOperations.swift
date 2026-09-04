@@ -1,4 +1,8 @@
+#if compiler(>=6.0)
 public import TinySystem
+#else
+import TinySystem
+#endif
 
 extension FileDescriptor {
 #if compiler(>=6.0)
@@ -125,13 +129,13 @@ extension FileDescriptor {
         retryOnInterrupt: Bool
     ) -> Result<FileDescriptor, Errno> {
         let oFlag = mode.rawValue | options.rawValue
-        let result: Result<CInt, Errno> = valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
+        let result: Result<CInt, Errno> = valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
             if let permissions = permissions {
                 return system_open(path, oFlag, permissions.rawValue)
             }
             return system_open(path, oFlag)
-        }
-        return result.map { FileDescriptor(rawValue: $0) }
+        })
+        return result.map({ FileDescriptor(rawValue: $0) })
     }
 #else
     @usableFromInline
@@ -164,9 +168,9 @@ extension FileDescriptor {
     
     @usableFromInline
     internal func _close() -> Result<Void, Errno> {
-        nothingOrErrno(retryOnInterrupt: false) {
+        nothingOrErrno(retryOnInterrupt: false, {
             system_close(rawValue)
-        }
+        })
     }
     
 #if compiler(>=6.0)
@@ -241,9 +245,9 @@ extension FileDescriptor {
         into buffer: UnsafeMutableRawBufferPointer,
         retryOnInterrupt: Bool
     ) -> Result<Int, Errno> {
-        valueOrErrno(retryOnInterrupt: retryOnInterrupt) {
+        valueOrErrno(retryOnInterrupt: retryOnInterrupt, {
             system_read(rawValue, buffer.baseAddress, buffer.count)
-        }
+        })
     }
     
 #if compiler(>=6.0)

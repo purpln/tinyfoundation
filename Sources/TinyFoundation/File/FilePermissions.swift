@@ -1,7 +1,11 @@
+#if compiler(>=6.0)
 public import TinySystem
+#else
+import TinySystem
+#endif
 
 @frozen
-public struct FilePermissions: OptionSet, Equatable, Hashable, Sendable {
+public struct FilePermissions: OptionSet, Equatable, Hashable {
     @_alwaysEmitIntoClient
     public let rawValue: PlatformMode
     
@@ -166,3 +170,5 @@ extension FilePermissions: CustomStringConvertible {
         return buildDescription(descriptions)
     }
 }
+
+extension FilePermissions: Sendable {}
