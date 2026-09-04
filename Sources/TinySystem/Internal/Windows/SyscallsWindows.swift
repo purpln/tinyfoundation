@@ -101,7 +101,9 @@ internal func symlink(
     return 0
 }
 
-nonisolated(unsafe) private var umask: PlatformMode = 0o22
+private final class UmaskStorage {
+    var value: PlatformMode = 0o22
+}
 
 extension UmaskStorage: @unchecked Sendable {}
 
