@@ -21,7 +21,7 @@ internal func setenv(
     _ overwrite: CInt
 ) -> CInt {
     if overwrite == 0 {
-        SetLastError(ERROR_SUCCESS)
+        SetLastError(DWORD(ERROR_SUCCESS))
         let length = GetEnvironmentVariableW(name, nil, 0)
         guard length == 0, GetLastError() == ERROR_ENVVAR_NOT_FOUND else {
             return 0
