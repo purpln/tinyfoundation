@@ -169,7 +169,7 @@ public extension sockaddr_un {
     }
     
     init?(_ address: String) {
-        guard address.starts(with: "/") else {
+        guard !address.isEmpty else {
             return nil
         }
         var sockaddr = sockaddr_un()
